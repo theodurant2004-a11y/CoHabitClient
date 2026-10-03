@@ -1,5 +1,20 @@
 const form = document.getElementById("signinForm");
-const API_URL = "http://localhost:8080/CoHabitAPI/api/users/login"; 
+const API_URL = "http://localhost:8080/CoHabitAPI/api/users/login";
+
+// Function to checks the form fields
+function checkInputs(email, passworld) {
+
+    if (!email.includes("@")) {
+        alert("Please enter a valid email address (must contain @).");
+        return false;
+    }
+
+    if (password.length === 0) {
+        alert("Please enter your password.");
+        return false;
+    }
+    return true;
+}
 
 async function signIn(event) {
     event.preventDefault();
@@ -7,14 +22,7 @@ async function signIn(event) {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    // Validation
-    if (!email.includes("@")) {
-        alert("Please enter a valid email address (must contain @)");
-        return;
-    }
-
-    if (password.length === 0) {
-        alert("Please enter your password.");
+    if(!checkInputs(email, password)){
         return;
     }
 
