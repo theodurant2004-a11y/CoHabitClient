@@ -1,0 +1,234 @@
+/* 
+=======================
+   Global stylesheet
+=======================
+
+/* Variables */
+:root {
+    --brand: #7C5F63;
+    --brand-dark: #694F53;
+    --brand-soft: rgba(124, 95, 99, 0.15);
+
+    --accent: #c5644d;
+    --accent-dark: #a84d37;
+
+    --bg: #f8f5f0;
+    --surface: #ffffff;
+    --surface-soft: #faf9f7;
+    --border: #ebe5df;
+    --border-input: #e4ded8;
+
+    --text: #1a1612;
+    --text-title: #222;
+    --text-muted: #8a7f7f;
+    --text-light: #a89a9a;
+    --text-label: #7a6f6f;
+
+    --radius-card: 24px;
+    --radius-field: 14px;
+    --transition: all 0.25s ease;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Layout */
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+main {
+    width: 100%;
+}
+
+footer {
+    text-align: center;
+}
+
+/* Header */
+header {
+    text-align: center;
+}
+
+.logo {
+    width: 84px;
+    height: 84px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--brand);
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+/* Card */
+.card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+}
+
+.card h2 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.7rem;
+    font-weight: 400;
+    color: var(--text-title);
+    margin-bottom: 4px;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+/* Forms */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-label);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-field);
+    font-size: 0.95rem;
+    font-family: inherit;
+    background-color: var(--surface-soft);
+    transition: var(--transition);
+}
+
+.form-group input::placeholder {
+    color: #a39a9a;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--brand);
+    background-color: var(--surface);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+/* Buttons */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-field);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background-color: var(--brand);
+    color: white;
+    border: 1px solid var(--brand);
+}
+
+.btn-primary:hover {
+    background-color: var(--brand-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--brand-soft);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background-color: var(--surface-soft);
+    color: #6b6060;
+    border: 1px solid var(--border-input);
+}
+
+.btn-secondary:hover {
+    background-color: var(--surface);
+    border-color: var(--brand);
+    color: var(--brand);
+}
+
+/* Links */
+.switch-link {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 20px;
+}
+
+.switch-link a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.switch-link a:hover {
+    color: var(--accent-dark);
+}
+
+.btn-back {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.btn-back:hover {
+    color: #555;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+}
