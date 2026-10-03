@@ -2,6 +2,30 @@ const form = document.getElementById('signupForm');
 
 const API_URL = "http://localhost:8080/CoHabitAPI/api/users";
 
+
+function checkInputs(fullname, email, password, confirmPassword) {
+    if (fullname.length < 3) {
+        alert("The name must contain at least 3 characters.");
+        return false;
+    }
+
+    if (!email.includes("@")) {
+        alert("Please enter a valid email address (must contain @).");
+        return false;
+    }
+
+    if (password.length < 6) {
+        alert("The password must contain at least 6 characters.");
+        return false;
+    }
+
+    if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return false;
+    }
+
+    return true;
+}
 async function signUp(event) {
     event.preventDefault();
 
@@ -10,27 +34,9 @@ async function signUp(event) {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
-    // Validation
-    if (fullname.length < 3) {
-        alert('The name must contain at least 3 characters !');
+    if(!checkInputs(fullname, email, password, confirmPassword)){
         return;
     }
-
-    if (!email.includes('@')) {
-        alert('Please enter a valid email address (must contain @)');
-        return;
-    }
-
-    if (password.length < 6) {
-        alert('Password must be at least 6 characters long.');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        alert('Passwords do not match.');
-        return;
-    }
-
 
     try {
         const response = await fetch(API_URL, {
@@ -52,6 +58,6 @@ async function signUp(event) {
         console.error(e.message);
         alert("Unable to create the account right now.");
     }
-};
+}
 
 form.addEventListener("submit", signUp);
