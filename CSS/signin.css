@@ -1,0 +1,32 @@
+/* 
+================================
+   Sign in page (SignIn.html)
+================================
+*/
+
+.container {
+    max-width: 460px;
+    gap: 32px;
+}
+
+.signin-card {
+    padding: 32px;
+}
+
+.signin-card .form-group {
+    margin-bottom: 18px;
+}
+
+.signin-card .btn-primary {
+    margin-top: 2px;
+}
+
+.signin-card .switch-link {
+    margin-top: 24px;
+}
+
+@media (max-width: 520px) {
+    .signin-card {
+        padding: 26px 20px;
+    }
+}
