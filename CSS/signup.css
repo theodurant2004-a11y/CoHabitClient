@@ -12,6 +12,13 @@
     margin-top: 4px;
 }
 
+/* Field hint */
+.field-hint {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
 /* Small screens */
 @media (max-height: 820px) {
     body {
@@ -127,14 +134,18 @@
     color: var(--text-muted);
 }
 
-.role-actions {
+.step-actions {
     display: flex;
     gap: 14px;
     margin-top: 24px;
 }
 
-.role-actions .btn {
+.step-actions .btn {
     flex: 1;
+}
+
+.step-actions .btn-primary {
+    margin-top: 0;
 }
 
 /* Small screens */
@@ -148,7 +159,7 @@
         margin-bottom: 12px;
     }
 
-    .role-actions {
+    .step-actions {
         margin-top: 18px;
     }
 }

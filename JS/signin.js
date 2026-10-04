@@ -2,7 +2,7 @@ const form = document.getElementById("signinForm");
 const API_URL = "http://localhost:8080/CoHabitAPI/api/users/login";
 
 // Function to checks the form fields
-function checkInputs(email, passworld) {
+function checkInputs(email, password) {
 
     if (!email.includes("@")) {
         alert("Please enter a valid email address (must contain @).");
@@ -29,6 +29,7 @@ async function signIn(event) {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
@@ -45,8 +46,8 @@ async function signIn(event) {
             throw new Error(`Response status: ${response.status}`);
         }
 
-        const user = await response.json();
-        sessionStorage.setItem("user", JSON.stringify(user));
+        const result = await response.json();
+        sessionStorage.setItem("user", JSON.stringify(result.user));
 
         console.log("User logged in");
         // window.location.href = "home.html";

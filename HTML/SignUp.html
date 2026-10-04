@@ -29,22 +29,23 @@
                 <form id="step1Form">
                     <div class="form-group">
                         <label for="fullname">FULL NAME</label>
-                        <input type="text" id="fullname" name="fullname" placeholder="Nom Prenom" required>
+                        <input type="text" id="fullname" name="fullname" placeholder="Firstname Lastname" maxlength="50" autocomplete="name" required>
                     </div>
 
                     <div class="form-group">
                         <label for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" placeholder="youremail@gmail.com" required>
+                        <input type="email" id="email" name="email" placeholder="youremail@gmail.com" maxlength="254" autocomplete="email" required>
                     </div>
 
                     <div class="form-group">
                         <label for="password">PASSWORD</label>
-                        <input type="password" id="password" name="password" placeholder="Min. 6 characters" required>
+                        <input type="password" id="password" name="password" placeholder="Min. 8 characters" maxlength="128" autocomplete="new-password" required>
+                        <small class="field-hint">At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a special character.</small>
                     </div>
 
                     <div class="form-group">
                         <label for="confirmPassword">CONFIRM PASSWORD</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" maxlength="128" autocomplete="new-password" required>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Continue</button>

@@ -1,5 +1,6 @@
 const ROOMSHARE_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares";
 const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/join-requests";
+const LOGOUT_API_URL = "http://localhost:8080/CoHabitAPI/api/users/logout";
 
 const user = JSON.parse(sessionStorage.getItem("user"));
 
@@ -20,7 +21,16 @@ function showSection() {
 }
 
 // Signs the user out
-function signOut() {
+async function signOut() {
+    try {
+        await fetch(LOGOUT_API_URL, {
+            method: "POST",
+            credentials: "include"
+        });
+    } catch (e) {
+        console.error(e.message);
+    }
+
     sessionStorage.removeItem("user");
     window.location.href = "SignIn.html";
 }
@@ -29,12 +39,24 @@ function signOut() {
 function postJson(url, data) {
     return fetch(url, {
         method: "POST",
+        credentials: "include",
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json"
         },
         body: JSON.stringify(data)
     });
+}
+
+// Returns true and signs the user out if the token is invalid or expired
+function isSessionExpired(response) {
+    if (response.status === 401) {
+        alert("Your session has expired. Please sign in again.");
+        signOut();
+        return true;
+    }
+
+    return false;
 }
 
 // Owner :
@@ -61,7 +83,16 @@ async function createRoomshare(event) {
     }
 
     try {
-        const response = await postJson(ROOMSHARE_API_URL, { name: name, address: address, ownerId: user.id });
+        const response = await postJson(ROOMSHARE_API_URL, { name: name, address: address });
+
+        if (isSessionExpired(response)) {
+            return;
+        }
+
+        if (response.status === 403) {
+            alert("Only an owner can create a roomshare.");
+            return;
+        }
 
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
@@ -98,7 +129,11 @@ async function sendJoinRequest(event) {
     }
 
     try {
-        const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey, userId: user.id });
+        const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey });
+
+        if (isSessionExpired(response)) {
+            return;
+        }
 
         if (response.status === 404) {
             alert("Invalid invitation key.");

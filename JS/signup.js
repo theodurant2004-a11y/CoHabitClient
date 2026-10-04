@@ -1,5 +1,7 @@
 const API_URL = "http://localhost:8080/CoHabitAPI/api/users";
 
+const MIN_PASSWORD_LENGTH = 8;
+
 const steps = document.querySelectorAll(".step");
 
 // Data of the sign up in memory only until the account is created
@@ -13,6 +15,15 @@ function showStep(id) {
 }
 
 // step one of signup :
+
+// Returns true if the password respect the rules
+function isStrongPassword(password) {
+    return /[A-Z]/.test(password)
+        && /[a-z]/.test(password)
+        && /[0-9]/.test(password)
+        && /[^A-Za-z0-9]/.test(password);
+}
+
 // Checks the values of step 1 and returns true if everything is valid
 function checkStep1Inputs(fullname, email, password, confirmPassword) {
     if (fullname.length < 3) {
@@ -25,8 +36,13 @@ function checkStep1Inputs(fullname, email, password, confirmPassword) {
         return false;
     }
 
-    if (password.length < 6) {
-        alert("The password must contain at least 6 characters.");
+    if (password.length < MIN_PASSWORD_LENGTH) {
+        alert(`The password must contain at least ${MIN_PASSWORD_LENGTH} characters.`);
+        return false;
+    }
+
+    if (!isStrongPassword(password)) {
+        alert("The password must contain an uppercase letter, a lowercase letter, a digit and a special character.");
         return false;
     }
 
@@ -37,10 +53,6 @@ function checkStep1Inputs(fullname, email, password, confirmPassword) {
 
     return true;
 }
-
-
-
-const form = document.getElementById('signupForm');
 
 
 // Reads step 1 and validates it. Then saves the data and shows step 2
@@ -90,17 +102,19 @@ async function submitStep2(event) {
 
     signupData.role = role;
 
-    await sendSignUp(signupData);
+    await sendSignUp(signupData, event.submitter);
 }
 
 
 // Sending to the API :
 
-// Creates the account, signs the user in, then goes to step 3
-async function sendSignUp(data) {
+// Creates the account, signs the user in, then goes to the roomshare page
+async function sendSignUp(data, button) {
+    button.disabled = true;
     try {
         const response = await fetch(API_URL, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
@@ -118,14 +132,17 @@ async function sendSignUp(data) {
             throw new Error(`Response status: ${response.status}`);
         }
 
-        const user = await response.json();
-        sessionStorage.setItem("user", JSON.stringify(user));
+        const result = await response.json();
+        sessionStorage.setItem("user", JSON.stringify(result.user));
 
         console.log("Account created");
         window.location.href = "Roomshare.html";
+
     } catch (e) {
         console.error(e.message);
         alert("Unable to create the account right now.");
+    } finally {
+        button.disabled = false;
     }
 }
 
