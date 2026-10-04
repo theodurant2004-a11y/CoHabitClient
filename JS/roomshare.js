@@ -1,0 +1,128 @@
+const ROOMSHARE_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares";
+const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/join-requests";
+
+const user = JSON.parse(sessionStorage.getItem("user"));
+
+// Shows the section matching the role of the signed in user.
+function showSection() {
+    if (!user) {
+        window.location.href = "SignIn.html";
+        return;
+    }
+
+    if (user.role === "owner") {
+        document.getElementById("ownerSection").hidden = false;
+    } else if (user.role === "roomie") {
+        document.getElementById("roomieSection").hidden = false;
+    } else {
+        window.location.href = "SignIn.html";
+    }
+}
+
+// Signs the user out
+function signOut() {
+    sessionStorage.removeItem("user");
+    window.location.href = "SignIn.html";
+}
+
+// Sends a POST request with a JSON body and returns the response
+function postJson(url, data) {
+    return fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+}
+
+// Owner :
+
+// Checks the owner values and returns true if everything is valid
+function checkOwnerInputs(name) {
+    if (name.length < 3) {
+        alert("The roomshare name must contain at least 3 characters.");
+        return false;
+    }
+
+    return true;
+}
+
+// Reads the owner form, validates it, then creates the roomshare
+async function createRoomshare(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("roomshareName").value.trim();
+    const address = document.getElementById("address").value.trim();
+
+    if (!checkOwnerInputs(name)) {
+        return;
+    }
+
+    try {
+        const response = await postJson(ROOMSHARE_API_URL, { name: name, address: address, ownerId: user.id });
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        console.log("Roomshare created");
+        // window.location.href = "home.html";
+    } catch (e) {
+        console.error(e.message);
+        alert("Unable to create the roomshare right now.");
+    }
+}
+
+// Roomie :
+
+// Checks the invitation key and returns true if it has 6 letters or digits
+function checkRoomieInputs(invitationKey) {
+    if (!/^[A-Z0-9]{6}$/.test(invitationKey)) {
+        alert("The invitation key must contain exactly 6 letters or digits.");
+        return false;
+    }
+
+    return true;
+}
+
+// Reads the roomie form and validates it. Then sends the join request
+async function sendJoinRequest(event) {
+    event.preventDefault();
+
+    const invitationKey = document.getElementById("invitationKey").value.trim().toUpperCase();
+
+    if (!checkRoomieInputs(invitationKey)) {
+        return;
+    }
+
+    try {
+        const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey, userId: user.id });
+
+        if (response.status === 404) {
+            alert("Invalid invitation key.");
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        console.log("Join request sent");
+        alert("Request sent! Wait for the owner to accept it.");
+    } catch (e) {
+        console.error(e.message);
+        alert("Unable to send the request right now.");
+    }
+}
+
+// Events :
+
+showSection();
+
+document.getElementById("ownerForm").addEventListener("submit", createRoomshare);
+document.getElementById("roomieForm").addEventListener("submit", sendJoinRequest);
+
+document.getElementById("signOutOwner").addEventListener("click", signOut);
+document.getElementById("signOutRoomie").addEventListener("click", signOut);
