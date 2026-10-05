@@ -20,34 +20,71 @@
 
     <main>
         <div class="card signup-card">
-            <h2>Create an account</h2>
-            <p class="card-subtitle">Step 1 of 3 — Your information</p>
 
-            <form id="signupForm">
-                <div class="form-group">
-                    <label for="fullname">FULL NAME</label>
-                    <input type="text" id="fullname" name="fullname" placeholder="Anne Vandevorst" required>
-                </div>
+            <!-- Step 1 : the informations -->
+            <section id="step1" class="step">
+                <h2>Create an account</h2>
+                <p class="card-subtitle">Step 1 of 3 — Your information</p>
 
-                <div class="form-group">
-                    <label for="email">EMAIL</label>
-                    <input type="email" id="email" name="email" placeholder="anne.vandevorst@condorcet.be" required>
-                </div>
+                <form id="step1Form">
+                    <div class="form-group">
+                        <label for="fullname">FULL NAME</label>
+                        <input type="text" id="fullname" name="fullname" placeholder="Firstname Lastname" maxlength="50" autocomplete="name" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="password">PASSWORD</label>
-                    <input type="password" id="password" name="password" placeholder="Min. 6 characters" required>
-                </div>
+                    <div class="form-group">
+                        <label for="email">EMAIL</label>
+                        <input type="email" id="email" name="email" placeholder="youremail@gmail.com" maxlength="254" autocomplete="email" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="confirmPassword">CONFIRM PASSWORD</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required>
-                </div>
+                    <div class="form-group">
+                        <label for="password">PASSWORD</label>
+                        <input type="password" id="password" name="password" placeholder="Min. 8 characters" maxlength="128" autocomplete="new-password" required>
+                        <small class="field-hint">At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a special character.</small>
+                    </div>
 
-                <button type="submit" class="btn btn-primary">Continue</button>
-            </form>
+                    <div class="form-group">
+                        <label for="confirmPassword">CONFIRM PASSWORD</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" maxlength="128" autocomplete="new-password" required>
+                    </div>
 
-            <p class="switch-link">Already have an account? <a href="SignIn.html">Sign in</a></p>
+                    <button type="submit" class="btn btn-primary">Continue</button>
+                </form>
+
+                <p class="switch-link">Already have an account? <a href="SignIn.html">Sign in</a></p>
+            </section>
+
+            <!-- Step 2 : role (the account is created when we're done here) -->
+            <section id="step2" class="step" hidden>
+                <h2>Your role</h2>
+                <p class="card-subtitle">Step 2 of 3 — Who are you?</p>
+
+                <form id="step2Form">
+                    <input type="radio" id="roleOwner" name="role" value="owner" class="role-input">
+                    <label for="roleOwner" class="role-option">
+                        <span class="role-icon">🏠</span>
+                        <span class="role-text">
+                            <span class="role-title">Owner</span>
+                            <span class="role-description">I create and manage a roomshare</span>
+                        </span>
+                    </label>
+
+                    <input type="radio" id="roleRoomie" name="role" value="roomie" class="role-input">
+                    <label for="roleRoomie" class="role-option">
+                        <span class="role-icon">🤝</span>
+                        <span class="role-text">
+                            <span class="role-title">Roomie</span>
+                            <span class="role-description">I join an existing roomshare</span>
+                        </span>
+                    </label>
+
+                    <div class="step-actions">
+                        <button type="button" id="backToStep1" class="btn btn-secondary">Back</button>
+                        <button type="submit" class="btn btn-primary">Continue</button>
+                    </div>
+                </form>
+            </section>
+
         </div>
     </main>
 

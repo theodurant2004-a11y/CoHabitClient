@@ -1,8 +1,4 @@
-/* 
-===============================
-   Sign up page (SignUp.html)
-===============================
-*/
+/*Sign up page 1 (SignUp.html)*/
 
 .container {
     gap: 20px;
@@ -14,6 +10,13 @@
 
 .signup-card .btn-primary {
     margin-top: 4px;
+}
+
+/* Field hint */
+.field-hint {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
 }
 
 /* Small screens */
@@ -75,3 +78,95 @@
         padding: 22px 20px 18px;
     }
 }
+
+/*Sign up page 2 : role */
+
+.role-card {
+    padding: 32px;
+}
+
+.role-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.role-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-field);
+    background-color: var(--surface-soft);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.role-option:hover {
+    border-color: var(--brand);
+}
+
+.role-input:checked + .role-option {
+    border-color: var(--brand);
+    background-color: var(--brand-soft);
+}
+
+.role-input:focus-visible + .role-option {
+    box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.role-icon {
+    font-size: 1.8rem;
+}
+
+.role-title {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.role-description {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.step-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+.step-actions .btn {
+    flex: 1;
+}
+
+.step-actions .btn-primary {
+    margin-top: 0;
+}
+
+/* Small screens */
+@media (max-height: 820px) {
+    .role-card {
+        padding: 24px 32px;
+    }
+
+    .role-option {
+        padding: 14px 18px;
+        margin-bottom: 12px;
+    }
+
+    .step-actions {
+        margin-top: 18px;
+    }
+}
+
+@media (max-width: 520px) {
+    .role-card {
+        padding: 24px 20px;
+    }
+}
+

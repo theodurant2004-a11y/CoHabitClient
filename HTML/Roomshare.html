@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoHabit - Your roomshare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/stylesheet.css">
+    <link rel="stylesheet" href="../CSS/roomshare.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <img src="../IMG/logo-cohabit.png" alt="CoHabit Logo" class="logo">
+        <h1>CoHabit</h1>
+        <p class="subtitle">Roomshare manager</p>
+    </header>
+
+    <main>
+        <div class="card roomshare-card">
+
+            <!-- Owner -->
+            <section id="ownerSection" hidden>
+                <h2>Create your roomshare</h2>
+                <p class="card-subtitle">You don't have a roomshare yet. Create one to get started.</p>
+
+                <form id="ownerForm">
+                    <div class="form-group">
+                        <label for="roomshareName">ROOMSHARE NAME</label>
+                        <input type="text" id="roomshareName" name="roomshareName" placeholder="e.g. Belleville Apartment" maxlength="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">ADDRESS (OPTIONAL)</label>
+                        <input type="text" id="address" name="address" placeholder="14 Lilac Street, Paris" maxlength="200">
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="button" id="signOutOwner" class="btn btn-secondary">Sign out</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Roomie  -->
+            <section id="roomieSection" hidden>
+                <h2>Join a roomshare</h2>
+                <p class="card-subtitle">Ask your owner for the invitation key</p>
+
+                <form id="roomieForm">
+                    <div class="form-group">
+                        <label for="invitationKey">INVITATION KEY (6 CHARACTERS)</label>
+                        <input type="text" id="invitationKey" name="invitationKey" class="key-input" placeholder="ABCDEF" maxlength="6" autocomplete="off" required>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Send request</button>
+                        <button type="button" id="signOutRoomie" class="btn btn-secondary">Sign out</button>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<script src="../JS/roomshare.js"></script>
+</body>
+</html>

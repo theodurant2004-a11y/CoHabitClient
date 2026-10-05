@@ -1,5 +1,20 @@
 const form = document.getElementById("signinForm");
-const API_URL = "http://localhost:8080/CoHabitAPI/api/users/login"; 
+const API_URL = "http://localhost:8080/CoHabitAPI/api/users/login";
+
+// Function to checks the form fields
+function checkInputs(email, password) {
+
+    if (!email.includes("@")) {
+        alert("Please enter a valid email address (must contain @).");
+        return false;
+    }
+
+    if (password.length === 0) {
+        alert("Please enter your password.");
+        return false;
+    }
+    return true;
+}
 
 async function signIn(event) {
     event.preventDefault();
@@ -7,20 +22,14 @@ async function signIn(event) {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    // Validation
-    if (!email.includes("@")) {
-        alert("Please enter a valid email address (must contain @)");
-        return;
-    }
-
-    if (password.length === 0) {
-        alert("Please enter your password.");
+    if(!checkInputs(email, password)){
         return;
     }
 
     try {
         const response = await fetch(API_URL, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
@@ -37,8 +46,8 @@ async function signIn(event) {
             throw new Error(`Response status: ${response.status}`);
         }
 
-        const user = await response.json();
-        sessionStorage.setItem("user", JSON.stringify(user));
+        const result = await response.json();
+        sessionStorage.setItem("user", JSON.stringify(result.user));
 
         console.log("User logged in");
         // window.location.href = "home.html";
