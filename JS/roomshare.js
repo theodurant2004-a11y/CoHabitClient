@@ -8,10 +8,7 @@ const user = JSON.parse(sessionStorage.getItem("user"));
 function showSection() {
     if (!user) {
         window.location.href = "SignIn.html";
-        return;
-    }
-
-    if (user.role === "owner") {
+    } else if (user.role === "owner") {
         document.getElementById("ownerSection").hidden = false;
     } else if (user.role === "roomie") {
         document.getElementById("roomieSection").hidden = false;
@@ -50,25 +47,27 @@ function postJson(url, data) {
 
 // Returns true and signs the user out if the token is invalid or expired
 function isSessionExpired(response) {
+    let expired = false;
+
     if (response.status === 401) {
         alert("Your session has expired. Please sign in again.");
         signOut();
-        return true;
+        expired = true;
     }
 
-    return false;
+    return expired;
 }
 
 // Owner :
 
 // Checks the owner values and returns true if everything is valid
 function checkOwnerInputs(name) {
+    let valid = true;
     if (name.length < 3) {
         alert("The roomshare name must contain at least 3 characters.");
-        return false;
+        valid = false;
     }
-
-    return true;
+    return valid;
 }
 
 // Reads the owner form, validates it, then creates the roomshare
@@ -78,31 +77,24 @@ async function createRoomshare(event) {
     const name = document.getElementById("roomshareName").value.trim();
     const address = document.getElementById("address").value.trim();
 
-    if (!checkOwnerInputs(name)) {
-        return;
-    }
+    if (checkOwnerInputs(name)) {
+        try {
+            const response = await postJson(ROOMSHARE_API_URL, { name: name, address: address });
 
-    try {
-        const response = await postJson(ROOMSHARE_API_URL, { name: name, address: address });
-
-        if (isSessionExpired(response)) {
-            return;
+            if (!isSessionExpired(response)) {
+                if (response.status === 403) {
+                    alert("Only an owner can create a roomshare.");
+                } else if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                } else {
+                    console.log("Roomshare created");
+                    // window.location.href = "home.html";
+                }
+            }
+        } catch (e) {
+            console.error(e.message);
+            alert("Unable to create the roomshare right now.");
         }
-
-        if (response.status === 403) {
-            alert("Only an owner can create a roomshare.");
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-
-        console.log("Roomshare created");
-        // window.location.href = "home.html";
-    } catch (e) {
-        console.error(e.message);
-        alert("Unable to create the roomshare right now.");
     }
 }
 
@@ -110,12 +102,13 @@ async function createRoomshare(event) {
 
 // Checks the invitation key and returns true if it has 6 letters or digits
 function checkRoomieInputs(invitationKey) {
+    let valid = true;
     if (!/^[A-Z0-9]{6}$/.test(invitationKey)) {
         alert("The invitation key must contain exactly 6 letters or digits.");
-        return false;
+        valid = false;
     }
 
-    return true;
+    return valid;
 }
 
 // Reads the roomie form and validates it. Then sends the join request
@@ -124,31 +117,24 @@ async function sendJoinRequest(event) {
 
     const invitationKey = document.getElementById("invitationKey").value.trim().toUpperCase();
 
-    if (!checkRoomieInputs(invitationKey)) {
-        return;
-    }
+    if (checkRoomieInputs(invitationKey)) {
+        try {
+            const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey });
 
-    try {
-        const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey });
-
-        if (isSessionExpired(response)) {
-            return;
+            if (!isSessionExpired(response)) {
+                if (response.status === 404) {
+                    alert("Invalid invitation key.");
+                } else if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                } else {
+                    console.log("Join request sent");
+                    alert("Request sent! Wait for the owner to accept it.");
+                }
+            }
+        } catch (e) {
+            console.error(e.message);
+            alert("Unable to send the request right now.");
         }
-
-        if (response.status === 404) {
-            alert("Invalid invitation key.");
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-
-        console.log("Join request sent");
-        alert("Request sent! Wait for the owner to accept it.");
-    } catch (e) {
-        console.error(e.message);
-        alert("Unable to send the request right now.");
     }
 }
 

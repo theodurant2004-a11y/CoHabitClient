@@ -27,9 +27,16 @@
                 <p class="card-subtitle">Step 1 of 3 — Your information</p>
 
                 <form id="step1Form">
-                    <div class="form-group">
-                        <label for="fullname">FULL NAME</label>
-                        <input type="text" id="fullname" name="fullname" placeholder="Firstname Lastname" maxlength="50" autocomplete="name" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstname">FIRST NAME</label>
+                            <input type="text" id="firstname" name="firstname" placeholder="Anne" maxlength="50" autocomplete="given-name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastname">LAST NAME</label>
+                            <input type="text" id="lastname" name="lastname" placeholder="Vandevorst" maxlength="50" autocomplete="family-name" required>
+                        </div>
                     </div>
 
                     <div class="form-group">

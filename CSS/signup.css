@@ -19,6 +19,25 @@
     color: var(--text-muted);
 }
 
+/* First name and last name side by side */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.form-row .form-group {
+    margin-bottom: 0;
+    min-width: 0;
+}
+
+@media (max-width: 400px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Small screens */
 @media (max-height: 820px) {
     body {
@@ -53,6 +72,10 @@
     }
 
     .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-row {
         margin-bottom: 12px;
     }
 

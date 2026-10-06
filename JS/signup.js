@@ -25,33 +25,31 @@ function isStrongPassword(password) {
 }
 
 // Checks the values of step 1 and returns true if everything is valid
-function checkStep1Inputs(fullname, email, password, confirmPassword) {
-    if (fullname.length < 3) {
-        alert("The name must contain at least 3 characters.");
-        return false;
-    }
+function checkStep1Inputs(firstname, lastname, email, password, confirmPassword) {
+    let valid = true;
 
-    if (!email.includes("@")) {
+    if (firstname.length < 2) {
+        alert("The first name must contain at least 2 characters.");
+        valid = false;
+    }
+    else if (lastname.length < 2) {
+        alert("The last name must contain at least 2 characters.");
+        valid = false;
+    }else if (!email.includes("@")) {
         alert("Please enter a valid email address (must contain @).");
-        return false;
-    }
-
-    if (password.length < MIN_PASSWORD_LENGTH) {
+        valid = false;
+    } else if (password.length < MIN_PASSWORD_LENGTH) {
         alert(`The password must contain at least ${MIN_PASSWORD_LENGTH} characters.`);
-        return false;
-    }
-
-    if (!isStrongPassword(password)) {
+        valid = false;
+    } else if (!isStrongPassword(password)) {
         alert("The password must contain an uppercase letter, a lowercase letter, a digit and a special character.");
-        return false;
-    }
-
-    if (password !== confirmPassword) {
+        valid = false;
+    } else if (password !== confirmPassword) {
         alert("Passwords do not match.");
-        return false;
+        valid = false;
     }
 
-    return true;
+    return valid;
 }
 
 
@@ -59,34 +57,35 @@ function checkStep1Inputs(fullname, email, password, confirmPassword) {
 function submitStep1(event) {
     event.preventDefault();
 
-    const fullname = document.getElementById('fullname').value.trim();
+    const firstname = document.getElementById('firstname').value.trim();
+    const lastname = document.getElementById('lastname').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
-    if(!checkStep1Inputs(fullname, email, password, confirmPassword)){
-        return;
+    if(checkStep1Inputs(firstname, lastname, email, password, confirmPassword)){
+        signupData.firstname = firstname;
+        signupData.lastname = lastname;
+        signupData.email = email;
+        signupData.password = password;
+
+        showStep("step2");
     }
 
-    signupData.fullname = fullname;
-    signupData.email = email;
-    signupData.password = password;
-
-    showStep("step2");
 }
-
-
 
 // Step 2 :
 
 // Checks the value of step 2 and returns true if a role is selected
 function checkStep2Inputs(role) {
+    let valid = true;
+
     if (!role) {
         alert("Please select a role.");
-        return false;
+        valid = false;
     }
 
-    return true;
+    return valid;
 }
 
 // Reads step 2 and validates it, then creates the account
@@ -96,13 +95,11 @@ async function submitStep2(event) {
     const selected = document.querySelector('input[name="role"]:checked');
     const role = selected ? selected.value : null;
 
-    if (!checkStep2Inputs(role)) {
-        return;
+    if (checkStep2Inputs(role)) {
+        signupData.role = role;
+
+        await sendSignUp(signupData, event.submitter);
     }
-
-    signupData.role = role;
-
-    await sendSignUp(signupData, event.submitter);
 }
 
 
@@ -125,19 +122,16 @@ async function sendSignUp(data, button) {
         if (response.status === 409) {
             alert("This email is already used.");
             showStep("step1");
-            return;
-        }
-
-        if (!response.ok) {
+        } else if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
+        else {
+            const result = await response.json();
+            sessionStorage.setItem("user", JSON.stringify(result.user));
 
-        const result = await response.json();
-        sessionStorage.setItem("user", JSON.stringify(result.user));
-
-        console.log("Account created");
-        window.location.href = "Roomshare.html";
-
+            console.log("Account created");
+            window.location.href = "Roomshare.html";
+        }
     } catch (e) {
         console.error(e.message);
         alert("Unable to create the account right now.");
