@@ -21,12 +21,13 @@
     <main>
         <div class="card signup-card">
 
-            <!-- Step 1 : the informations -->
+            <!-- That's the step 1, visible as the start with the personal information -->
             <section id="step1" class="step">
                 <h2>Create an account</h2>
                 <p class="card-subtitle">Step 1 of 3 — Your information</p>
 
                 <form id="step1Form">
+                    <!-- The fiirst name and last name, they are displayed side by side -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="firstname">FIRST NAME</label>
@@ -58,15 +59,18 @@
                     <button type="submit" class="btn btn-primary">Continue</button>
                 </form>
 
+                <!-- link to the sign in button-->
                 <p class="switch-link">Already have an account? <a href="SignIn.html">Sign in</a></p>
             </section>
 
-            <!-- Step 2 : role (the account is created when we're done here) -->
+            <!-- That's the step 2, visible when the step 1 is valid, the account is created only when this form is submitted!! -->
             <section id="step2" class="step" hidden>
                 <h2>Your role</h2>
                 <p class="card-subtitle">Step 2 of 3 — Who are you?</p>
 
                 <form id="step2Form">
+                    <!-- The radio buttons are hidden by the CSS -->
+                    <!-- Owner : -->
                     <input type="radio" id="roleOwner" name="role" value="owner" class="role-input">
                     <label for="roleOwner" class="role-option">
                         <span class="role-icon">🏠</span>
@@ -76,6 +80,7 @@
                         </span>
                     </label>
 
+                    <!-- Roomie : -->
                     <input type="radio" id="roleRoomie" name="role" value="roomie" class="role-input">
                     <label for="roleRoomie" class="role-option">
                         <span class="role-icon">🤝</span>
@@ -86,6 +91,7 @@
                     </label>
 
                     <div class="step-actions">
+                        <!-- This one only goes back and does not submit the form -->
                         <button type="button" id="backToStep1" class="btn btn-secondary">Back</button>
                         <button type="submit" class="btn btn-primary">Continue</button>
                     </div>
@@ -100,6 +106,7 @@
     </footer>
 </div>
 
+<!-- Here i choose to write this line here, so the script is loaded at the end. So that the page elements already exist -->
 <script src="../JS/signup.js"></script>
 </body>
 </html>

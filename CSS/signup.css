@@ -1,5 +1,5 @@
 /*Sign up page 1 (SignUp.html)*/
-
+/* ---------- Step 1 : information ---------- */
 .container {
     gap: 20px;
 }
@@ -12,7 +12,7 @@
     margin-top: 4px;
 }
 
-/* Field hint */
+/* Small help text under the password field */
 .field-hint {
     margin-top: 6px;
     font-size: 0.8rem;
@@ -29,9 +29,11 @@
 
 .form-row .form-group {
     margin-bottom: 0;
+    /* min-width: 0 prevents a field from overflowing its column */
     min-width: 0;
 }
 
+/* Screens that are not very tall (laptops) : everything is a bit smaller so the whole page fits without scrolling */
 @media (max-width: 400px) {
     .form-row {
         grid-template-columns: 1fr;
@@ -102,12 +104,13 @@
     }
 }
 
-/*Sign up page 2 : role */
+/*Sign up page 2, step 2 : role */
 
 .role-card {
     padding: 32px;
 }
 
+/* The real radio buttons are invisible : the labels (.role-option) are shown instead */
 .role-input {
     position: absolute;
     opacity: 0;

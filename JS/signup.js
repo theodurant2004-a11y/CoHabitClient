@@ -1,15 +1,22 @@
+// We have 2 steps on a single page: the first : personal information and the second : the role.
+// The account is only created when step 2 is submitted.
+
+// URL of the API route that creates an account
 const API_URL = "http://localhost:8080/CoHabitAPI/api/users";
 
+// Minimum number of characters of a password, the the API checks it too
 const MIN_PASSWORD_LENGTH = 8;
 
+// All the steps of the page (the <section class="step"> elements)
 const steps = document.querySelectorAll(".step");
 
 // Data of the sign up in memory only until the account is created
 const signupData = {};
 
-// Shows one page step and hides the others.
+// Shows the step with the given id and hides the others one
 function showStep(id) {
     steps.forEach(function (step) {
+        // "hidden" is true for every step except the one we want to show
         step.hidden = step.id !== id;
     });
 }
@@ -53,13 +60,15 @@ function checkStep1Inputs(firstname, lastname, email, password, confirmPassword)
 }
 
 
-// Reads step 1 and validates it. Then saves the data and shows step 2
+// Reads step 1 and validates it. If everything is valid, saves the data and shows step 2
 function submitStep1(event) {
+
     event.preventDefault();
 
     const firstname = document.getElementById('firstname').value.trim();
     const lastname = document.getElementById('lastname').value.trim();
     const email = document.getElementById('email').value.trim();
+    // i dont trim the passworld because spaces can be part of a password
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -93,12 +102,14 @@ function checkStep2Inputs(role) {
 async function submitStep2(event) {
     event.preventDefault();
 
+    // The checked radio button, or null if the user did not choose a role
     const selected = document.querySelector('input[name="role"]:checked');
     const role = selected ? selected.value : null;
 
     if (checkStep2Inputs(role)) {
         signupData.role = role;
 
+        // event.submitter is the button that was clicked (it is disabled during the request)
         await sendSignUp(signupData, event.submitter);
     }
 }
@@ -106,12 +117,14 @@ async function submitStep2(event) {
 
 // Sending to the API :
 
-// Creates the account, signs the user in, then goes to the roomshare page
+// Sends the account to the API. Success => saves the user and goes to the roomshare page.
+// The button is disabled during the request to avoid sending it twice.
 async function sendSignUp(data, button) {
     button.disabled = true;
     try {
         const response = await fetch(API_URL, {
             method: "POST",
+            // Lets the browser accept and send the session cookie set by the API
             credentials: "include",
             headers: {
                 "Content-Type": "application/json",
@@ -122,11 +135,14 @@ async function sendSignUp(data, button) {
 
         if (response.status === 409) {
             alert("This email is already used.");
+            // If an account already uses this email, so go back to step 1
             showStep("step1");
         } else if (!response.ok) {
+            // Any other error (400, 500...) is handled by the catch block
             throw new Error(`Response status: ${response.status}`);
         }
         else {
+            // Only public information is stored: the token is in an HttpOnly cookie
             const result = await response.json();
             sessionStorage.setItem("user", JSON.stringify(result.user));
 
@@ -134,9 +150,11 @@ async function sendSignUp(data, button) {
             window.location.href = "Roomshare.html";
         }
     } catch (e) {
+        // Network error, API unreachable or unexpected status
         console.error(e.message);
         alert("Unable to create the account right now.");
     } finally {
+        // Runs in every case, so the button always becomes usable again
         button.disabled = false;
     }
 }
@@ -146,6 +164,7 @@ async function sendSignUp(data, button) {
 document.getElementById("step1Form").addEventListener("submit", submitStep1);
 document.getElementById("step2Form").addEventListener("submit", submitStep2);
 
+// The "Back" button of step 2 goes back to step 1 (the typed values are still in the fields)
 document.getElementById("backToStep1").addEventListener("click", function () {
     showStep("step1");
 });

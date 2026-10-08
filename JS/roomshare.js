@@ -2,22 +2,26 @@ const ROOMSHARE_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares";
 const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/join-requests";
 const LOGOUT_API_URL = "http://localhost:8080/CoHabitAPI/api/users/logout";
 
+// The signed in user, saved by the sign in or sign up page
 const user = JSON.parse(sessionStorage.getItem("user"));
 
 // Shows the section matching the role of the signed in user.
+// It is only for display: the API checks the role itself
 function showSection() {
     if (!user) {
+        // Nobody is signed in
         window.location.href = "SignIn.html";
     } else if (user.role === "owner") {
         document.getElementById("ownerSection").hidden = false;
     } else if (user.role === "roomie") {
         document.getElementById("roomieSection").hidden = false;
     } else {
+        // Unknown role
         window.location.href = "SignIn.html";
     }
 }
 
-// Signs the user out
+// Signs the user out: asks the API to end the session, then clears the browser data
 async function signOut() {
     try {
         await fetch(LOGOUT_API_URL, {
@@ -32,7 +36,7 @@ async function signOut() {
     window.location.href = "SignIn.html";
 }
 
-// Sends a POST request with a JSON body and returns the response
+// Sends a POST request with a JSON body (and the session cookie) and returns the response
 function postJson(url, data) {
     return fetch(url, {
         method: "POST",
@@ -45,7 +49,8 @@ function postJson(url, data) {
     });
 }
 
-// Returns true and signs the user out if the token is invalid or expired
+// Returns true (and signs the user out) if the session is invalid or expired
+// The API answers 401 in that case
 function isSessionExpired(response) {
     let expired = false;
 
@@ -111,7 +116,7 @@ function checkRoomieInputs(invitationKey) {
     return valid;
 }
 
-// Reads the roomie form and validates it. Then sends the join request
+// Reads the roomie form and validates it. Then sends the join request to api
 async function sendJoinRequest(event) {
     event.preventDefault();
 
@@ -123,6 +128,7 @@ async function sendJoinRequest(event) {
 
             if (!isSessionExpired(response)) {
                 if (response.status === 404) {
+                    // Not found: no roomshare uses this key
                     alert("Invalid invitation key.");
                 } else if (!response.ok) {
                     throw new Error(`Response status: ${response.status}`);
