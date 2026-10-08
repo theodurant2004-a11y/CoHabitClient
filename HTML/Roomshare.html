@@ -32,9 +32,36 @@
                         <input type="text" id="roomshareName" name="roomshareName" placeholder="e.g. Belleville Apartment" maxlength="100" required>
                     </div>
 
+                    <!-- The address is optional, but if one field is filled in, all of them must be -->
+                    <p class="section-label">ADDRESS (OPTIONAL)</p>
+
+                    <div class="form-row form-row-street">
+                        <div class="form-group">
+                            <label for="streetName">STREET</label>
+                            <input type="text" id="streetName" name="streetName" placeholder="Rue des Lilas" maxlength="100">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="streetNumber">NUMBER</label>
+                            <input type="text" id="streetNumber" name="streetNumber" placeholder="14B" maxlength="10">
+                        </div>
+                    </div>
+
+                    <div class="form-row form-row-city">
+                        <div class="form-group">
+                            <label for="postalCode">POSTAL CODE</label>
+                            <input type="text" id="postalCode" name="postalCode" placeholder="1000" maxlength="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="city">CITY</label>
+                            <input type="text" id="city" name="city" placeholder="Brussels" maxlength="50">
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="address">ADDRESS (OPTIONAL)</label>
-                        <input type="text" id="address" name="address" placeholder="14 Lilac Street, Paris" maxlength="200">
+                        <label for="country">COUNTRY</label>
+                        <input type="text" id="country" name="country" placeholder="Belgium" maxlength="50">
                     </div>
 
                     <div class="actions">

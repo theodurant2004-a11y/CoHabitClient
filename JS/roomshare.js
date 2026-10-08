@@ -65,12 +65,31 @@ function isSessionExpired(response) {
 
 // Owner :
 
+// Returns true if no field of the address is filled in (the address is optional)
+function isAddressEmpty(address) {
+    return address.streetName === ""
+        && address.streetNumber === ""
+        && address.postalCode === ""
+        && address.city === ""
+        && address.country === "";
+}
+
 // Checks the owner values and returns true if everything is valid
-function checkOwnerInputs(name) {
+function checkOwnerInputs(name, address) {
     let valid = true;
+
     if (name.length < 3) {
         alert("The roomshare name must contain at least 3 characters.");
         valid = false;
+    } else if (!isAddressEmpty(address)) {
+        if (address.streetName === "" || address.streetNumber === ""
+            || address.postalCode === "" || address.city === "" || address.country === "") {
+            alert("Please fill in the whole address, or leave it empty.");
+            valid = false;
+        } else if (!/^[A-Za-z0-9 -]{3,10}$/.test(address.postalCode)) {
+            alert("Please enter a valid postal code.");
+            valid = false;
+        }
     }
     return valid;
 }
@@ -80,14 +99,23 @@ async function createRoomshare(event) {
     event.preventDefault();
 
     const name = document.getElementById("roomshareName").value.trim();
-    const address = document.getElementById("address").value.trim();
+    const address = {
+        streetName: document.getElementById("streetName").value.trim(),
+        streetNumber: document.getElementById("streetNumber").value.trim(),
+        postalCode: document.getElementById("postalCode").value.trim(),
+        city: document.getElementById("city").value.trim(),
+        country: document.getElementById("country").value.trim()
+    };
 
-    if (checkOwnerInputs(name)) {
+    if (checkOwnerInputs(name, address)) {
+        // The address is optional : null is sent when nothing is filled in
+        const body = { name: name, address: isAddressEmpty(address) ? null : address };
         try {
-            const response = await postJson(ROOMSHARE_API_URL, { name: name, address: address });
+            const response = await postJson(ROOMSHARE_API_URL, body);
 
             if (!isSessionExpired(response)) {
                 if (response.status === 403) {
+                    // Forbidden: the user is not an owner
                     alert("Only an owner can create a roomshare.");
                 } else if (!response.ok) {
                     throw new Error(`Response status: ${response.status}`);
