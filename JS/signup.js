@@ -68,6 +68,7 @@ function submitStep1(event) {
         signupData.lastname = lastname;
         signupData.email = email;
         signupData.password = password;
+        signupData.confirmPassword = confirmPassword;
 
         showStep("step2");
     }
