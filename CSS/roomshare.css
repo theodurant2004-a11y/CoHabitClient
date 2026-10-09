@@ -16,47 +16,6 @@
     margin-top: 24px;
 }
 
-/* Title of the address block (same look as the labels of the fields) */
-.section-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-label);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin: 6px 0 10px;
-}
-
-/* Two fields side by side, with different widths */
-.form-row {
-    display: grid;
-    gap: 14px;
-    margin-bottom: 14px;
-}
-
-/* min-width: 0 prevents a field from overflowing its column */
-.form-row .form-group {
-    margin-bottom: 0;
-    min-width: 0;
-}
-
-/* Street (wide) and number (narrow) */
-.form-row-street {
-    grid-template-columns: 3fr 1fr;
-}
-
-/* Postal code (narrow) and city (wide) */
-.form-row-city {
-    grid-template-columns: 1fr 2fr;
-}
-
-/* On very narrow screens, the fields are stacked */
-@media (max-width: 400px) {
-    .form-row-street,
-    .form-row-city {
-        grid-template-columns: 1fr;
-    }
-}
-
 /* Invitation key field */
 .key-input {
     text-align: center;
@@ -69,7 +28,6 @@
     text-transform: none;
 }
 
-/* Small screens */
 /* Screens that are not very tall (laptops) */
 @media (max-height: 820px) {
     body {
@@ -88,31 +46,6 @@
 
     .roomshare-card {
         padding: 24px 32px;
-    }
-
-    .card-subtitle {
-        margin-bottom: 16px;
-    }
-
-    .section-label {
-        margin: 2px 0 8px;
-    }
-
-    .form-group {
-        margin-bottom: 12px;
-    }
-
-    .form-row {
-        gap: 12px;
-        margin-bottom: 12px;
-    }
-
-    .form-group label {
-        margin-bottom: 6px;
-    }
-
-    .form-group input {
-        padding: 11px 16px;
     }
 
     .actions {
