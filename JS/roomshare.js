@@ -1,39 +1,25 @@
+// URL of the API route that creates a roomshare
 const ROOMSHARE_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares";
+// URL of the API route that sends a request to join a roomshare
 const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/join-requests";
-const LOGOUT_API_URL = "http://localhost:8080/CoHabitAPI/api/users/logout";
 
-// The signed in user, saved by the sign in or sign up page
-const user = JSON.parse(sessionStorage.getItem("user"));
+// The signed in user (getSignedInUser redirects to the sign in page if nobody is signed in)
+const user = getSignedInUser();
 
-// Shows the section matching the role of the signed in user.
+// Shows the section matching the role of the signed in user
 // It is only for display: the API checks the role itself
 function showSection() {
-    if (!user) {
-        // Nobody is signed in
-        window.location.href = "SignIn.html";
-    } else if (user.role === "owner") {
-        document.getElementById("ownerSection").hidden = false;
-    } else if (user.role === "roomie") {
-        document.getElementById("roomieSection").hidden = false;
-    } else {
-        // Unknown role
-        window.location.href = "SignIn.html";
+    if (user) {
+        if (user.role === "owner") {
+            // Both sections are hidden in the HTML: only the matching one is shown
+            document.getElementById("ownerSection").hidden = false;
+        } else if (user.role === "roomie") {
+            document.getElementById("roomieSection").hidden = false;
+        } else {
+            // If Unknown role: the stored data is not valid so sign in again
+            window.location.href = "SignIn.html";
+        }
     }
-}
-
-// Signs the user out: asks the API to end the session, then clears the browser data
-async function signOut() {
-    try {
-        await fetch(LOGOUT_API_URL, {
-            method: "POST",
-            credentials: "include"
-        });
-    } catch (e) {
-        console.error(e.message);
-    }
-
-    sessionStorage.removeItem("user");
-    window.location.href = "SignIn.html";
 }
 
 // Sends a POST request with a JSON body (and the session cookie) and returns the response
@@ -65,17 +51,8 @@ function isSessionExpired(response) {
 
 // Owner :
 
-// Returns true if no field of the address is filled in (the address is optional)
-function isAddressEmpty(address) {
-    return address.streetName === ""
-        && address.streetNumber === ""
-        && address.postalCode === ""
-        && address.city === ""
-        && address.country === "";
-}
-
 // Checks the owner values and returns true if everything is valid
-function checkOwnerInputs(name, address) {
+function checkOwnerInputs(name) {
     let valid = true;
 
     if (name.length < 3) {
@@ -122,7 +99,6 @@ function checkRoomieInputs(invitationKey) {
         alert("The invitation key must contain exactly 6 letters or digits.");
         valid = false;
     }
-
     return valid;
 }
 
