@@ -83,7 +83,10 @@ async function createRoomshare(event) {
     }
 
     try {
-        const response = await postJson(ROOMSHARE_API_URL, { name: name, address: address });
+
+        // Be careful here, with the name of the keys
+        // Because you must put the same name for the attributes of the DTO
+        const response = await postJson(ROOMSHARE_API_URL, { name: name, owner: user});
 
         if (isSessionExpired(response)) {
             return;
@@ -99,6 +102,8 @@ async function createRoomshare(event) {
         }
 
         console.log("Roomshare created");
+        const responseData = await response.json();
+        sessionStorage.setItem("roomshare", JSON.stringify(responseData.roomshare));
         // window.location.href = "home.html";
     } catch (e) {
         console.error(e.message);
