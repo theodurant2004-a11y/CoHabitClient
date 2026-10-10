@@ -40,8 +40,7 @@ async function signIn(event) {
         const user = await response.json();
         sessionStorage.setItem("user", JSON.stringify(user));
 
-        console.log("User logged in");
-        // window.location.href = "home.html";
+        window.location.href = "roomshare.html";
     } catch (e) {
         console.error(e.message);
         alert("Unable to sign in right now.");
