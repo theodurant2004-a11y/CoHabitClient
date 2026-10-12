@@ -86,7 +86,7 @@ async function createRoomshare(event) {
 
         // Be careful here, with the name of the keys
         // Because you must put the same name for the attributes of the DTO
-        const response = await postJson(ROOMSHARE_API_URL, { name: name, owner: user});
+        const response = await postJson(ROOMSHARE_API_URL, { name: name, ownerEmail: user.email });
 
         if (isSessionExpired(response)) {
             return;
