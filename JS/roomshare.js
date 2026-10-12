@@ -70,7 +70,7 @@ async function createRoomshare(event) {
 
     if (checkOwnerInputs(name)) {
         try {
-            const response = await postJson(ROOMSHARE_API_URL,  { name: name });
+            const response = await postJson(ROOMSHARE_API_URL,  { name: name, ownerEmail: user.email });
 
             if (!isSessionExpired(response)) {
                 if (response.status === 403) {
