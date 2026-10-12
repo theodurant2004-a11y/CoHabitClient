@@ -2,38 +2,43 @@
 
 /* Variables */
 :root {
+    /* Here i put tht main color, it's taken from the logo and its variants */
     --brand: #7C5F63;
     --brand-dark: #694F53;
     --brand-soft: rgba(124, 95, 99, 0.15);
 
+    /* Accent color for the links */
     --accent: #c5644d;
     --accent-dark: #a84d37;
 
+    /* For the backgrounds and borders */
     --bg: #f8f5f0;
     --surface: #ffffff;
     --surface-soft: #faf9f7;
     --border: #ebe5df;
     --border-input: #e4ded8;
 
+    /* Text colors */
     --text: #1a1612;
     --text-title: #222;
     --text-muted: #8a7f7f;
     --text-light: #a89a9a;
     --text-label: #7a6f6f;
 
+    /* Shapes and animation */
     --radius-card: 24px;
     --radius-field: 14px;
     --transition: all 0.25s ease;
 }
 
-/* Reset */
+/* Reset : removes the default margins and makes sizes easier to compute*/
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Layout */
+/* In the layout, the content is centered in the middle of the screen  */
 body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--bg);
@@ -63,7 +68,7 @@ footer {
     text-align: center;
 }
 
-/* Header */
+/* Header : logo, name and subtitle */
 header {
     text-align: center;
 }
