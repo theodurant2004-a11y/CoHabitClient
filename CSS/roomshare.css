@@ -28,7 +28,7 @@
     text-transform: none;
 }
 
-/* Small screens */
+/* Screens that are not very tall (laptops) */
 @media (max-height: 820px) {
     body {
         padding: 12px 16px;
