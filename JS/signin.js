@@ -1,9 +1,8 @@
 const form = document.getElementById("signinForm");
 const API_URL = "http://localhost:8080/CoHabitAPI/api/users/login";
 
-// Function to checks the form fields
+// Checks the form fields
 function checkInputs(email, password) {
-    // Stops the browser from reloading the page when the form is submitted
     let valid = true;
 
     if (!email.includes("@")) {
@@ -19,12 +18,13 @@ function checkInputs(email, password) {
 
 // Reads the form, validates it, then sends the credentials to the API
 async function signIn(event) {
+    // Stops the browser from reloading the page when the form is submitted
     event.preventDefault();
 
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    if(checkInputs(email, password)){
+    if (checkInputs(email, password)) {
         try {
             const response = await fetch(API_URL, {
                 method: "POST",
@@ -46,10 +46,7 @@ async function signIn(event) {
                 // Only public information is stored: the token is in an HttpOnly cookie
                 const result = await response.json();
                 sessionStorage.setItem("user", JSON.stringify(result.user));
-
-                console.log("User logged in");
-                // TODO: redirect to the right page (depends on the state of the user)
-                // window.location.href = "home.html";
+                window.location.href = "roomshare.html";
             }
         } catch (e) {
             console.error(e.message);
