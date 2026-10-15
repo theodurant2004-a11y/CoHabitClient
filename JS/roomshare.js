@@ -1,5 +1,5 @@
-// URL of the API route that creates a roomshare
 const ROOMSHARE_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares";
+// URL of the API route that creates a roomshare
 // URL of the API route that sends a request to join a roomshare
 const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/join-requests";
 
@@ -70,7 +70,7 @@ async function createRoomshare(event) {
 
     if (checkOwnerInputs(name)) {
         try {
-            const response = await postJson(ROOMSHARE_API_URL,  { name: name });
+            const response = await postJson(ROOMSHARE_API_URL,  { name: name, ownerEmail: user.email });
 
             if (!isSessionExpired(response)) {
                 if (response.status === 403) {
