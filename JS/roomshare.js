@@ -110,12 +110,17 @@ async function sendJoinRequest(event) {
 
     if (checkRoomieInputs(invitationKey)) {
         try {
-            const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey });
+            // TODO: remove roomieEmail when the API gets the user from the session cookie
+            // For now the API has no session, so it needs the email to know who asks to join
+            const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey, roomieEmail: user.email });
 
             if (!isSessionExpired(response)) {
                 if (response.status === 404) {
                     // Not found: no roomshare uses this key
                     alert("Invalid invitation key.");
+                } else if (response.status === 409) {
+                    // Conflict: the roomie already has a roomshare or a pending request
+                    alert("You already belong to a roomshare or have a pending request.");
                 } else if (!response.ok) {
                     throw new Error(`Response status: ${response.status}`);
                 } else {
