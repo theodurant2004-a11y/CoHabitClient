@@ -1,7 +1,7 @@
 const ROOMSHARE_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares";
 // URL of the API route that creates a roomshare
 // URL of the API route that sends a request to join a roomshare
-const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/join-requests";
+const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares/join";
 
 // The signed in user (getSignedInUser redirects to the sign in page if nobody is signed in)
 const user = getSignedInUser();
