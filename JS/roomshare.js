@@ -79,8 +79,10 @@ async function createRoomshare(event) {
                 } else if (!response.ok) {
                     throw new Error(`Response status: ${response.status}`);
                 } else {
-                    console.log("Roomshare created");
-                    // window.location.href = "home.html";
+                    // Stores the created roomshare so app.html can display it
+                    const result = await response.json();
+                    sessionStorage.setItem("roomshare", JSON.stringify(result.roomshare));
+                    window.location.href = "app.html";
                 }
             }
         } catch (e) {
