@@ -1,7 +1,7 @@
 const ROOMSHARE_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares";
 // URL of the API route that creates a roomshare
 // URL of the API route that sends a request to join a roomshare
-const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/join-requests";
+const JOIN_API_URL = "http://localhost:8080/CoHabitAPI/api/roomshares/join";
 
 // The signed in user (getSignedInUser redirects to the sign in page if nobody is signed in)
 const user = getSignedInUser();
@@ -79,8 +79,10 @@ async function createRoomshare(event) {
                 } else if (!response.ok) {
                     throw new Error(`Response status: ${response.status}`);
                 } else {
-                    console.log("Roomshare created");
-                    // window.location.href = "home.html";
+                    // Stores the created roomshare so app.html can display it
+                    const result = await response.json();
+                    sessionStorage.setItem("roomshare", JSON.stringify(result.roomshare));
+                    window.location.href = "app.html";
                 }
             }
         } catch (e) {
@@ -110,12 +112,17 @@ async function sendJoinRequest(event) {
 
     if (checkRoomieInputs(invitationKey)) {
         try {
-            const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey });
+            // TODO: remove roomieEmail when the API gets the user from the session cookie
+            // For now the API has no session, so it needs the email to know who asks to join
+            const response = await postJson(JOIN_API_URL, { invitationKey: invitationKey, roomieEmail: user.email });
 
             if (!isSessionExpired(response)) {
                 if (response.status === 404) {
                     // Not found: no roomshare uses this key
                     alert("Invalid invitation key.");
+                } else if (response.status === 409) {
+                    // Conflict: the roomie already has a roomshare or a pending request
+                    alert("You already belong to a roomshare or have a pending request.");
                 } else if (!response.ok) {
                     throw new Error(`Response status: ${response.status}`);
                 } else {

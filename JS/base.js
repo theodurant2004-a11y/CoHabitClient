@@ -35,5 +35,6 @@ async function signOut() {
 
     // Removes the public user data and goes back to the sign in page
     sessionStorage.removeItem("user");
+    sessionStorage.removeItem("roomshare");
     window.location.href = "SignIn.html";
 }
