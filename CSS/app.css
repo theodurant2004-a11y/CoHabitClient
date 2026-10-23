@@ -209,3 +209,296 @@ body {
     font-weight: 400;
     color: var(--text-title);
 }
+/* ------------- Page header ------------- */
+.page-sub {
+    margin-top: 4px;
+    color: var(--text-muted);
+}
+
+.page-head {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+/* ------------- Tabs ------------- */
+.tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 24px;
+    border-radius: var(--radius-field);
+    background: var(--border);
+}
+
+.tab {
+    padding: 9px 20px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    font: inherit;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ============== Form card =========== */
+.form-card {
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.form-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.form-head h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--text-title);
+}
+
+.form-sub {
+    margin-top: 2px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.badge {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: end;
+}
+
+.check-box input,
+.chip input {
+    accent-color: var(--brand);
+}
+
+.form-group select {
+    width: 100%;
+    padding: 13px 44px 13px 16px; 
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-field);
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+
+    /* Removes the default arrow of the browser */
+    appearance: none;
+    -webkit-appearance: none;
+
+    /* Our own arrow  */
+    background-color: var(--surface-soft);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C5F63' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+}
+
+.form-group select:hover {
+    border-color: var(--brand);
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--brand);
+    background-color: var(--surface);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+/* Options of the opened list */
+.form-group select option {
+    color: var(--text);
+    background: var(--surface);
+}
+
+/* People concerned */
+.people {
+    border: 0;
+    margin-top: 6px;
+}
+
+.people legend {
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-label);
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border: 1px solid var(--border-input);
+    border-radius: 999px;
+    background: var(--surface-soft);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+/* -------------- personn selection --------------- */
+.chip:has(input:checked) {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #fff;
+}
+
+.form-error {
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #fdecea;
+    color: #c0392b;
+    font-size: 0.9rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-inline {
+    width: auto;
+    padding: 12px 22px;
+}
+
+/* ------------------- List of the expenses -------------------- */
+.expense-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.list-empty {
+    padding: 50px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-input);
+    border-radius: var(--radius-card);
+}
+
+/* -------------------- Responsive ------------- */
+@media (max-width: 900px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 800px) {
+
+    body {
+        display: block;
+    }
+
+    .sidebar {
+        position: static;
+        height: auto;
+        gap: 14px;
+        padding: 18px 16px;
+    }
+
+    .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 0 4px 14px;
+    }
+
+    .sidebar-title {
+        font-size: 1.5rem;
+    }
+
+    .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 6px;
+        margin: 0 -16px;
+        padding: 0 16px 4px;
+        scrollbar-width: none; 
+    }
+
+    .nav::-webkit-scrollbar {
+        display: none; 
+    }
+
+    .nav-link {
+        flex-shrink: 0; 
+        padding: 9px 14px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar-foot {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0;
+        padding-top: 14px;
+    }
+
+    .user-card {
+        flex: 1;
+        padding: 8px 10px;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+
+    .content {
+        padding: 24px 16px;
+    }
+
+    .view h2 {
+        font-size: 1.7rem;
+    }
+
+    /* Form */
+    .form-card {
+        padding: 20px;
+    }
+
+    .form-head {
+        flex-direction: column;
+    }
+
+    .btn-inline {
+        width: 100%;
+    }
+}
