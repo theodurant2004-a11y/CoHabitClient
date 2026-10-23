@@ -175,6 +175,6 @@ document.getElementById("step2Form").addEventListener("submit", submitStep2);
 
 // The "Back" button of step 2 goes back to step 1 (the typed values are still in the fields)
 document.getElementById("backToStep1").addEventListener("click", function () {
-    showStep("step2Error", "");
+    showError("step2Error", "");
     showStep("step1");
 });
