@@ -21,6 +21,13 @@ function showStep(id) {
     });
 }
 
+// Shows a message in the error paragraph of a form (an empty message hides the paragraph)
+function showError(id, message){
+    const errorParagraph = document.getElementById(id);
+    errorParagraph.textContent = message;
+    errorParagraph.hidden = message === "";
+}
+
 // step one of signup :
 
 // Returns true if the password respect the rules
@@ -33,26 +40,27 @@ function isStrongPassword(password) {
 
 // Checks the values of step 1 and returns true if everything is valid
 function checkStep1Inputs(firstname, lastname, email, password, confirmPassword) {
+    showError("step1Error", "");
     let valid = true;
 
     if (firstname.length < 2) {
-        alert("The first name must contain at least 2 characters.");
+        showError("step1Error", "The first name must contain at least 2 characters.");
         valid = false;
     }
     else if (lastname.length < 2) {
-        alert("The last name must contain at least 2 characters.");
+        showError("step1Error", "The last name must contain at least 2 characters.");
         valid = false;
     }else if (!email.includes("@")) {
-        alert("Please enter a valid email address (must contain @).");
+        showError("step1Error", "Please enter a valid email address (must contain @).");
         valid = false;
     } else if (password.length < MIN_PASSWORD_LENGTH) {
-        alert(`The password must contain at least ${MIN_PASSWORD_LENGTH} characters.`);
+        showError("step1Error", `The password must contain at least ${MIN_PASSWORD_LENGTH} characters.`);
         valid = false;
     } else if (!isStrongPassword(password)) {
-        alert("The password must contain an uppercase letter, a lowercase letter, a digit and a special character.");
+        showError("step1Error", "The password must contain an uppercase letter, a lowercase letter, a digit and a special character.");
         valid = false;
     } else if (password !== confirmPassword) {
-        alert("Passwords do not match.");
+        showError("step1Error", "Passwords do not match.");
         valid = false;
     }
 
@@ -88,10 +96,11 @@ function submitStep1(event) {
 
 // Checks the value of step 2 and returns true if a role is selected
 function checkStep2Inputs(role) {
+    showError("step2Error", "");
     let valid = true;
 
     if (!role) {
-        alert("Please select a role.");
+        showError("step2Error","Please select a role.");
         valid = false;
     }
 
@@ -134,7 +143,7 @@ async function sendSignUp(data, button) {
         });
 
         if (response.status === 409) {
-            alert("This email is already used.");
+            showError("step1Error", "This email is already used.");
             // If an account already uses this email, so go back to step 1
             showStep("step1");
         } else if (!response.ok) {
@@ -166,5 +175,6 @@ document.getElementById("step2Form").addEventListener("submit", submitStep2);
 
 // The "Back" button of step 2 goes back to step 1 (the typed values are still in the fields)
 document.getElementById("backToStep1").addEventListener("click", function () {
+    showStep("step2Error", "");
     showStep("step1");
 });
