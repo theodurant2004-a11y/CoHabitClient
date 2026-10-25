@@ -1,0 +1,472 @@
+/* =====================================================
+   Expenses page - ROOMIE part
+   The class names are specific (expense-*, exp-*...) so they cannot change another page
+   ===================================================== */
+
+/* Colors of this page. We put them in variables so we write each color only once
+   and we can change it in one place. They are declared on the roomie block only,
+   because the global variables stay in stylesheet.css and app.css */
+.expenses-roomie {
+    --exp-owe-bg: #fdeeea;          /* pink: what I owe */
+    --exp-owe-line: #f2c9bd;
+    --exp-owe-text: #c4553b;
+    --exp-owed-bg: #edf6f1;         /* green: what I am owed */
+    --exp-owed-line: #bfe0cf;
+    --exp-owed-text: #2f7d5b;
+    --exp-muted: #8a7f7b;           /* grey of the small texts */
+    --exp-line: #e6e0dc;            /* grey of the borders */
+    --exp-primary: var(--sidebar-bg);   /* main color of the buttons = same as the sidebar */
+    margin-top: 8px;
+}
+
+/* ---------- Top line: summary + button ---------- */
+/* The summary is on the left and the "+ Add" button on the right */
+.expenses-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.expenses-summary {
+    color: var(--exp-muted);
+}
+
+/* The main button (also used for "Add" in the pop-up) */
+.btn-add {
+    padding: 12px 20px;
+    border: 0;
+    border-radius: var(--radius-field);
+    background: var(--exp-primary);
+    color: #fff;
+    font: inherit;                  /* a button does not use the font of the page by default */
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-add:hover {
+    opacity: 0.9;
+}
+
+/* The second button (Cancel): white with a border so it is less important than "Add" */
+.btn-ghost {
+    padding: 12px 20px;
+    border: 1px solid var(--exp-line);
+    border-radius: var(--radius-field);
+    background: #fff;
+    color: var(--exp-muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ---------- The two cards ---------- */
+/* Two columns of the same size. On a small screen they go one under the other (see the end) */
+.expenses-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* What the two cards have in common (the color is set below) */
+.expense-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px;
+    border: 1px solid;              /* the color of the border comes from the modifier below */
+    border-radius: 20px;
+}
+
+/* Card "You owe" (pink) */
+.expense-card-owe {
+    background: var(--exp-owe-bg);
+    border-color: var(--exp-owe-line);
+    color: var(--exp-owe-text);
+}
+
+/* Card "You are owed" (green) */
+.expense-card-owed {
+    background: var(--exp-owed-bg);
+    border-color: var(--exp-owed-line);
+    color: var(--exp-owed-text);
+}
+
+/* The small title in capital letters */
+.expense-card-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* The big amount (same font as the titles of the app) */
+.expense-card-amount {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: #1f1a1a;
+}
+
+.expense-card-note {
+    font-size: 0.85rem;
+    color: var(--exp-muted);
+}
+
+/* ---------- Tabs (List / Balances) ---------- */
+/* A grey box that contains the two buttons. inline-flex so it is only as wide as its buttons */
+.expenses-tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 16px;
+    border-radius: 14px;
+    background: #efeae6;
+}
+
+.expenses-tab {
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--exp-muted);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* The tab that is open is white (the class "active" is added by the JS) */
+.expenses-tab.active {
+    background: #fff;
+    color: #1f1a1a;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Filters (All / Pending / Settled) ---------- */
+/* .chips is the row that contains the round buttons. It is also used in the pop-up */
+.chips {
+    display: flex;
+    flex-wrap: wrap;                /* if there is not enough place, the buttons go on the next line */
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.chip {
+    padding: 8px 16px;
+    border: 1px solid var(--exp-line);
+    border-radius: 999px;           /* a very big radius makes the button completely round */
+    background: #fff;
+    color: var(--exp-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+/* The chosen filter is filled with the main color */
+.chip.active {
+    background: var(--exp-primary);
+    border-color: var(--exp-primary);
+    color: #fff;
+}
+
+/* ---------- The list ---------- */
+/* We remove the bullet points of the <ul> and we put a space between the lines */
+.expense-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* One expense = one white box with 3 parts: icon, text, amount */
+.expense-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--exp-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+/* The square with the emoji of the category. flex-shrink: 0 so it never gets smaller */
+.expense-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #f3eeea;
+    font-size: 1.2rem;
+}
+
+/* The text takes all the free place (flex: 1) and min-width: 0 lets a long description
+   be cut instead of pushing the amount outside of the box */
+.expense-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.expense-meta,
+.expense-share {
+    font-size: 0.8rem;
+    color: var(--exp-muted);
+}
+
+/* The right part (amount, share, status) is aligned on the right */
+.expense-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+/* The small colored label of the status */
+.badge {
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-pending {
+    background: #fff1dc;
+    color: #b36a12;
+}
+
+.badge-settled {
+    background: var(--exp-owed-bg);
+    color: var(--exp-owed-text);
+}
+
+/* The message "No expense" and "Everything is balanced" */
+.expenses-empty {
+    padding: 40px 0;
+    text-align: center;
+    color: var(--exp-muted);
+}
+
+/* ---------- Balances tab ---------- */
+/* A white box with a title inside (one for the balances, one for the refunds) */
+.exp-panel {
+    margin-bottom: 20px;
+    padding: 20px 24px;
+    border: 1px solid var(--exp-line);
+    border-radius: 20px;
+    background: #fff;
+}
+
+.exp-panel h3 {
+    margin-bottom: 16px;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
+/* Same as .expense-list: no bullet points, a space between the lines */
+.balance-list,
+.refund-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.balance-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* The round circle with the first letter of the roomie (the color is set by the JS) */
+.member-dot {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.balance-body {
+    flex: 1;
+}
+
+.balance-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* The grey bar. overflow: hidden so the colored part stays inside the rounded corners */
+.balance-bar {
+    height: 6px;
+    margin-top: 6px;
+    border-radius: 999px;
+    background: #e7e1dd;
+    overflow: hidden;
+}
+
+/* The colored part of the bar (its width is set by the JS with the percent of the API) */
+.balance-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+/* Green for a positive balance, red for a negative one (used for the amount and the bar) */
+.positive {
+    color: var(--exp-owed-text);
+}
+
+.negative {
+    color: var(--exp-owe-text);
+}
+
+.balance-fill.positive {
+    background: var(--exp-owed-text);
+}
+
+.balance-fill.negative {
+    background: var(--exp-owe-text);
+}
+
+.balance-amount {
+    font-weight: 600;
+}
+
+/* "Nora pays Emma" on the left and the amount on the right */
+.refund-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ---------- Pop-up "New expense" ---------- */
+/* The dark background that covers the whole screen. position: fixed so it stays in place
+   even if the page is scrolled, and z-index puts it above everything else.
+   The white box is centered thanks to the grid */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;                       /* shortcut for top, right, bottom and left = 0 */
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+/* The white box. max-height + overflow-y so it can scroll on a small screen */
+.exp-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    padding: 28px;
+    border-radius: 24px;
+    background: #fff;
+    overflow-y: auto;
+}
+
+.exp-modal h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+}
+
+/* Two fields on the same line (amount + date, paid by + category) */
+.exp-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* One field = its label above its input */
+.exp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.exp-field label,
+.exp-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--exp-muted);
+}
+
+.exp-field input,
+.exp-field select {
+    padding: 12px 14px;
+    border: 1px solid var(--exp-line);
+    border-radius: var(--radius-field);
+    background: #faf9f7;
+    font: inherit;
+}
+
+/* One button per roomie in "Split between". It is faded when it is not selected
+   (the class "selected" is added or removed by the JS at each click) */
+.chip-member {
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 999px;
+    color: #fff;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.35;
+    cursor: pointer;
+}
+
+.chip-member.selected {
+    opacity: 1;
+}
+
+/* The red error message (in the pop-up and in the page) */
+.exp-error {
+    color: var(--exp-owe-text);
+    font-size: 0.85rem;
+}
+
+/* The two buttons Cancel / Add, with the same width */
+.exp-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* ---------- Error message of the page ---------- */
+/* Same red text as .exp-error, but with a pink box around it
+   (it is shown when the API does not answer) */
+.exp-banner {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border: 1px solid var(--exp-owe-line);
+    border-radius: var(--radius-field);
+    background: var(--exp-owe-bg);
+}
+
+/* ---------- Small screens ---------- */
+/* Under 700px of width, everything that was on two columns goes on one column */
+@media (max-width: 700px) {
+    .expenses-cards,
+    .exp-row {
+        grid-template-columns: 1fr;
+    }
+}
