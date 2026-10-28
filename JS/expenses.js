@@ -11,9 +11,12 @@ const EXPENSES_URL = "http://localhost:8080/CoHabitAPI/api/expenses";
 // This function is used to ask the API for everything the page shows
 // (summary, expenses, balances, refunds, members and categories)
 async function getExpensesData() {
-    // credentials: "include" sends the cookie of the user, so the API knows who is asking
-    // (we do not send the id of the user ourselves, it is more secure)
-    const response = await fetch(EXPENSES_URL, { credentials: "include" });
+    // The API does not have a session system yet, so we send the email of the user to say who is asking
+    // encodeURIComponent protects the special characters of the email (like @ or +) inside the url
+    // TO DO : remove the email when the session system is efficient
+    const response = await fetch(EXPENSES_URL + "?email=" + encodeURIComponent(user.email), {
+        credentials: "include"   // sends the cookie of the user
+    });
 
     // If the API did not answer with a 2xx code, we stop and the caller shows an error message
     if (!response.ok) {
@@ -123,17 +126,11 @@ function createExpenseItem(expense) {
     // t he description and two  small lines (who paid and with who it is shared)
     const main = createElement("div", "expense-main");
     main.appendChild(createElement("strong", "expense-title", expense.description));
-    main.appendChild(createElement("span", "expense-meta", "Paid by " + expense.paidBy + " · " + formatDate(expense.date)));
-    main.appendChild(createElement("span", "expense-meta", "Shared with " + expense.sharedWith.join(", ")));
+    main.appendChild(createElement("span", "expense-meta", expense.debtor + " owes " + expense.creditor + " · " + formatDate(expense.date)));
 
-    // the amount, my share and the status
+    // the amount of the debt and the status
     const side = createElement("div", "expense-side");
     side.appendChild(createElement("strong", "expense-amount", formatEuro(expense.amount)));
-
-    // The share of the user is calculated by the API. If it did not send it (null), we show nothing
-    if (expense.yourShare !== null) {
-        side.appendChild(createElement("span", "expense-share", "Your share: " + formatEuro(expense.yourShare)));
-    }
     // The css class of the badge depends on the status ("badge-pending" or "badge-settled")
     side.appendChild(createElement("span", "badge badge-" + expense.status, statusLabels[expense.status]));
 
@@ -352,7 +349,9 @@ async function submitExpense(event) {
 
     if (checkInputs(description, amount, sharedWithIds)) {
         try {
-            await sendExpense({ description, amount, date, paidById, category, sharedWithIds });
+            // roomieEmail tells the API who adds the expense (it is read from the body of the request)
+            // TODO : remove it when the session system is efficient
+            await sendExpense({ description, amount, date, paidById, category, sharedWithIds, roomieEmail: user.email });
 
             closeModal();
 
