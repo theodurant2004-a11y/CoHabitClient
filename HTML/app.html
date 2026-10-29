@@ -11,9 +11,11 @@
         rel="stylesheet">
     <link rel="stylesheet" href="../CSS/stylesheet.css">
     <link rel="stylesheet" href="../CSS/app.css">
+    <link rel="stylesheet" href="../CSS/expenses.css">
 
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
+    <script src="../JS/expenses.js" defer></script>
 </head>
 
 <body>
@@ -119,9 +121,117 @@
                 <p>Owner part</p>
             </div>
 
-            <!-- Roomie -->
+            <!-- Roomie (app.js removes this block for an owner) -->
+            <!-- Everything is empty here: expenses.js asks the API and fills it. The front shows -->
             <div class="expenses-roomie" data-role="roomie">
-                <p>Roomie part</p>
+
+                <!-- Summary line + add button -->
+                <div class="expenses-head">
+                    <p class="expenses-summary" id="expensesSummary"></p>
+                    <button type="button" class="btn-add" id="openExpenseModal">+ Add</button>
+                </div>
+
+                <!-- Error message of the page when the API does not answer -->
+                <p class="exp-error exp-banner" id="expensesMessage" hidden></p>
+
+                <!-- The two cards: what I owe / what I am owed -->
+                <div class="expenses-cards">
+                    <div class="expense-card expense-card-owe">
+                        <span class="expense-card-label">You owe</span>
+                        <strong class="expense-card-amount" id="amountOwe"></strong>
+                        <span class="expense-card-note" id="noteOwe"></span>
+                    </div>
+                    <div class="expense-card expense-card-owed">
+                        <span class="expense-card-label">You are owed</span>
+                        <strong class="expense-card-amount" id="amountOwed"></strong>
+                        <span class="expense-card-note" id="noteOwed"></span>
+                    </div>
+                </div>
+
+                <!-- Tabs: list or balances. data-tab is read by the JS to know which tab to show -->
+                <div class="expenses-tabs">
+                    <button type="button" class="expenses-tab active" data-tab="list">📋 List</button>
+                    <button type="button" class="expenses-tab" data-tab="balances">⚖️ Balances</button>
+                </div>
+
+                <!-- Tab 1: the list of expenses -->
+                <div id="expensesList">
+                    <!-- Filters. data-filter is read by the JS ("all", "pending" or "settled") -->
+                    <div class="chips">
+                        <button type="button" class="chip active" data-filter="all">All</button>
+                        <button type="button" class="chip" data-filter="pending">Pending</button>
+                        <button type="button" class="chip" data-filter="settled">Settled</button>
+                    </div>
+                    <!-- The lines of the list are created by the JS -->
+                    <ul class="expense-list" id="expenseItems"></ul>
+                    <!-- Hidden by the JS as soon as there is at least one expense -->
+                    <p class="expenses-empty" id="expensesEmpty" hidden>💰 No expense</p>
+                </div>
+
+                <!-- Tab 2: balances and suggested refunds (hidden until the user clicks on "Balances") -->
+                <div id="expensesBalances" hidden>
+                    <section class="exp-panel">
+                        <h3>Everyone's balance</h3>
+                        <ul class="balance-list" id="balanceItems"></ul>
+                    </section>
+                    <section class="exp-panel">
+                        <h3>Suggested refunds</h3>
+                        <ul class="refund-list" id="refundItems"></ul>
+                        <p class="expenses-empty" id="refundsEmpty" hidden>Everything is balanced 🎉</p>
+                    </section>
+                </div>
+
+                <!-- Pop-up "New expense" (hidden until the user clicks on + Add) -->
+                <!-- The form is inside the roomie block, so an owner never gets it -->
+                <div class="modal-backdrop" id="expenseModal" hidden>
+                    <!-- novalidate: the browser does not check the fields, expenses.js does it (checkInputs) -->
+                    <form class="exp-modal" id="expenseForm" novalidate>
+                        <h3>New expense</h3>
+
+                        <div class="exp-field">
+                            <label for="expenseDescription">Description *</label>
+                            <input type="text" id="expenseDescription" maxlength="50" placeholder="e.g. Carrefour groceries">
+                        </div>
+
+                        <!-- Amount and date on the same line -->
+                        <div class="exp-row">
+                            <div class="exp-field">
+                                <label for="expenseAmount">Amount (€) *</label>
+                                <input type="number" id="expenseAmount" min="0.01" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="exp-field">
+                                <label for="expenseDate">Date</label>
+                                <input type="date" id="expenseDate">
+                            </div>
+                        </div>
+
+                        <!-- The options of these two lists come from the API (fillForm in expenses.js) -->
+                        <div class="exp-row">
+                            <div class="exp-field">
+                                <label for="expensePaidBy">Paid by</label>
+                                <select id="expensePaidBy"></select>
+                            </div>
+                            <div class="exp-field">
+                                <label for="expenseCategory">Category</label>
+                                <select id="expenseCategory"></select>
+                            </div>
+                        </div>
+
+                        <!-- One button per roomie, created by the JS. The number is updated at each click -->
+                        <div class="exp-field">
+                            <span class="exp-label">Split between (<span id="splitCount">0</span>)</span>
+                            <div class="chips" id="expenseSplit"></div>
+                        </div>
+
+                        <!-- Error message of the pop-up (wrong field or API error) -->
+                        <p class="exp-error" id="expenseError" hidden></p>
+
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelExpense">Cancel</button>
+                            <button type="submit" class="btn-add">Add</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
         <section id="view-members" class="view" hidden>
