@@ -37,9 +37,11 @@ async function sendExpense(newExpense) {
         body: JSON.stringify(newExpense)                   // the object is transformed into text
     });
 
-    // Same check here
+    // Same check here, we keep the code so the page knows if the API refused what was typed
     if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+        const error = new Error(`Response status: ${response.status}`);
+        error.status = response.status;
+        throw error;
     }
 }
 
@@ -89,11 +91,13 @@ function formatEuro(amount) {
     return Number(amount).toFixed(2) + " €";
 }
 
-// Same as above but we add a "+" for a positive amount: 26 => "+26.00 €" and -19 => "-19.00 €"
-// For a negative amount the "-" is already there
+// Same as above but the browser adds a "+" for a positive amount: 26 => "+26.00 €" and -19 => "-19.00 €"
 function formatSignedEuro(amount) {
-    const sign = amount > 0 ? "+" : "";
-    return sign + formatEuro(amount);
+    return Number(amount).toLocaleString("en-GB", {
+        signDisplay: "exceptZero",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }) + " €";
 }
 
 // Display format of a date: "2026-10-20" becomes "20 Oct 2026"
@@ -111,8 +115,9 @@ function showSummary(summary) {
     document.getElementById("amountOwed").textContent = formatEuro(summary.toReceive);
 
     // The small text under the amount changes when there is nothing to pay / to receive
-    document.getElementById("noteOwe").textContent = summary.toPay > 0 ? "Payments to make" : "No payment to make";
-    document.getElementById("noteOwed").textContent = summary.toReceive > 0 ? "Refunds expected" : "No refund pending";
+    // The API tells us with hasToPay and hasToReceive, we do not compare the amounts here
+    document.getElementById("noteOwe").textContent = summary.hasToPay ? "Payments to make" : "No payment to make";
+    document.getElementById("noteOwed").textContent = summary.hasToReceive ? "Refunds expected" : "No refund pending";
 }
 
 // This function creates ONE line of the list of expenses
@@ -158,8 +163,8 @@ function showExpenses(expenses, filter) {
 
 // This function creates ONE line of "Everyone's balance" (the name, the bar and the amount)
 function createBalanceRow(balance) {
-    // A negative balance is shown in red, a positive one in green
-    const sign = balance.amount < 0 ? "negative" : "positive";
+    // The css class ("negative" or "positive") is given by the API
+    const sign = balance.sign;
     const row = createElement("li", "balance-row");
 
     // The round colored circle with the first letter of the name
@@ -231,8 +236,10 @@ function changeFilter(filter) {
         button.classList.toggle("active", button.dataset.filter === filter);
     });
 
-    // We show the list again with the new filter. We already have the data, so no need to ask the API
-    showExpenses(expensesData.expenses, currentFilter);
+    // We show the list again with the new filter bbut we already have the data, so no need to ask the API
+    if (expensesData) {
+        showExpenses(expensesData.expenses, currentFilter);
+    }
 }
 
 //-------------- Pop-up "New expense" -----------------
@@ -307,39 +314,12 @@ function closeModal() {
     document.getElementById("expenseModal").hidden = true;
 }
 
-// This function checks the form
-// It shows the error message if something is wrong and returns true only when everything is fine
-// We check here only that the fields are filled: the real rules stay in the API
-function checkInputs(description, amount, sharedWithIds) {
-    let valid = true;
-    let message = "";
-
-    if (description === "") {
-        valid = false;
-        message = "The description is required.";
-    } else if (!(amount > 0)) {
-        // An empty field gives 0 with Number(), so it is refused too
-        valid = false;
-        message = "The amount must be greater than 0.";
-    } else if (sharedWithIds.length === 0) {
-        valid = false;
-        message = "Choose at least one roomie to split with.";
-    }
-
-    // The paragraph is shown only when there is an error
-    const error = document.getElementById("expenseError");
-    error.textContent = message;
-    error.hidden = valid;
-
-    return valid;
-}
-
 // This function runs when the user clicks on "Add" in the pop-up
 async function submitExpense(event) {
     // A form reloads the page by default, we do not want that so we use :
     event.preventDefault();
 
-    // We read each value only once, then we pass them to the functions
+    // We read each value only once, we do not check them here: the rules are in the API
     const description = document.getElementById("expenseDescription").value.trim();
     const amount = Number(document.getElementById("expenseAmount").value);
     const date = document.getElementById("expenseDate").value;
@@ -347,22 +327,26 @@ async function submitExpense(event) {
     const category = document.getElementById("expenseCategory").value;
     const sharedWithIds = getSelectedMemberIds();
 
-    if (checkInputs(description, amount, sharedWithIds)) {
-        try {
-            // roomieEmail tells the API who adds the expense (it is read from the body of the request)
-            // TODO : remove it when the session system is efficient
-            await sendExpense({ description, amount, date, paidById, category, sharedWithIds, roomieEmail: user.email });
+    // No old error message
+    hideMessage("expenseError");
 
-            closeModal();
+    try {
+        // roomieEmail tells the API who adds the expense (it is read from the body of the request)
+        // TODO : remove it when the session system is efficient
+        await sendExpense({ description, amount, date, paidById, category, sharedWithIds, roomieEmail: user.email });
 
-            // We ask the API again the new expense appears and the totals come back already recalculated
-            // We do not add the expense ourselves in the list, because we would have to calculate the new totals
-            await loadExpenses();
-        } catch (e) {
-            console.error(e.message);
-            // The message is shown inside the pop-up
-            showMessage("expenseError", "Unable to add the expense right now.");
-        }
+        closeModal();
+
+        // We ask the API again so the new expense appears and the totals come back already recalculated
+        // We do not add the expense ourselves in the list, because we would have to calculate the new totals
+        await loadExpenses();
+    } catch (e) {
+        console.error(e.message);
+        // The code 400 means that the API refused what was typed
+        const message = e.status === 400
+            ? "Please check the fields: a description, an amount and at least one other roomie are required."
+            : "Unable to add the expense right now.";
+        showMessage("expenseError", message);
     }
 }
 
