@@ -57,6 +57,14 @@ let currentFilter = "all";
 // The API sends the status in lowercase ("pending"), here is the text we show to the user
 const statusLabels = { pending: "Pending", settled: "Settled" };
 
+
+// The API sends the status of my balance in lowercase, here is the text we show to the user
+const balanceLabels = { creditor: "Creditor", debtor: "Debtor", balanced: "Balanced" };
+
+// The color of the balance on the card "My balance" of the home page
+// teal when the others owe me money, red when I owe money, no special color when everything is balanced
+const balanceCardClasses = { creditor: "home-stat-creditor", debtor: "home-stat-debtor", balanced: "" };
+
 //-------------- Small helpers -----------------
 // This function is used to create an HTML element in one line
 // (tag = the type of element, className = its css class, text = what is written inside)
@@ -118,6 +126,12 @@ function showSummary(summary) {
     // The API tells us with hasToPay and hasToReceive, we do not compare the amounts here
     document.getElementById("noteOwe").textContent = summary.hasToPay ? "Payments to make" : "No payment to make";
     document.getElementById("noteOwed").textContent = summary.hasToReceive ? "Refunds expected" : "No refund pending";
+
+    // The card "My balance" of the home page
+    // The API gives the balance and its status ("creditor", "debtor" or "balanced"), we only show them
+    document.getElementById("homeBalance").textContent = formatSignedEuro(summary.balance);
+    document.getElementById("homeBalanceNote").textContent = balanceLabels[summary.balanceStatus];
+    document.getElementById("homeBalanceCard").className = "home-stat home-stat-balance " + balanceCardClasses[summary.balanceStatus];
 }
 
 // This function creates ONE line of the list of expenses
