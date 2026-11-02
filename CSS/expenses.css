@@ -4,9 +4,10 @@
    ===================================================== */
 
 /* Colors of this page. We put them in variables so we write each color only once
-   and we can change it in one place. They are declared on the roomie block only,
-   because the global variables stay in stylesheet.css and app.css */
-.expenses-roomie {
+   and we can change it in one place. They are declared on :root so every part of the
+   app can use them (the home page uses them too). The names start with exp- so they
+   cannot be mixed up with the global variables of stylesheet.css and app.css */
+:root {
     --exp-owe-bg: #fdeeea;          /* pink: what I owe */
     --exp-owe-line: #f2c9bd;
     --exp-owe-text: #c4553b;
@@ -16,6 +17,10 @@
     --exp-muted: #8a7f7b;           /* grey of the small texts */
     --exp-line: #e6e0dc;            /* grey of the borders */
     --exp-primary: var(--sidebar-bg);   /* main color of the buttons = same as the sidebar */
+}
+
+/* The roomie block of the Expenses page */
+.expenses-roomie {
     margin-top: 8px;
 }
 
@@ -99,7 +104,7 @@
 .expense-card-label {
     font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
@@ -406,7 +411,7 @@
 .exp-label {
     font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--exp-muted);
 }
