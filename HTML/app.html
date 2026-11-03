@@ -14,6 +14,7 @@
 
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
+    <script src="../JS/expenses.js" defer></script>
 </head>
 
 <body>
@@ -112,16 +113,75 @@
             <h2>Calendar</h2>
         </section>
         <section id="view-expenses" class="view" hidden>
-            <h2>Expenses</h2>
-            
-            <!-- Owner -->
+            <header class="page-head">
+                <h2>Expenses</h2>
+                <p class="page-sub">Manage the rent, the bills and the payments.</p>
+            </header>
+
+            <!-- Owner rent and bills -->
             <div class="expenses-owner" data-role="owner">
-                <p>Owner part</p>
+                <div class="tabs">
+                    <button type="button" class="tab active" data-tab="rent">Rent</button>
+                    <button type="button" class="tab" data-tab="bills">Bills</button>
+                </div>
+
+                <div class="tab-panel" id="tab-rent">
+                    <form id="rentForm" class="card form-card" novalidate>
+                        <div class="form-head">
+                            <div>
+                                <h3>Add the rent</h3>
+                                <p class="form-sub">The amount is automatically split between the selected people.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="rentAmount">Total rent (€)</label>
+                                <input type="number" id="rentAmount" min="0.01" step="0.01" placeholder="e.g. 850"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rentDay">Due on the</label>
+                                <input type="date" id="rentDay" min="1" max="28" value="5" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rentFrequency">Recurrence</label>
+                                <select id="rentFrequency">
+                                    <option value="NONE">None</option>
+                                    <option value="MONTHLY" selected>Every month</option>
+                                    <option value="YEARLY">Every year</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <fieldset class="people">
+                            <legend>People concerned (<span id="rentCount">0</span>)</legend>
+                            <div class="chips" id="rentMembers"></div>
+                        </fieldset>
+
+                        <p class="form-error" id="rentError" hidden></p>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-inline">Add the rent</button>
+                        </div>
+                    </form>
+
+                    <!-- List of the published rents -->
+                    <div class="expense-list" id="rentList">
+                        <p class="list-empty">No expense published yet.</p>
+                    </div>
+                </div>
+
+                <div class="tab-panel" id="tab-bills" hidden>
+                    <p>Bills part</p>
+                </div>
             </div>
 
-            <!-- Roomie -->
+            <!-- Roomie see what he has to pay -->
             <div class="expenses-roomie" data-role="roomie">
-                <p>Roomie part</p>
+
             </div>
         </section>
         <section id="view-members" class="view" hidden>
