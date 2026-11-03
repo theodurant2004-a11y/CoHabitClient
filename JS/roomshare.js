@@ -14,11 +14,36 @@ function showSection() {
             // Both sections are hidden in the HTML: only the matching one is shown
             document.getElementById("ownerSection").hidden = false;
         } else if (user.role === "roomie") {
-            document.getElementById("roomieSection").hidden = false;
+            showRoomieSection();
         } else {
             // If Unknown role: the stored data is not valid so sign in again
             window.location.href = "SignIn.html";
         }
+    }
+}
+
+// Shows what a roomie must see depending on his membership status
+// The status is given by the API when the user signs in ("none", "pending" or "accepted")
+function showRoomieSection() {
+    if (user.membershipStatus === "accepted") {
+        // The roomie already belongs to a roomshare, he doesnt need to give a key again
+        // app.js needs the key "roomshare" to let the user in, so we store it here
+        // A roomie does not get the invitation key from the API, so we only store the name
+        sessionStorage.setItem("roomshare", JSON.stringify({ name: user.roomshareName }));
+        window.location.href = "app.html";
+    } else if (user.membershipStatus === "pending") {
+        // The request was sent but the owner did not answer yet: no form, only a message
+        // We do this because the roomie cannot send a second request (the API refuses it)
+        let message = "Your request is waiting for the answer of the owner.";
+        if (user.roomshareName) {
+            message = "Your request to join " + user.roomshareName + " is waiting for the answer of the owner.";
+        }
+        document.getElementById("pendingMessage").textContent = message;
+        document.getElementById("roomieSection").hidden = true;
+        document.getElementById("pendingSection").hidden = false;
+    } else {
+        // "none" : the roomie has no roomshare, so he sees the form
+        document.getElementById("roomieSection").hidden = false;
     }
 }
 
@@ -128,6 +153,12 @@ async function sendJoinRequest(event) {
                 } else {
                     console.log("Join request sent");
                     alert("Request sent! Wait for the owner to accept it.");
+
+                    // The roomie is now "pending": we keep it in the browser and we show the message instead of the form
+                    // (the status read at the sign in is old, so we update it ourselves)
+                    user.membershipStatus = "pending";
+                    sessionStorage.setItem("user", JSON.stringify(user));
+                    showRoomieSection();
                 }
             }
         } catch (e) {
@@ -146,3 +177,4 @@ document.getElementById("roomieForm").addEventListener("submit", sendJoinRequest
 
 document.getElementById("signOutOwner").addEventListener("click", signOut);
 document.getElementById("signOutRoomie").addEventListener("click", signOut);
+document.getElementById("signOutPending").addEventListener("click", signOut);

@@ -56,6 +56,16 @@
                     </div>
                 </form>
             </section>
+            <!-- Roomie : the request was sent but the owner did not answer yet. roomshare.js shows it when the status is pending -->
+            <section id="pendingSection" hidden>
+                <h2>Request pending</h2>
+                <p class="card-subtitle" id="pendingMessage"></p>
+                <p class="card-subtitle">Sign in again when the owner has accepted your request.</p>
+
+                <div class="actions">
+                    <button type="button" id="signOutPending" class="btn btn-secondary">Sign out</button>
+                </div>
+            </section>
 
         </div>
     </main>
