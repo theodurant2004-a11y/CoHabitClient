@@ -11,9 +11,11 @@
         rel="stylesheet">
     <link rel="stylesheet" href="../CSS/stylesheet.css">
     <link rel="stylesheet" href="../CSS/app.css">
+    <link rel="stylesheet" href="../CSS/members.css">
 
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
+    <script src="../JS/members.js" defer></script>
 </head>
 
 <body>
@@ -126,6 +128,32 @@
         </section>
         <section id="view-members" class="view" hidden>
             <h2>Members</h2>
+
+            <!-- Everybody: the members of the roomshare (the owner first, then the accepted roomies) -->
+            <!-- The list is empty here: members.js fills it with what the API sends -->
+            <div class="members-list">
+                <h3 class="members-label">Members of the roomshare (<span id="memberCount">0</span>)</h3>
+                <ul class="member-items" id="memberItems"></ul>
+
+                <!-- Error message, hidden by default -->
+                <p class="members-message" id="membersMessage" hidden></p>
+            </div>
+
+            <!-- Owner (app.js removes this block for a roomie) -->
+            <!-- The join requests waiting for the answer of the owner -->
+            <div class="members-pending" data-role="owner">
+                <h3 class="members-label members-label-pending">
+                    Waiting for approval (<span id="pendingCount">0</span>)
+                </h3>
+                <!-- members.js adds one <li> for each request -->
+                <ul class="member-items" id="pendingItems"></ul>
+
+                <!-- Shown only when there is no request -->
+                <p class="members-empty" id="pendingEmpty" hidden>No request for now.</p>
+
+                <!-- Error message, hidden by default -->
+                <p class="members-message" id="pendingMessage" hidden></p>
+            </div>
         </section>
     </div>
 </body>
