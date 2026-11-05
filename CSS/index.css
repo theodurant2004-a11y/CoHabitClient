@@ -38,13 +38,3 @@ h1 {
     flex-direction: column;
     gap: 14px;
 }
-
-@media (max-width: 520px) {
-    .welcome-card {
-        padding: 28px 20px;
-    }
-
-    h1 {
-        font-size: 1.8rem;
-    }
-}

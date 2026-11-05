@@ -198,12 +198,3 @@
     display: flex;
     justify-content: space-between;
 }
-
-/* ---------- Small screens ---------- */
-/* Under 700px of width, everything that was on two columns goes on one column */
-@media (max-width: 700px) {
-    .expenses-cards,
-    .exp-row {
-        grid-template-columns: 1fr;
-    }
-}
