@@ -39,6 +39,50 @@
     --exp-muted: #8a7f7b;           /* grey of the small texts */
     --exp-line: #e6e0dc;            /* grey of the borders */
     --exp-primary: var(--sidebar-bg);   /* main color of the buttons = same as the sidebar */
+
+    /* Sidebar */
+    --sidebar-bg: var(--brand-dark);
+    --sidebar-active: var(--accent);
+    --sidebar-soft: rgba(255, 255, 255, 0.08);
+    --sidebar-line: rgba(255, 255, 255, 0.12);
+    --on-dark-60: rgba(255, 255, 255, 0.6);
+    --on-dark-65: rgba(255, 255, 255, 0.65);
+    --on-dark-70: rgba(255, 255, 255, 0.7);
+    --on-dark-80: rgba(255, 255, 255, 0.8);
+    --copied: #9be3b9;
+
+    /* One color per type of event */
+    --cal-social: var(--accent);
+    --cal-meeting: #3f7cac;
+    --cal-visit: var(--exp-owed-text);
+    --cal-task: var(--warning-text);
+    --cal-other: var(--text-muted);
+
+    /* Other colors */
+    --white: #fff;
+    --accent-soft: rgba(197, 100, 77, 0.1);
+    --text-soft: #5f5a56;
+    --text-strong: #2b2b2b;
+    --text-dark: #1f1a1a;
+    --text-home-sub: #7a746e;
+    --text-secondary: #6b6060;
+    --text-link: #666;
+    --text-hover: #555;
+    --placeholder: #a39a9a;
+    --border-home: #ebe5de;
+    --warning-bg: #fff1dc;
+    --warning-text: #b36a12;
+    --error-bg: #fdecea;
+    --error-text: #c0392b;
+    --tabs-bg: #efeae6;
+    --icon-bg: #f3eeea;
+    --bar-bg: #e7e1dd;
+    --backdrop: rgba(0, 0, 0, 0.45);
+    --shadow-home: rgba(0, 0, 0, 0.04);
+    --shadow-card: rgba(0, 0, 0, 0.05);
+    --shadow-tab: rgba(0, 0, 0, 0.08);
+    --shadow-logo: rgba(0, 0, 0, 0.1);
+    --radius-pill: 999px;
 }
 
 /* Reset : removes the default margins and makes sizes easier to compute*/
@@ -89,7 +133,7 @@ header {
     border-radius: 18px;
     margin-bottom: 14px;
     object-fit: cover;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--shadow-logo);
 }
 
 h1 {
@@ -111,7 +155,7 @@ h1 {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 16px var(--shadow-card);
 }
 
 .card h2 {
@@ -156,7 +200,7 @@ h1 {
 }
 
 .form-group input::placeholder {
-    color: #a39a9a;
+    color: var(--placeholder);
 }
 
 .form-group input:focus {
@@ -183,7 +227,7 @@ h1 {
 
 .btn-primary {
     background-color: var(--brand);
-    color: white;
+    color: var(--white);
     border: 1px solid var(--brand);
 }
 
@@ -199,7 +243,7 @@ h1 {
 
 .btn-secondary {
     background-color: var(--surface-soft);
-    color: #6b6060;
+    color: var(--text-secondary);
     border: 1px solid var(--border-input);
 }
 
@@ -213,7 +257,7 @@ h1 {
 .switch-link {
     text-align: center;
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-link);
     margin-top: 20px;
 }
 
@@ -235,7 +279,7 @@ h1 {
 }
 
 .btn-back:hover {
-    color: #555;
+    color: var(--text-hover);
 }
 
 /* Responsive */

@@ -24,7 +24,7 @@
     margin-bottom: 14px;
     padding: 10px 14px;
     border-radius: var(--radius-field);
-    background-color: rgba(197, 100, 77, 0.1);
+    background-color: var(--accent-soft);
     color: var(--accent-dark);
     font-size: 0.85rem;
 }

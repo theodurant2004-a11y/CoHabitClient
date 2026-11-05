@@ -5,14 +5,6 @@
    ===================================================== */
 
 /* One color per type of event */
-:root {
-    --cal-social: var(--accent);
-    --cal-meeting: #3f7cac;
-    --cal-visit: var(--exp-owed-text);
-    --cal-task: #b36a12;
-    --cal-other: var(--text-muted);
-}
-
 /* ---------- The two cards ---------- */
 .calendar-layout {
     display: grid;
@@ -44,7 +36,7 @@
     height: 38px;
     border: 1px solid var(--exp-line);
     border-radius: 50%;
-    background: #fff;
+    background: var(--surface);
     color: var(--text-label);
     font: inherit;
     font-size: 1.3rem;
@@ -107,7 +99,7 @@
 
 .calendar-today .calendar-number {
     background: var(--exp-primary);
-    color: #fff;
+    color: var(--white);
     font-weight: 600;
 }
 
@@ -179,7 +171,7 @@
     padding: 12px 14px;
     border: 1px solid var(--exp-line);
     border-radius: var(--radius-field);
-    background: #faf9f7;
+    background: var(--surface-soft);
     font: inherit;
     resize: vertical;
 }
