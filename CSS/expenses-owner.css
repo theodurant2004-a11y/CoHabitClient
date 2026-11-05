@@ -1,16 +1,5 @@
-/* ------------- Page header ------------- */
-.page-sub {
-    margin-top: 4px;
-    color: var(--text-muted);
-}
-
-.page-head {
-    margin-bottom: 24px;
-    text-align: left;
-}
-
 /* ------------- Tabs ------------- */
-.tabs {
+.expenses-owner .tabs {
     display: inline-flex;
     gap: 4px;
     padding: 4px;
@@ -19,7 +8,7 @@
     background: var(--border);
 }
 
-.tab {
+.expenses-owner .tab {
     padding: 9px 20px;
     border: 0;
     border-radius: 10px;
@@ -31,19 +20,19 @@
     transition: var(--transition);
 }
 
-.tab.active {
+.expenses-owner .tab.active {
     background: var(--surface);
     color: var(--text);
     box-shadow: 0 1px 3px var(--shadow-tab);
 }
 
 /* ============== Form card =========== */
-.form-card {
+.expenses-owner .form-card {
     padding: 28px;
     margin-bottom: 24px;
 }
 
-.form-head {
+.expenses-owner .form-head {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -51,41 +40,31 @@
     margin-bottom: 22px;
 }
 
-.form-head h3 {
+.expenses-owner .form-head h3 {
     font-family: 'DM Serif Display', Georgia, serif;
     font-size: 1.4rem;
     font-weight: 400;
     color: var(--text-title);
 }
 
-.form-sub {
+.expenses-owner .form-sub {
     margin-top: 2px;
     font-size: 0.9rem;
     color: var(--text-muted);
 }
 
-.badge {
-    flex-shrink: 0;
-    padding: 5px 12px;
-    border-radius: var(--radius-pill);
-    background: var(--brand-soft);
-    color: var(--brand);
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.form-grid {
+.expenses-owner .form-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     align-items: end;
 }
 
-.chip input {
+.expenses-owner .chip input {
     accent-color: var(--brand);
 }
 
-.form-group select {
+.expenses-owner .form-group select {
     width: 100%;
     padding: 13px 44px 13px 16px; 
     border: 1px solid var(--border-input);
@@ -108,11 +87,11 @@
     background-size: 16px;
 }
 
-.form-group select:hover {
+.expenses-owner .form-group select:hover {
     border-color: var(--brand);
 }
 
-.form-group select:focus {
+.expenses-owner .form-group select:focus {
     outline: none;
     border-color: var(--brand);
     background-color: var(--surface);
@@ -120,18 +99,18 @@
 }
 
 /* Options of the opened list */
-.form-group select option {
+.expenses-owner .form-group select option {
     color: var(--text);
     background: var(--surface);
 }
 
 /* People concerned */
-.people {
+.expenses-owner .people {
     border: 0;
     margin-top: 6px;
 }
 
-.people legend {
+.expenses-owner .people legend {
     margin-bottom: 10px;
     font-size: 0.75rem;
     font-weight: 600;
@@ -140,33 +119,14 @@
     color: var(--text-label);
 }
 
-.chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 14px;
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-pill);
-    background: var(--surface-soft);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
 /* -------------- personn selection --------------- */
-.chip:has(input:checked) {
+.expenses-owner .chip:has(input:checked) {
     border-color: var(--brand);
     background: var(--brand);
     color: var(--white);
 }
 
-.form-error {
+.expenses-owner .form-error {
     margin-top: 16px;
     padding: 10px 14px;
     border-radius: 10px;
@@ -175,25 +135,18 @@
     font-size: 0.9rem;
 }
 
-.form-actions {
+.expenses-owner .form-actions {
     display: flex;
     justify-content: flex-end;
     margin-top: 20px;
 }
 
-.btn-inline {
+.expenses-owner .btn-inline {
     width: auto;
     padding: 12px 22px;
 }
 
-/* ------------------- List of the expenses -------------------- */
-.expense-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.list-empty {
+.expenses-owner .list-empty {
     padding: 50px 20px;
     text-align: center;
     color: var(--text-muted);
@@ -203,10 +156,11 @@
 
 /* -------------------- Responsive ------------- */
 @media (max-width: 900px) {
-    .form-grid {
+    .expenses-owner .form-grid {
         grid-template-columns: 1fr;
     }
 }
+
 @media (max-width: 800px) {
 
     body {
@@ -278,15 +232,15 @@
     }
 
     /* Form */
-    .form-card {
+    .expenses-owner .form-card {
         padding: 20px;
     }
 
-    .form-head {
+    .expenses-owner .form-head {
         flex-direction: column;
     }
 
-    .btn-inline {
+    .expenses-owner .btn-inline {
         width: 100%;
     }
 }

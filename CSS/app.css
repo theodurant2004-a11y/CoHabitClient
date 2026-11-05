@@ -203,8 +203,18 @@ body {
     color: var(--text-title);
 }
 
-/* ================= Home page ================= */
+/* ------------- Page header ------------- */
+.page-sub {
+    margin-top: 4px;
+    color: var(--text-muted);
+}
 
+.page-head {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+/* ================= Home page ================= */
 /* The greeting and the name of the roomshare */
 .home-head {
     margin-bottom: 28px;
@@ -289,10 +299,6 @@ body {
     gap: 20px;
     margin-top: 20px;
     align-items: start;
-}
-
-.home-panel {
-    margin-bottom: 0;
 }
 
 .home-panel-events {

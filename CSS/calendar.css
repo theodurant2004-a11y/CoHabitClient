@@ -1,9 +1,8 @@
 /* =====================================================
    Calendar page
-   It reuses the cards, buttons and pop-up of expenses.css.
+   It reuses the cards, buttons and pop-up of stylesheet.css.
    Here there is only what is specific to the calendar.
    ===================================================== */
-
 /* One color per type of event */
 /* ---------- The two cards ---------- */
 .calendar-layout {
@@ -126,9 +125,13 @@
 }
 
 .calendar-dot-social { background: var(--cal-social); }
+
 .calendar-dot-meeting { background: var(--cal-meeting); }
+
 .calendar-dot-visit { background: var(--cal-visit); }
+
 .calendar-dot-task { background: var(--cal-task); }
+
 .calendar-dot-other { background: var(--cal-other); }
 
 /* ---------- Events of the clicked day ---------- */
@@ -194,11 +197,6 @@
     font-weight: 400;
     letter-spacing: 0;
     text-transform: none;
-}
-
-.btn-add:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
 }
 
 /* ---------- Small screens ---------- */
