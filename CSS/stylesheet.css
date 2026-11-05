@@ -29,6 +29,16 @@
     --radius-card: 24px;
     --radius-field: 14px;
     --transition: all 0.25s ease;
+
+    --exp-owe-bg: #fdeeea;          /* pink: what I owe */
+    --exp-owe-line: #f2c9bd;
+    --exp-owe-text: #c4553b;
+    --exp-owed-bg: #edf6f1;         /* green: what I am owed */
+    --exp-owed-line: #bfe0cf;
+    --exp-owed-text: #2f7d5b;
+    --exp-muted: #8a7f7b;           /* grey of the small texts */
+    --exp-line: #e6e0dc;            /* grey of the borders */
+    --exp-primary: var(--sidebar-bg);   /* main color of the buttons = same as the sidebar */
 }
 
 /* Reset : removes the default margins and makes sizes easier to compute*/
