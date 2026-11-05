@@ -208,3 +208,21 @@
     opacity: 0.45;
     cursor: not-allowed;
 }
+
+/* ---------- Small screens ---------- */
+/* The two cards go one under the other */
+@media (max-width: 1000px) {
+    .calendar-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .exp-panel.calendar-card {
+        padding: 16px 12px;
+    }
+
+    .calendar-cell {
+        min-height: 48px;
+    }
+}
