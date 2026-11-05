@@ -11,15 +11,17 @@
         rel="stylesheet">
     <link rel="stylesheet" href="../CSS/stylesheet.css">
     <link rel="stylesheet" href="../CSS/app.css">
-    <link rel="stylesheet" href="../CSS/expenses.css">
     <link rel="stylesheet" href="../CSS/expenses-roomie.css">
     <link rel="stylesheet" href="../CSS/expenses-owner.css">
+    <link rel="stylesheet" href="../CSS/calendar.css">
+    <link rel="stylesheet" href="../CSS/responsive.css">
     <link rel="stylesheet" href="../CSS/members.css">
 
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
     <script src="../JS/expenses-owner.js" defer></script>
     <script src="../JS/expenses-roomie.js" defer></script>
+    <script src="../JS/calendar.js" defer></script>
     <script src="../JS/members.js" defer></script>
 </head>
 
@@ -116,6 +118,12 @@
 
             <!-- The row of the cards of the home page (4 columns). Each feature adds its own card here -->
             <div class="home-stats">
+                <!-- The card "Events" is the 3rd one. calendar.js fills it -->
+                <div class="home-stat home-stat-events">
+                    <span class="home-stat-label">Events</span>
+                    <strong class="home-stat-value" id="homeEventsCount"></strong>
+                    <span class="home-stat-note">this month</span>
+                </div>
                 <!-- The card "My balance" is the 4th one. Roomie only: app.js removes it for an owner -->
                 <!-- It is empty here: expenses.js fills it with what the API sends -->
                 <div class="home-stat home-stat-balance" id="homeBalanceCard" data-role="roomie">
@@ -124,15 +132,132 @@
                     <span class="home-stat-note" id="homeBalanceNote"></span>
                 </div>
             </div>
-        <section id="view-shoppingList" class="view" data-role="roomie" hidden>
-            <h2>Shopping list</h2>
-        </section>
+
+            <!-- The row of the bigger cards (2 columns). Each feature adds its own card here -->
+            <div class="home-panels">
+                <!-- The card "Upcoming events" is in the 2nd column. calendar.js fills it -->
+                <div class="exp-panel home-panel home-panel-events">
+                    <div class="home-panel-head">
+                        <h3>Upcoming events</h3>
+                        <a href="#calendar" class="home-panel-link">See all →</a>
+                    </div>
+                    <p class="exp-error" id="homeEventsMessage" hidden></p>
+                    <ul class="expense-list" id="homeEventItems"></ul>
+                    <p class="expenses-empty calendar-empty" id="homeEventsEmpty" hidden>No upcoming event</p>
+                </div>
+            </div>
+            <section id="view-shoppingList" class="view" data-role="roomie" hidden>
+                <h2>Shopping list</h2>
+            </section>
         </section>
         <section id="view-tasks" class="view" hidden>
             <h2>Tasks</h2>
         </section>
         <section id="view-calendar" class="view" hidden>
-            <h2>Calendar</h2>
+            <!-- Title, number of upcoming events and add button -->
+            <div class="expenses-head">
+                <div>
+                    <h2>Calendar</h2>
+                    <p class="expenses-summary" id="upcomingCount"></p>
+                </div>
+                <button type="button" class="btn-add" id="openEventModal">+ Add</button>
+            </div>
+
+            <!-- Error message of the page when the API does not answer -->
+            <p class="exp-error exp-banner" id="calendarMessage" hidden></p>
+
+            <div class="calendar-layout">
+                <!-- Left card: the month -->
+                <div class="exp-panel calendar-card">
+                    <div class="calendar-nav">
+                        <button type="button" class="calendar-arrow" id="previousMonth"
+                            aria-label="Previous month">‹</button>
+                        <h3 id="calendarTitle" aria-live="polite"></h3>
+                        <button type="button" class="calendar-arrow" id="nextMonth" aria-label="Next month">›</button>
+                    </div>
+
+                    <div class="calendar-weekdays" aria-hidden="true">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+
+                    <!-- The days are created by calendar.js -->
+                    <div class="calendar-grid" id="calendarGrid"></div>
+
+                    <!-- The events of the clicked day (hidden until the user clicks on a day) -->
+                    <div class="calendar-day" id="dayPanel" hidden>
+                        <div class="calendar-day-head">
+                            <strong id="dayTitle"></strong>
+                            <button type="button" class="btn-ghost calendar-day-add" id="addOnDay">+ Add on this
+                                day</button>
+                        </div>
+                        <ul class="expense-list" id="dayItems"></ul>
+                        <p class="expenses-empty calendar-empty" id="dayEmpty" hidden>No event on this day</p>
+                    </div>
+                </div>
+
+                <!-- Right card: the next events -->
+                <div class="exp-panel calendar-card">
+                    <h3>Upcoming events</h3>
+                    <ul class="expense-list" id="upcomingItems"></ul>
+                    <p class="expenses-empty calendar-empty" id="upcomingEmpty" hidden>No upcoming event</p>
+                </div>
+            </div>
+
+            <!-- Pop-up "New event" (hidden until the user clicks on + Add) -->
+            <div class="modal-backdrop" id="eventModal" hidden>
+                <form class="exp-modal" id="eventForm" novalidate>
+                    <h3>New event</h3>
+
+                    <div class="exp-field">
+                        <label for="eventTitle">Title *</label>
+                        <input type="text" id="eventTitle" maxlength="50" placeholder="e.g. Pizza night">
+                    </div>
+
+                    <div class="exp-field">
+                        <label for="eventDescription">Description</label>
+                        <textarea id="eventDescription" maxlength="255" rows="2"></textarea>
+                    </div>
+
+                    <div class="exp-field">
+                        <label for="eventDate">Date *</label>
+                        <input type="date" id="eventDate">
+                    </div>
+
+                    <div class="exp-row">
+                        <div class="exp-field">
+                            <label for="eventStart">Start</label>
+                            <input type="time" id="eventStart">
+                        </div>
+                        <div class="exp-field">
+                            <label for="eventEnd">End</label>
+                            <input type="time" id="eventEnd">
+                        </div>
+                    </div>
+
+                    <!-- One button per type, created by calendar.js -->
+                    <div class="exp-field">
+                        <span class="exp-label">Type</span>
+                        <div class="chips calendar-chips" id="eventTypes"></div>
+                    </div>
+
+                    <div class="exp-field">
+                        <span class="exp-label">Participants</span>
+                        <label class="calendar-everyone">
+                            <input type="checkbox" id="eventEveryone" checked>
+                            Everyone
+                        </label>
+                        <!-- One button per member, created by calendar.js. Shown when Everyone is unchecked -->
+                        <div class="chips calendar-chips" id="eventParticipants" hidden></div>
+                    </div>
+
+                    <p class="exp-error" id="eventError" hidden></p>
+
+                    <div class="exp-actions">
+                        <button type="button" class="btn-ghost" id="cancelEvent">Cancel</button>
+                        <button type="submit" class="btn-add" id="createEvent" disabled>Create</button>
+                    </div>
+                </form>
+            </div>
         </section>
         <section id="view-expenses" class="view" hidden>
             <header class="page-head">
@@ -270,7 +395,8 @@
 
                         <div class="exp-field">
                             <label for="expenseDescription">Description *</label>
-                            <input type="text" id="expenseDescription" maxlength="50" placeholder="e.g. Carrefour groceries">
+                            <input type="text" id="expenseDescription" maxlength="50"
+                                placeholder="e.g. Carrefour groceries">
                         </div>
 
                         <!-- Amount and date on the same line -->
