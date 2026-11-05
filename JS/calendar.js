@@ -153,6 +153,9 @@ let lastMonthRequest = 0;
 // Maximum number of lines in "Upcoming events"
 const UPCOMING_LIMIT = 5;
 
+// Maximum number of lines in the card of the home page
+const HOME_UPCOMING_LIMIT = 3;
+
 // The type chosen by default in the pop-up
 const DEFAULT_EVENT_TYPE = "social";
 
@@ -303,6 +306,19 @@ function showUpcoming(events) {
     document.getElementById("upcomingEmpty").hidden = count > 0;
 }
 
+// Shows the card "Events" (what is still to come this month) and the next events on the home page
+function showHomeEvents(events) {
+    const today = new Date();
+    const lastDayOfMonth = toIsoDate(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+    const list = document.getElementById("homeEventItems");
+
+    document.getElementById("homeEventsCount").textContent = events.filter(event => event.date <= lastDayOfMonth).length;
+
+    list.replaceChildren();
+    sortEvents(events).slice(0, HOME_UPCOMING_LIMIT).forEach(event => list.appendChild(createEventItem(event)));
+    document.getElementById("homeEventsEmpty").hidden = events.length > 0;
+}
+
 // Draws the shown month, then asks the API for its events
 async function loadMonth() {
     const requestNumber = ++lastMonthRequest;
@@ -331,10 +347,14 @@ async function loadMonth() {
 
 async function loadUpcoming() {
     try {
-        showUpcoming(await getEvents(toIsoDate(new Date())));
+        const events = await getEvents(toIsoDate(new Date()));
+        showUpcoming(events);
+        showHomeEvents(events);
+        hideMessage("homeEventsMessage");
     } catch (e) {
         console.error(e.message);
         showMessage("calendarMessage", "Unable to load the events right now.");
+        showMessage("homeEventsMessage", "Unable to load the events right now.");
     }
 }
 

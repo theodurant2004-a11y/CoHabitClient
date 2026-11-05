@@ -114,12 +114,32 @@
 
             <!-- The row of the cards of the home page (4 columns). Each feature adds its own card here -->
             <div class="home-stats">
+                <!-- The card "Events" is the 3rd one. calendar.js fills it -->
+                <div class="home-stat home-stat-events">
+                    <span class="home-stat-label">Events</span>
+                    <strong class="home-stat-value" id="homeEventsCount"></strong>
+                    <span class="home-stat-note">this month</span>
+                </div>
                 <!-- The card "My balance" is the 4th one. Roomie only: app.js removes it for an owner -->
                 <!-- It is empty here: expenses.js fills it with what the API sends -->
                 <div class="home-stat home-stat-balance" id="homeBalanceCard" data-role="roomie">
                     <span class="home-stat-label">My balance</span>
                     <strong class="home-stat-value" id="homeBalance"></strong>
                     <span class="home-stat-note" id="homeBalanceNote"></span>
+                </div>
+            </div>
+
+            <!-- The row of the bigger cards (2 columns). Each feature adds its own card here -->
+            <div class="home-panels">
+                <!-- The card "Upcoming events" is in the 2nd column. calendar.js fills it -->
+                <div class="exp-panel home-panel home-panel-events">
+                    <div class="home-panel-head">
+                        <h3>Upcoming events</h3>
+                        <a href="#calendar" class="home-panel-link">See all →</a>
+                    </div>
+                    <p class="exp-error" id="homeEventsMessage" hidden></p>
+                    <ul class="expense-list" id="homeEventItems"></ul>
+                    <p class="expenses-empty calendar-empty" id="homeEventsEmpty" hidden>No upcoming event</p>
                 </div>
             </div>
         <section id="view-shoppingList" class="view" data-role="roomie" hidden>
