@@ -11,8 +11,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="../CSS/stylesheet.css">
     <link rel="stylesheet" href="../CSS/app.css">
-    <link rel="stylesheet" href="../CSS/expenses.css">
     <link rel="stylesheet" href="../CSS/expenses-roomie.css">
+    <link rel="stylesheet" href="../CSS/expenses-owner.css">
     <link rel="stylesheet" href="../CSS/calendar.css">
 
     <script src="../JS/base.js" defer></script>
@@ -143,9 +143,9 @@
                     <p class="expenses-empty calendar-empty" id="homeEventsEmpty" hidden>No upcoming event</p>
                 </div>
             </div>
-        <section id="view-shoppingList" class="view" data-role="roomie" hidden>
-            <h2>Shopping list</h2>
-        </section>
+            <section id="view-shoppingList" class="view" data-role="roomie" hidden>
+                <h2>Shopping list</h2>
+            </section>
         </section>
         <section id="view-tasks" class="view" hidden>
             <h2>Tasks</h2>
@@ -167,7 +167,8 @@
                 <!-- Left card: the month -->
                 <div class="exp-panel calendar-card">
                     <div class="calendar-nav">
-                        <button type="button" class="calendar-arrow" id="previousMonth" aria-label="Previous month">‹</button>
+                        <button type="button" class="calendar-arrow" id="previousMonth"
+                            aria-label="Previous month">‹</button>
                         <h3 id="calendarTitle" aria-live="polite"></h3>
                         <button type="button" class="calendar-arrow" id="nextMonth" aria-label="Next month">›</button>
                     </div>
@@ -183,7 +184,8 @@
                     <div class="calendar-day" id="dayPanel" hidden>
                         <div class="calendar-day-head">
                             <strong id="dayTitle"></strong>
-                            <button type="button" class="btn-ghost calendar-day-add" id="addOnDay">+ Add on this day</button>
+                            <button type="button" class="btn-ghost calendar-day-add" id="addOnDay">+ Add on this
+                                day</button>
                         </div>
                         <ul class="expense-list" id="dayItems"></ul>
                         <p class="expenses-empty calendar-empty" id="dayEmpty" hidden>No event on this day</p>
@@ -390,7 +392,8 @@
 
                         <div class="exp-field">
                             <label for="expenseDescription">Description *</label>
-                            <input type="text" id="expenseDescription" maxlength="50" placeholder="e.g. Carrefour groceries">
+                            <input type="text" id="expenseDescription" maxlength="50"
+                                placeholder="e.g. Carrefour groceries">
                         </div>
 
                         <!-- Amount and date on the same line -->
