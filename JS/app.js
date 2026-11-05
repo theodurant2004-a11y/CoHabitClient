@@ -2,19 +2,6 @@
 const user = getSignedInUser();
 // // // TODO: get it from the API (login or GET /roomshares/me) when it is available
 const roomshare = JSON.parse(sessionStorage.getItem("roomshare"));
-/*
-const user = { id_person: 420, firstName: "Arnaud", lastName: "Jordan", email: "arnaud.j@cohabit.com", role: "owner" };
-
-const roomshare = {
-    id: 402,
-    name: "TestAcceptRoomshare",
-    invitationKey: "OJYJCC",
-    owner: { id_person: 420, firstName: "Arnaud", lastName: "Jordan" },
-    roomies: [
-        { id_person: 421, firstName: "Arnaud1", lastName: "Jordan1" }
-    ]
-};
-*/
 
 // No roomshare => redirect roomshare page
 if (user && !roomshare) {
