@@ -144,6 +144,9 @@ let shownMonth = new Date().getMonth();
 // The events of the shown month
 let monthEvents = [];
 
+// The clicked day ("2026-11-05"), or null
+let selectedDate = null;
+
 // Number of the last request for a month: an old answer that arrives too late is ignored
 let lastMonthRequest = 0;
 
@@ -238,6 +241,8 @@ function changeMonth(step) {
     const date = new Date(shownYear, shownMonth + step, 1);
     shownYear = date.getFullYear();
     shownMonth = date.getMonth();
+    selectedDate = null;
+    showSelectedDay();
     loadMonth();
 }
 
@@ -304,6 +309,7 @@ async function loadMonth() {
 
     monthEvents = [];
     drawMonth();
+    selectDay(selectedDate);
 
     try {
         const from = toIsoDate(new Date(shownYear, shownMonth, 1));
@@ -314,6 +320,7 @@ async function loadMonth() {
         if (requestNumber === lastMonthRequest) {
             monthEvents = events;
             showDots();
+            showSelectedDay();
             hideMessage("calendarMessage");
         }
     } catch (e) {
@@ -329,6 +336,32 @@ async function loadUpcoming() {
         console.error(e.message);
         showMessage("calendarMessage", "Unable to load the events right now.");
     }
+}
+
+//-------------- The clicked day -----------------
+// Shows the events of the clicked day under the month
+function showSelectedDay() {
+    const panel = document.getElementById("dayPanel");
+    panel.hidden = selectedDate === null;
+
+    if (selectedDate !== null) {
+        const list = document.getElementById("dayItems");
+        const events = monthEvents.filter(event => event.date === selectedDate);
+
+        document.getElementById("dayTitle").textContent = formatEventDate(selectedDate);
+        list.replaceChildren();
+        sortEvents(events).forEach(event => list.appendChild(createEventItem(event)));
+        document.getElementById("dayEmpty").hidden = events.length > 0;
+    }
+}
+
+// Only changes classes: the cells must stay the same elements, otherwise a double-click is not detected
+function selectDay(isoDate) {
+    selectedDate = isoDate;
+    document.querySelectorAll("#calendarGrid .calendar-cell").forEach(cell => {
+        cell.classList.toggle("calendar-selected", cell.dataset.date === isoDate);
+    });
+    showSelectedDay();
 }
 
 //-------------- Pop-up "New event" -----------------
@@ -480,10 +513,25 @@ if (user) {
     loadUpcoming();
 
     document.getElementById("openEventModal").addEventListener("click", () => openEventModal(toIsoDate(new Date())));
+    document.getElementById("addOnDay").addEventListener("click", () => openEventModal(selectedDate));
     document.getElementById("cancelEvent").addEventListener("click", closeEventModal);
     document.getElementById("eventForm").addEventListener("submit", submitEvent);
     document.getElementById("eventForm").addEventListener("input", updateCreateButton);
     document.getElementById("eventEveryone").addEventListener("change", updateParticipants);
+
+    // A click shows the events of the day, a double-click opens the pop-up with this date
+    document.getElementById("calendarGrid").addEventListener("click", event => {
+        const cell = event.target.closest(".calendar-cell");
+        if (cell) {
+            selectDay(cell.dataset.date);
+        }
+    });
+    document.getElementById("calendarGrid").addEventListener("dblclick", event => {
+        const cell = event.target.closest(".calendar-cell");
+        if (cell) {
+            openEventModal(cell.dataset.date);
+        }
+    });
 
     // A click outside of the white box closes the pop-up
     document.getElementById("eventModal").addEventListener("click", event => {
