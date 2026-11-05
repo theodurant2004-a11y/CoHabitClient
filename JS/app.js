@@ -42,6 +42,7 @@ function applyRole() {
 function showRoomshare() {
     if (roomshare) {
         document.getElementById("roomshareName").textContent = roomshare.name;
+        document.getElementById("homeRoomshareName").textContent = roomshare.name;
 
         // The invite block is removed for a roomie
         const keyElement = document.getElementById("invitationKey");
@@ -58,6 +59,9 @@ function showUser() {
         document.getElementById("userInitials").textContent = initials;
         document.getElementById("userName").textContent = user.firstName + " " + user.lastName;
         document.getElementById("userRole").textContent = user.role === "owner" ? "Owner" : "Roomie";
+
+        // The greeting of the home page
+        document.getElementById("homeGreeting").textContent = "Hello, " + user.firstName;
     }
 }
 

@@ -1,0 +1,256 @@
+.sl-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.sl-sub {
+    margin-top: 4px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.sl-progress-container {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+}
+
+.sl-progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-label);
+    margin-bottom: 12px;
+}
+
+.sl-progress-bar {
+    height: 10px;
+    background: #efeae6;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.sl-progress-fill {
+    height: 100%;
+    background: #d3ccc5;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.sl-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 0;
+    color: var(--text-muted);
+}
+
+.sl-empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    opacity: 0.6;
+}
+
+.sl-empty h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-title);
+    margin-bottom: 6px;
+}
+
+.sl-category-group {
+    margin-bottom: 28px;
+}
+
+.sl-category-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sl-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sl-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 18px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: var(--transition);
+}
+
+.sl-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.sl-checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 2px solid var(--border-input);
+    background: #faf9f7;
+    appearance: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.sl-checkbox:checked {
+    background: var(--brand-dark);
+    border-color: var(--brand-dark);
+}
+
+.sl-checkbox:checked::after {
+    content: "";
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+}
+
+.sl-item-name {
+    flex: 1;
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--text);
+    transition: var(--transition);
+}
+
+.sl-checkbox:checked ~ .sl-item-name {
+    text-decoration: line-through;
+    color: var(--text-light);
+}
+
+.sl-item-qty {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: #f3eeea;
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+.sl-btn-delete {
+    background: none;
+    border: none;
+    color: #d8aca4;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0px 4px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    transition: color 0.2s ease;
+}
+
+.sl-btn-delete:hover {
+    color: #c4553b;
+}
+
+/* L'arrière-plan de la modale */
+.modal-backdrop {
+    position: fixed; /* Fixé à l'écran, même si on scrolle */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Prend toute la largeur */
+    height: 100vh; /* Prend toute la hauteur */
+    background: rgba(0, 0, 0, 0.4); /* Couleur noire semi-transparente */
+    backdrop-filter: blur(2px); /* Optionnel : floute légèrement l'arrière-plan */
+    z-index: 1000; /* Assure que ce soit au-dessus de TOUT le reste */
+
+    /* Centre la modale (form) à l'intérieur */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* On s'assure que le display: flex ne casse pas l'attribut hidden */
+.modal-backdrop[hidden] {
+    display: none !important;
+}
+
+/* Modale elle-même (le rectangle blanc) */
+.exp-modal {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+    /* Z-index n'est pas strictement nécessaire ici si le parent l'a,
+       mais ça garantit qu'elle est au-dessus du backdrop */
+    position: relative;
+}
+
+/* Barre d'/* Barre d'actions */
+.sl-actions {
+    display: flex;
+    justify-content: space-between; /* Écarte les éléments : checkbox à gauche, bouton à droite */
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* Le wrapper de la master checkbox */
+.sl-select-all-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: var(--text);
+}
+
+.sl-select-all-label:hover {
+    color: var(--brand-dark, #1f1a1a); /* Léger effet au survol */
+}
+
+/* Le champ de quantité qui remplace le span .sl-item-qty */
+.sl-item-qty-input {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: #f3eeea;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    width: 95px; /* Légèrement plus large pour permettre la saisie */
+    text-align: center;
+    font-family: inherit;
+    transition: var(--transition, all 0.2s ease);
+}
+
+/* Effet visuel quand l'utilisateur clique pour modifier la quantité */
+.sl-item-qty-input:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: var(--sidebar-bg, #694F53);
+    color: #1f1a1a;
+    box-shadow: 0 0 0 3px rgba(105, 79, 83, 0.1);
+}
