@@ -1,9 +1,9 @@
 // Members page
 
-// This file shows the members of the roomshare (the owner and the accepted roomies) to everybody,
-// and the join requests waiting for an answer to the owner only.
+// This file shows the members of the roomshare (the owner and the accepted roomies) to everybody.
+// The owner also sees the join requests waiting for his answer, and can remove a roomie from the roomshare.
 // The logic stays in the model (the API): the front never decides who is a member.
-// We only ask the API, we show the answer and we send the choice of the owner (accept or refuse).
+// We only ask the API, we show the answer and we send the choice of the owner (accept, refuse or remove).
 
 // The urls of the API for the members and for the join requests
 const MEMBERS_URL = "http://localhost:8080/CoHabitAPI/api/roomshares/members";
@@ -58,6 +58,25 @@ async function sendAnswer(roomieId, accept) {
     });
 
     // We keep the code so the page knows why the API refused (404 or 409)
+    if (!response.ok) {
+        const error = new Error(`Response status: ${response.status}`);
+        error.status = response.status;
+        throw error;
+    }
+}
+
+// This function is used to remove a roomie from the roomshare (owner only)
+// The account of the roomie is NOT deleted: he only leaves the roomshare
+async function sendRemove(roomieId) {
+    // DELETE, the id of the roomie is in the url
+    // A DELETE has no body, so the email of the owner is in the url too (like for a GET)
+    // TO DO : remove ownerEmail when the session system is efficient
+    const response = await fetch(MEMBERS_URL + "/" + roomieId + "?ownerEmail=" + encodeURIComponent(user.email), {
+        method: "DELETE",
+        credentials: "include"   // sends the cookie of the user
+    });
+
+    // We keep the code so the page knows why the API refused (404)
     if (!response.ok) {
         const error = new Error(`Response status: ${response.status}`);
         error.status = response.status;
@@ -132,6 +151,19 @@ function createMemberItem(member) {
     main.appendChild(createMemberElement("span", "member-meta", member.email));
 
     item.append(avatar, main);
+
+    // The button "Remove" on the right: only the owner sees it, and only on the lines of the roomies
+    // (the owner cannot remove himself). It is only for display: the API checks the role itself
+    if (user.role === "owner" && member.role === "roomie") {
+        const actions = createMemberElement("div", "member-actions");
+        const removeButton = createMemberElement("button", "btn-remove", "Remove");
+        removeButton.type = "button";
+        // Each button remembers ITS roomie, like the buttons of the requests
+        removeButton.addEventListener("click", () => removeMember(member));
+        actions.appendChild(removeButton);
+        item.appendChild(actions);
+    }
+
     return item;
 }
 
@@ -227,6 +259,37 @@ async function answerRequest(roomieId, accept) {
         if (e.status === 404 || e.status === 409) {
             await loadRequests();
             await loadMembers();
+        }
+    }
+}
+
+//-------------- Remove a roomie (owner) -----------------
+// This function runs when the owner clicks on "Remove"
+async function removeMember(member) {
+    // We ask first, because a click by mistake would remove the roomie
+    // confirm returns true when the owner clicks on "OK"
+    const name = member.firstName + " " + member.lastName;
+    if (confirm("Remove " + name + " from the roomshare ? He will have to send a new request to come back.")) {
+        // The error message to show at the end ("" = no error)
+        let message = "";
+
+        try {
+            await sendRemove(member.id);
+        } catch (e) {
+            console.error(e.message);
+            // 404: the roomie is not a member anymore (for example he was already removed in another tab)
+            message = "Unable to remove this roomie right now.";
+            if (e.status === 404) {
+                message = "This roomie is not a member of the roomshare anymore.";
+            }
+        }
+
+        // In every case we ask the API again, so the list shows what is really in the db
+        await loadMembers();
+
+        // The error is shown after the reload, otherwise loadMembers would hide it
+        if (message !== "") {
+            showMemberMessage("membersMessage", message);
         }
     }
 }

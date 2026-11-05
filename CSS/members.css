@@ -128,9 +128,10 @@
     margin-left: auto;
 }
 
-/* What the two buttons have in common (the color is set below) */
+/* What the buttons have in common (the color is set below) */
 .btn-accept,
-.btn-refuse {
+.btn-refuse,
+.btn-remove {
     padding: 8px 14px;
     border: 0;
     border-radius: 10px;
@@ -157,6 +158,18 @@
 
 .btn-refuse:hover {
     opacity: 0.85;
+}
+
+/* "Remove" (owner only, on the line of a roomie): white with a red text, less strong than "Refuse"
+   because it is on a white line and we do not want the list to look red */
+.btn-remove {
+    background: #fff;
+    border: 1px solid var(--mem-refuse-bg);
+    color: var(--mem-refuse-text);
+}
+
+.btn-remove:hover {
+    background: var(--mem-refuse-bg);
 }
 
 /* ---------- Messages ---------- */
