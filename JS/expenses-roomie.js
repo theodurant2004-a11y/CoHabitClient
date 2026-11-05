@@ -2,7 +2,7 @@
 
 // This file only DISPLAYS the expenses of the roomie
 // We do this because the logic must stay in the model :
-// So in the front we never create data and we never add, divide or compare money.
+// So in the front we never create data and we never add or divide money.
 // We only ask the API, we show the answer and we send what the user typed.
 
 // The url of the API for the expenses
@@ -54,11 +54,11 @@ let expensesData = null;
 // The filter chosen by the user: "all", "pending" or "settled"
 let currentFilter = "all";
 
-// The API sends the status in lowercase ("pending"), here is the text we show to the user
+// The text we show to the user for the status of an expense
 const statusLabels = { pending: "Pending", settled: "Settled" };
 
 
-// The API sends the status of my balance in lowercase, here is the text we show to the user
+// The text we show to the user for the status of my balance
 const balanceLabels = { creditor: "Creditor", debtor: "Debtor", balanced: "Balanced" };
 
 // The color of the balance on the card "My balance" of the home page
@@ -113,6 +113,22 @@ function formatDate(isoDate) {
     return new Date(isoDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+// The status of an expense: "settled" or "pending"
+function expenseStatus(expense) {
+    return expense.settled ? "settled" : "pending";
+}
+
+// The status of a balance: "creditor", "debtor" or "balanced"
+function balanceStatus(balance) {
+    if (balance > 0) {
+        return "creditor";
+    }
+    if (balance < 0) {
+        return "debtor";
+    }
+    return "balanced";
+}
+
 //-------------- Show the data -----------------
 // This function shows the summary line and the two cards (you owe / you are owed)
 // The amounts come from the API (summary.toPay and summary.toReceive)
@@ -123,15 +139,14 @@ function showSummary(summary) {
     document.getElementById("amountOwed").textContent = formatEuro(summary.toReceive);
 
     // The small text under the amount changes when there is nothing to pay / to receive
-    // The API tells us with hasToPay and hasToReceive, we do not compare the amounts here
-    document.getElementById("noteOwe").textContent = summary.hasToPay ? "Payments to make" : "No payment to make";
-    document.getElementById("noteOwed").textContent = summary.hasToReceive ? "Refunds expected" : "No refund pending";
+    document.getElementById("noteOwe").textContent = summary.toPay > 0 ? "Payments to make" : "No payment to make";
+    document.getElementById("noteOwed").textContent = summary.toReceive > 0 ? "Refunds expected" : "No refund pending";
 
     // The card "My balance" of the home page
-    // The API gives the balance and its status ("creditor", "debtor" or "balanced"), we only show them
+    const status = balanceStatus(summary.balance);
     document.getElementById("homeBalance").textContent = formatSignedEuro(summary.balance);
-    document.getElementById("homeBalanceNote").textContent = balanceLabels[summary.balanceStatus];
-    document.getElementById("homeBalanceCard").className = "home-stat home-stat-balance " + balanceCardClasses[summary.balanceStatus];
+    document.getElementById("homeBalanceNote").textContent = balanceLabels[status];
+    document.getElementById("homeBalanceCard").className = "home-stat home-stat-balance " + balanceCardClasses[status];
 }
 
 // This function creates ONE line of the list of expenses
@@ -151,7 +166,8 @@ function createExpenseItem(expense) {
     const side = createElement("div", "expense-side");
     side.appendChild(createElement("strong", "expense-amount", formatEuro(expense.amount)));
     // The css class of the badge depends on the status ("badge-pending" or "badge-settled")
-    side.appendChild(createElement("span", "badge badge-" + expense.status, statusLabels[expense.status]));
+    const status = expenseStatus(expense);
+    side.appendChild(createElement("span", "badge badge-" + status, statusLabels[status]));
 
     item.append(icon, main, side);
     return item;
@@ -166,7 +182,7 @@ function showExpenses(expenses, filter) {
 
     // For each expens we show it if the filter is "all" or if its status is the one chosen
     expenses.forEach(expense => {
-        if (filter === "all" || expense.status === filter) {
+        if (filter === "all" || expenseStatus(expense) === filter) {
             list.appendChild(createExpenseItem(expense));
         }
     });
@@ -177,8 +193,8 @@ function showExpenses(expenses, filter) {
 
 // This function creates ONE line of "Everyone's balance" (the name, the bar and the amount)
 function createBalanceRow(balance) {
-    // The css class ("negative" or "positive") is given by the API
-    const sign = balance.sign;
+    // The css class of the bar and of the amount
+    const sign = balance.amount < 0 ? "negative" : "positive";
     const row = createElement("li", "balance-row");
 
     // The round colored circle with the first letter of the name
