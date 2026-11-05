@@ -331,3 +331,27 @@ const membersPending = document.querySelector(".members-pending");
 if (membersPending) {
     loadRequests();
 }
+
+// The pop-up "Remove ...?" is also removed for a roomie (data-role="owner"), so same check
+const removeModal = document.getElementById("removeModal");
+
+if (removeModal) {
+    // The two buttons of the pop-up
+    document.getElementById("cancelRemove").addEventListener("click", closeRemoveModal);
+    document.getElementById("confirmRemove").addEventListener("click", confirmRemove);
+
+    // A click outside of the white box closes the pop-up
+    // (event.target is the element clicked: if it is the dark background itself, we close)
+    removeModal.addEventListener("click", event => {
+        if (event.target.id === "removeModal") {
+            closeRemoveModal();
+        }
+    });
+
+    // The key "Escape" closes the pop-up too
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !removeModal.hidden) {
+            closeRemoveModal();
+        }
+    });
+}

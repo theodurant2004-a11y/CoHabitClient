@@ -187,6 +187,101 @@
     font-size: 0.9rem;
 }
 
+/* ---------- Pop-up "Remove ...?" ---------- */
+/* The dark background that covers all the page (same look as the pop-up of the expenses) */
+.member-modal-backdrop {
+    position: fixed;
+    inset: 0;                       /* shortcut for top, right, bottom and left = 0 */
+    z-index: 50;                    /* above the sidebar and the page */
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(26, 22, 18, 0.45);
+}
+
+/* The white box in the middle */
+.member-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+    padding: 32px 28px 24px;
+    border-radius: var(--radius-card);
+    background: #fff;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* The circle with the initials: bigger than in the list, with a light red ring around */
+.member-modal-avatar {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 6px;
+    font-size: 1.3rem;
+    box-shadow: 0 0 0 6px var(--mem-refuse-bg);
+}
+
+.member-modal h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--text-title);
+}
+
+.member-modal-text {
+    color: var(--text);
+}
+
+/* The small grey line that says the account is kept */
+.member-modal-note {
+    font-size: 0.85rem;
+    color: var(--mem-muted);
+}
+
+/* The two buttons take the same width, one next to the other */
+.member-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    margin-top: 14px;
+}
+
+.btn-cancel,
+.btn-confirm-remove {
+    padding: 12px;
+    border-radius: var(--radius-field);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+/* "Cancel": white with a grey border, less important */
+.btn-cancel {
+    background: #fff;
+    border: 1px solid var(--mem-line);
+    color: var(--mem-muted);
+}
+
+.btn-cancel:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+}
+
+/* The red button: it is the dangerous action, so it is the strongest color of the pop-up */
+.btn-confirm-remove {
+    background: var(--mem-refuse-text);
+    border: 1px solid var(--mem-refuse-text);
+    color: #fff;
+}
+
+.btn-confirm-remove:hover {
+    opacity: 0.9;
+}
+
 /* ---------- Small screen ---------- */
 /* The buttons go under the name, so the line is not too long */
 @media (max-width: 600px) {
