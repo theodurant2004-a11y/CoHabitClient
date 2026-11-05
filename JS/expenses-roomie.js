@@ -2,14 +2,14 @@
 
 // This file only DISPLAYS the expenses of the roomie
 // We do this because the logic must stay in the model :
-// So in the front we never create data and we never add, divide or compare money.
+// So in the front we never create data and we never add or divide money.
 // We only ask the API, we show the answer and we send what the user typed.
 
 // The url of the API for the expenses
 const EXPENSES_URL = "http://localhost:8080/CoHabitAPI/api/expenses";
 
 // This function is used to ask the API for everything the page shows
-// (summary, expenses, balances, refunds, members and categories)
+// (summary, expenses, balances, refunds and members)
 async function getExpensesData() {
     // The API does not have a session system yet, so we send the email of the user to say who is asking
     // encodeURIComponent protects the special characters of the email (like @ or +) inside the url
@@ -45,20 +45,36 @@ async function sendExpense(newExpense) {
     }
 }
 
+// This function is used to ask the API for the categories of the form
+async function getCategories() {
+    const response = await fetch(EXPENSES_URL + "/categories", {
+        credentials: "include"
+    });
+
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
 //-------------- Data kept by the page -----------------
 // Everything the API answered. We keep it because we need it later
 // (for example to fill the pop-up or to change the filter without asking the API again)
 // It is null until the API answered
 let expensesData = null;
 
+// The categories of the form: null until the API answered
+let categories = null;
+
 // The filter chosen by the user: "all", "pending" or "settled"
 let currentFilter = "all";
 
-// The API sends the status in lowercase ("pending"), here is the text we show to the user
+// The text we show to the user for the status of an expense
 const statusLabels = { pending: "Pending", settled: "Settled" };
 
 
-// The API sends the status of my balance in lowercase, here is the text we show to the user
+// The text we show to the user for the status of my balance
 const balanceLabels = { creditor: "Creditor", debtor: "Debtor", balanced: "Balanced" };
 
 // The color of the balance on the card "My balance" of the home page
@@ -113,6 +129,22 @@ function formatDate(isoDate) {
     return new Date(isoDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+// The status of an expense: "settled" or "pending"
+function expenseStatus(expense) {
+    return expense.settled ? "settled" : "pending";
+}
+
+// The status of a balance: "creditor", "debtor" or "balanced"
+function balanceStatus(balance) {
+    if (balance > 0) {
+        return "creditor";
+    }
+    if (balance < 0) {
+        return "debtor";
+    }
+    return "balanced";
+}
+
 //-------------- Show the data -----------------
 // This function shows the summary line and the two cards (you owe / you are owed)
 // The amounts come from the API (summary.toPay and summary.toReceive)
@@ -123,15 +155,14 @@ function showSummary(summary) {
     document.getElementById("amountOwed").textContent = formatEuro(summary.toReceive);
 
     // The small text under the amount changes when there is nothing to pay / to receive
-    // The API tells us with hasToPay and hasToReceive, we do not compare the amounts here
-    document.getElementById("noteOwe").textContent = summary.hasToPay ? "Payments to make" : "No payment to make";
-    document.getElementById("noteOwed").textContent = summary.hasToReceive ? "Refunds expected" : "No refund pending";
+    document.getElementById("noteOwe").textContent = summary.toPay > 0 ? "Payments to make" : "No payment to make";
+    document.getElementById("noteOwed").textContent = summary.toReceive > 0 ? "Refunds expected" : "No refund pending";
 
     // The card "My balance" of the home page
-    // The API gives the balance and its status ("creditor", "debtor" or "balanced"), we only show them
+    const status = balanceStatus(summary.balance);
     document.getElementById("homeBalance").textContent = formatSignedEuro(summary.balance);
-    document.getElementById("homeBalanceNote").textContent = balanceLabels[summary.balanceStatus];
-    document.getElementById("homeBalanceCard").className = "home-stat home-stat-balance " + balanceCardClasses[summary.balanceStatus];
+    document.getElementById("homeBalanceNote").textContent = balanceLabels[status];
+    document.getElementById("homeBalanceCard").className = "home-stat home-stat-balance " + balanceCardClasses[status];
 }
 
 // This function creates ONE line of the list of expenses
@@ -151,7 +182,8 @@ function createExpenseItem(expense) {
     const side = createElement("div", "expense-side");
     side.appendChild(createElement("strong", "expense-amount", formatEuro(expense.amount)));
     // The css class of the badge depends on the status ("badge-pending" or "badge-settled")
-    side.appendChild(createElement("span", "badge badge-" + expense.status, statusLabels[expense.status]));
+    const status = expenseStatus(expense);
+    side.appendChild(createElement("span", "badge badge-" + status, statusLabels[status]));
 
     item.append(icon, main, side);
     return item;
@@ -166,7 +198,7 @@ function showExpenses(expenses, filter) {
 
     // For each expens we show it if the filter is "all" or if its status is the one chosen
     expenses.forEach(expense => {
-        if (filter === "all" || expense.status === filter) {
+        if (filter === "all" || expenseStatus(expense) === filter) {
             list.appendChild(createExpenseItem(expense));
         }
     });
@@ -177,8 +209,8 @@ function showExpenses(expenses, filter) {
 
 // This function creates ONE line of "Everyone's balance" (the name, the bar and the amount)
 function createBalanceRow(balance) {
-    // The css class ("negative" or "positive") is given by the API
-    const sign = balance.sign;
+    // The css class of the bar and of the amount
+    const sign = balance.amount < 0 ? "negative" : "positive";
     const row = createElement("li", "balance-row");
 
     // The round colored circle with the first letter of the name
@@ -273,16 +305,13 @@ function updateSplitCount() {
     document.getElementById("splitCount").textContent = getSelectedMemberIds().length;
 }
 
-// This function fills the two lists (paid by, category) and the roomie buttons of the form
-// Everything comes from the API (the members and the categories)
+// This function fills the list "Paid by" and the roomie buttons of the form
 function fillForm(data) {
     const paidBy = document.getElementById("expensePaidBy");
-    const category = document.getElementById("expenseCategory");
     const split = document.getElementById("expenseSplit");
 
     // We empty everything first, otherwise the options would be added again each time the pop-up opens
     paidBy.replaceChildren();
-    category.replaceChildren();
     split.replaceChildren();
 
     data.members.forEach(member => {
@@ -297,18 +326,33 @@ function fillForm(data) {
         split.appendChild(chip);
     });
 
-    // One option per category (with its icon)
-    data.categories.forEach(item => {
-        category.appendChild(new Option(item.icon + " " + item.label, item.code));
-    });
-
     // By default the user is the one who paid, the API tells us who the user is
     paidBy.value = data.currentMemberId;
     updateSplitCount();
 }
 
+// This function fills the list of categories of the form (one option per category, with its icon)
+// We ask the API only once: if it fails, we try again the next time the pop-up opens
+async function fillCategories() {
+    const category = document.getElementById("expenseCategory");
+    category.replaceChildren();
+
+    try {
+        if (!categories) {
+            categories = await getCategories();
+        }
+
+        categories.forEach(item => {
+            category.appendChild(new Option(item.icon + " " + item.label, item.code));
+        });
+    } catch (e) {
+        console.error(e.message);
+        showMessage("expenseError", "Unable to load the categories right now.");
+    }
+}
+
 // This function opens the pop-up
-function openModal() {
+async function openModal() {
     // We open it only if the API answered, because the lists of the form come from it
     if (expensesData) {
         document.getElementById("expenseForm").reset();      // we clear what was typed last time
@@ -320,6 +364,8 @@ function openModal() {
         document.getElementById("expenseError").hidden = true;    // no old error message
         document.getElementById("expenseModal").hidden = false;   // the pop-up is now visible
         document.getElementById("expenseDescription").focus();    // the cursor is ready in the first field
+
+        await fillCategories();
     }
 }
 
