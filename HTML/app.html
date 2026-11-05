@@ -14,11 +14,14 @@
     <link rel="stylesheet" href="../CSS/expenses.css">
     <link rel="stylesheet" href="../CSS/expenses-roomie.css">
     <link rel="stylesheet" href="../CSS/expenses-owner.css">
+    <link rel="stylesheet" href="../CSS/tasks.css">
+
 
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
     <script src="../JS/expenses-owner.js" defer></script>
     <script src="../JS/expenses-roomie.js" defer></script>
+    <script src="../JS/tasks.js" defer></script>
 </head>
 
 <body>
@@ -126,8 +129,70 @@
             <h2>Shopping list</h2>
         </section>
         </section>
-        <section id="view-tasks" class="view" hidden>
-            <h2>Tasks</h2>
+        <section id="view-tasks" class="view" data-role="roomie" hidden>
+            <div class="tasks-page">
+                <!-- Title + subtitle on the left, button on the right. tasks.js fills the subtitle -->
+                <header class="page-head tasks-head">
+                    <div>
+                        <h2>Tasks</h2>
+                        <p class="page-sub" id="tasksSummary"></p>
+                    </div>
+                    <button type="button" class="btn-add" id="openTaskModal">+ New task</button>
+                </header>
+
+                <!-- Error message of the page when the API does not answer -->
+                <p class="exp-error exp-banner" id="tasksMessage" hidden></p>
+
+                <!-- Filters. data-filter is read by the JS, data-label is the text (the JS adds the count) -->
+                <div class="task-filters">
+                    <button type="button" class="task-filter active" data-filter="all" data-label="All">All</button>
+                    <button type="button" class="task-filter" data-filter="mine" data-label="Mine">Mine</button>
+                    <button type="button" class="task-filter" data-filter="pending" data-label="Pending">Pending</button>
+                    <button type="button" class="task-filter" data-filter="completed" data-label="Completed">Completed</button>
+                </div>
+
+                <!-- The lines of the list are created by the JS -->
+                <ul class="task-list" id="taskItems"></ul>
+                <!-- Hidden by the JS as soon as there is at least one task to show -->
+                <p class="task-empty" id="tasksEmpty" hidden>✅ No task here</p>
+
+                <!-- Pop-up "New task" (hidden until the user clicks on + New task) -->
+                <div class="modal-backdrop" id="taskModal" hidden>
+                    <!-- novalidate: the browser does not check the fields, tasks.js does it (checkTaskInputs) -->
+                    <form class="exp-modal" id="taskForm" novalidate>
+                        <h3>New task</h3>
+
+                        <div class="exp-field">
+                            <label for="taskTitle">Title *</label>
+                            <input type="text" id="taskTitle" maxlength="100" placeholder="e.g. Do the dishes">
+                        </div>
+
+                        <div class="exp-field">
+                            <label for="taskDescription">Description</label>
+                            <textarea id="taskDescription" rows="3" maxlength="255"></textarea>
+                        </div>
+
+                        <div class="exp-field">
+                            <label for="taskDueDate">Due date</label>
+                            <input type="date" id="taskDueDate">
+                        </div>
+
+                        <!-- One button per roomie, created by the JS. The number is updated at each click -->
+                        <div class="exp-field">
+                            <span class="exp-label">Assigned to (<span id="assigneeCount">0</span> selected)</span>
+                            <div class="task-assignees" id="taskAssignees"></div>
+                        </div>
+
+                        <!-- Error message of the pop-up (wrong field or API error) -->
+                        <p class="exp-error" id="taskError" hidden></p>
+
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelTask">Cancel</button>
+                            <button type="submit" class="btn-add" id="createTask" disabled>Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </section>
         <section id="view-calendar" class="view" hidden>
             <h2>Calendar</h2>
