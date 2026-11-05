@@ -137,25 +137,18 @@ function getFakeEvents() {
 }
 
 //-------------- Data kept by the page -----------------
-// The month on the screen. month goes from 0 (January) to 11 (December), like in JS dates
+// The month on the screen. month goes from 0 (January) to 11 (December)
 let shownYear = new Date().getFullYear();
 let shownMonth = new Date().getMonth();
-
-// The events of the shown month
 let monthEvents = [];
-
-// The clicked day ("2026-11-05"), or null
 let selectedDate = null;
 
 // Number of the last request for a month: an old answer that arrives too late is ignored
 let lastMonthRequest = 0;
-
 // Maximum number of lines in "Upcoming events"
 const UPCOMING_LIMIT = 5;
-
 // Maximum number of lines in the card of the home page
 const HOME_UPCOMING_LIMIT = 3;
-
 // The type chosen by default in the pop-up
 const DEFAULT_EVENT_TYPE = "social";
 
@@ -306,7 +299,7 @@ function showUpcoming(events) {
     document.getElementById("upcomingEmpty").hidden = count > 0;
 }
 
-// Shows the card "Events" (what is still to come this month) and the next events on the home page
+// Shows the card "Events" 
 function showHomeEvents(events) {
     const today = new Date();
     const lastDayOfMonth = toIsoDate(new Date(today.getFullYear(), today.getMonth() + 1, 0));
@@ -332,7 +325,7 @@ async function loadMonth() {
         const to = toIsoDate(new Date(shownYear, shownMonth + 1, 0));
         const events = await getEvents(from, to);
 
-        // The user changed of month in the meantime: this answer is too old
+        // The user changed of month in the meantime
         if (requestNumber === lastMonthRequest) {
             monthEvents = events;
             showDots();
@@ -375,7 +368,6 @@ function showSelectedDay() {
     }
 }
 
-// Only changes classes: the cells must stay the same elements, otherwise a double-click is not detected
 function selectDay(isoDate) {
     selectedDate = isoDate;
     document.querySelectorAll("#calendarGrid .calendar-cell").forEach(cell => {
@@ -384,7 +376,7 @@ function selectDay(isoDate) {
     showSelectedDay();
 }
 
-//-------------- Pop-up "New event" -----------------
+//--------------- "New event" -----------------
 // Create is disabled while the title or the date is missing
 function updateCreateButton() {
     const title = document.getElementById("eventTitle").value.trim();
@@ -395,7 +387,7 @@ function updateCreateButton() {
 // Creates a button of the pop-up (a type or a member)
 function createFormChip(className, text) {
     const chip = createElement("button", className, text);
-    chip.type = "button"; // so it does not submit the form
+    chip.type = "button";
     chip.setAttribute("aria-pressed", "false");
     return chip;
 }
