@@ -109,13 +109,13 @@
 }
 
 .expenses-roomie .badge-pending {
-    background: var(--brand-soft);
-    color: var(--brand);
+    background: var(--warning-bg);
+    color: var(--warning-text);
 }
 
 .expenses-roomie .badge-settled {
-    background: var(--brand-soft);
-    color: var(--brand);
+    background: var(--exp-owed-bg);
+    color: var(--exp-owed-text);
 }
 
 /* Same as .expense-list: no bullet points, a space between the lines */

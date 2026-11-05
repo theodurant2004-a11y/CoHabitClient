@@ -409,6 +409,11 @@ h1 {
     min-width: 0;
 }
 
+/* The main text of a line (expense or event) */
+.expense-title {
+    font-weight: 700;
+}
+
 .expense-meta {
     font-size: 0.8rem;
     color: var(--exp-muted);
