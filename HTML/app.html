@@ -5,19 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoHabit</title>
-    <link rel="icon" type="image/x-icon" href="/IMG/logo-cohabit.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600&display=swap"
           rel="stylesheet">
     <link rel="stylesheet" href="../CSS/stylesheet.css">
     <link rel="stylesheet" href="../CSS/app.css">
-    <link rel="stylesheet" href="../CSS/expenses.css">
+    <link rel="stylesheet" href="../CSS/expenses-roomie.css">
+    <link rel="stylesheet" href="../CSS/expenses-owner.css">
+    <link rel="stylesheet" href="../CSS/calendar.css">
+    <link rel="stylesheet" href="../CSS/responsive.css">
     <link rel="stylesheet" href="../CSS/shoppingList.css">
 
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
-    <script src="../JS/expenses.js" defer></script>
+    <script src="../JS/expenses-owner.js" defer></script>
+    <script src="../JS/expenses-roomie.js" defer></script>
+    <script src="../JS/calendar.js" defer></script>
     <script src="../JS/shoppingList.js" defer></script>
 
 </head>
@@ -106,275 +110,443 @@
     </div>
 </aside>
 
-<div class="content">
-    <section id="view-home" class="view" hidden>
-        <h2>Home</h2>
+    <div class="content">
+        <section id="view-home" class="view" hidden>
+            <h2>Home</h2>
 
-        <!-- The greeting. app.js fills it (showUser and showRoomshare) -->
-        <div class="home-head">
-            <h2 id="homeGreeting"></h2>
-            <p class="home-sub" id="homeRoomshareName"></p>
-        </div>
-
-        <!-- The row of the cards of the home page (4 columns). Each feature adds its own card here -->
-        <div class="home-stats">
-            <!-- The card "My balance" is the 4th one. Roomie only: app.js removes it for an owner -->
-            <!-- It is empty here: expenses.js fills it with what the API sends -->
-            <div class="home-stat home-stat-balance" id="homeBalanceCard" data-role="roomie">
-                <span class="home-stat-label">My balance</span>
-                <strong class="home-stat-value" id="homeBalance"></strong>
-                <span class="home-stat-note" id="homeBalanceNote"></span>
-            </div>
-        </div>
-
-    </section>
-
-
-    <!----------------- Shopping List Page ----------------->
-
-    <section id="view-shoppingList" class="view" hidden data-role="roomie">
-        <div class="sl-head">
-            <div>
-                <h2>Shopping list</h2>
-                <p class="sl-sub"><span id="sl-item-count">0</span> items left</p>
-            </div>
-            <button type="button" class="btn-add" id="openAddItemModal">+ Add</button>
-        </div>
-
-        <!-- Messages d'erreur -->
-        <p class="exp-error exp-banner" id="slMainError" hidden></p>
-
-        <!-- Système de progression -->
-        <div class="sl-progress-container" id="sl-progress-container" hidden>
-            <div class="sl-progress-text">
-                <span id="sl-progress-count">0/0 found</span>
-                <span id="sl-progress-percent">0%</span>
-            </div>
-            <div class="sl-progress-bar">
-                <div class="sl-progress-fill" id="sl-progress-fill" style="width: 0%;"></div>
-            </div>
-        </div>
-
-        <!-- If no item in the list -->
-        <div class="sl-empty" id="sl-empty">
-            <div class="sl-empty-icon">🛒</div>
-            <h3>The list is empty</h3>
-            <p>Add items to buy</p>
-        </div>
-
-        <!-- Action buttons (Select All & Validation) -->
-        <div class="sl-actions" id="sl-actions" hidden>
-            <label class="sl-select-all-label">
-                <input type="checkbox" id="slSelectAll" class="sl-checkbox">
-                <span style="font-weight: 500;" id="masterCheckboxText">Select all</span>
-            </label>
-            <button type="button" class="btn-add" id="openValidateModal">Validate purchases</button>
-        </div>
-
-        <!-- Container of the shopping list, all the items will be displayed -->
-        <div id="sl-list-container" hidden>
-            <!-- Exemple de structure générée par le JS :
-            <div class="sl-category-group">
-                <h4 class="sl-category-title">🥫 ÉPICERIE (1)</h4>
-                <ul class="sl-list">
-                    <li class="sl-item">
-                        <input type="checkbox" class="sl-checkbox">
-                        <span class="sl-item-name">Jambon</span>
-                        <span class="sl-item-qty-input">1</span>
-                        <button class="sl-btn-delete">×</button>
-                    </li>
-                </ul>
-            </div>
-            -->
-        </div>
-
-        <!-- Modal to add an item to the list -->
-        <div class="modal-backdrop" id="addItemModal" hidden>
-            <form class="exp-modal" id="addItemForm" novalidate>
-                <h3>Add an item</h3>
-
-                <div class="exp-field">
-                    <label for="addItemName">Item *</label>
-                    <input type="text" id="addItemName" maxlength="50" placeholder="e.g. Sourdough bread" required>
-                </div>
-
-                <div class="exp-field">
-                    <label for="addItemQty">Quantity</label>
-                    <input type="text" id="addItemQty" placeholder="e.g. 500 g, x2">
-                </div>
-
-                <div class="exp-field">
-                    <label for="addItemCategory">Category</label>
-                    <input type="text" id="addItemCategory" placeholder="e.g. Groceries">
-                </div>
-
-                <p class="exp-error" id="addItemError" hidden></p>
-
-                <div class="exp-actions">
-                    <button type="button" class="btn-ghost" data-close-modal>Cancel</button>
-                    <button type="submit" class="btn-add">Add</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Modal to confirm purchases -->
-        <div class="modal-backdrop" id="validateModal" hidden>
-            <form class="exp-modal" id="validateForm" novalidate>
-                <h3>Validate purchases</h3>
-                <p style="color: var(--exp-muted); margin-bottom: 16px; font-size: 0.9rem;">
-                    Checked items will be removed from the list to create a new expense.
-                </p>
-
-                <div class="exp-field">
-                    <label for="valDescription">Description *</label>
-                    <input type="text" id="valDescription" maxlength="50" placeholder="e.g. Carrefour groceries" required>
-                </div>
-
-                <div class="exp-field">
-                    <label for="valAmount">Amount (€) *</label>
-                    <input type="number" id="valAmount" min="0.01" step="0.01" placeholder="0.00" required>
-                </div>
-
-                <p class="exp-error" id="validateError" hidden></p>
-
-                <div class="exp-actions">
-                    <button type="button" class="btn-ghost" data-close-modal>Cancel</button>
-                    <button type="submit" class="btn-add">Validate</button>
-                </div>
-            </form>
-        </div>
-    </section>
-    <section id="view-tasks" class="view" hidden>
-        <h2>Tasks</h2>
-    </section>
-    <section id="view-calendar" class="view" hidden>
-        <h2>Calendar</h2>
-    </section>
-    <section id="view-expenses" class="view" hidden>
-        <h2>Expenses</h2>
-
-        <!-- Owner -->
-        <div class="expenses-owner" data-role="owner">
-            <p>Owner part</p>
-        </div>
-
-        <!-- Roomie (app.js removes this block for an owner) -->
-        <!-- Everything is empty here: expenses.js asks the API and fills it. The front shows -->
-        <div class="expenses-roomie" data-role="roomie">
-
-            <!-- Summary line + add button -->
-            <div class="expenses-head">
-                <p class="expenses-summary" id="expensesSummary"></p>
-                <button type="button" class="btn-add" id="openExpenseModal">+ Add</button>
+            <!-- The greeting. app.js fills it (showUser and showRoomshare) -->
+            <div class="home-head">
+                <h2 id="homeGreeting"></h2>
+                <p class="home-sub" id="homeRoomshareName"></p>
             </div>
 
-            <!-- Error message of the page when the API does not answer -->
-            <p class="exp-error exp-banner" id="expensesMessage" hidden></p>
-
-            <!-- The two cards: what I owe / what I am owed -->
-            <div class="expenses-cards">
-                <div class="expense-card expense-card-owe">
-                    <span class="expense-card-label">You owe</span>
-                    <strong class="expense-card-amount" id="amountOwe"></strong>
-                    <span class="expense-card-note" id="noteOwe"></span>
+            <!-- The row of the cards of the home page (4 columns). Each feature adds its own card here -->
+            <div class="home-stats">
+                <!-- The card "Events" is the 3rd one. calendar.js fills it -->
+                <div class="home-stat home-stat-events">
+                    <span class="home-stat-label">Events</span>
+                    <strong class="home-stat-value" id="homeEventsCount"></strong>
+                    <span class="home-stat-note">this month</span>
                 </div>
-                <div class="expense-card expense-card-owed">
-                    <span class="expense-card-label">You are owed</span>
-                    <strong class="expense-card-amount" id="amountOwed"></strong>
-                    <span class="expense-card-note" id="noteOwed"></span>
+                <!-- The card "My balance" is the 4th one. Roomie only: app.js removes it for an owner -->
+                <!-- It is empty here: expenses.js fills it with what the API sends -->
+                <div class="home-stat home-stat-balance" id="homeBalanceCard" data-role="roomie">
+                    <span class="home-stat-label">My balance</span>
+                    <strong class="home-stat-value" id="homeBalance"></strong>
+                    <span class="home-stat-note" id="homeBalanceNote"></span>
                 </div>
             </div>
 
-            <!-- Tabs: list or balances. data-tab is read by the JS to know which tab to show -->
-            <div class="expenses-tabs">
-                <button type="button" class="expenses-tab active" data-tab="list">📋 List</button>
-                <button type="button" class="expenses-tab" data-tab="balances">⚖️ Balances</button>
-            </div>
-
-            <!-- Tab 1: the list of expenses -->
-            <div id="expensesList">
-                <!-- Filters. data-filter is read by the JS ("all", "pending" or "settled") -->
-                <div class="chips">
-                    <button type="button" class="chip active" data-filter="all">All</button>
-                    <button type="button" class="chip" data-filter="pending">Pending</button>
-                    <button type="button" class="chip" data-filter="settled">Settled</button>
+            <!-- The row of the bigger cards (2 columns). Each feature adds its own card here -->
+            <div class="home-panels">
+                <!-- The card "Upcoming events" is in the 2nd column. calendar.js fills it -->
+                <div class="exp-panel home-panel home-panel-events">
+                    <div class="home-panel-head">
+                        <h3>Upcoming events</h3>
+                        <a href="#calendar" class="home-panel-link">See all →</a>
+                    </div>
+                    <p class="exp-error" id="homeEventsMessage" hidden></p>
+                    <ul class="expense-list" id="homeEventItems"></ul>
+                    <p class="expenses-empty calendar-empty" id="homeEventsEmpty" hidden>No upcoming event</p>
                 </div>
-                <!-- The lines of the list are created by the JS -->
-                <ul class="expense-list" id="expenseItems"></ul>
-                <!-- Hidden by the JS as soon as there is at least one expense -->
-                <p class="expenses-empty" id="expensesEmpty" hidden>💰 No expense</p>
+            </div>
+        </section>
+
+
+        <!----------------- Shopping List Page ----------------->
+
+        <section id="view-shoppingList" class="view" hidden data-role="roomie">
+            <div class="sl-head">
+                <div>
+                    <h2>Shopping list</h2>
+                    <p class="sl-sub"><span id="sl-item-count">0</span> items left</p>
+                </div>
+                <button type="button" class="btn-add" id="openAddItemModal">+ Add</button>
             </div>
 
-            <!-- Tab 2: balances and suggested refunds (hidden until the user clicks on "Balances") -->
-            <div id="expensesBalances" hidden>
-                <section class="exp-panel">
-                    <h3>Everyone's balance</h3>
-                    <ul class="balance-list" id="balanceItems"></ul>
-                </section>
-                <section class="exp-panel">
-                    <h3>Suggested refunds</h3>
-                    <ul class="refund-list" id="refundItems"></ul>
-                    <p class="expenses-empty" id="refundsEmpty" hidden>Everything is balanced 🎉</p>
-                </section>
+            <!-- Messages d'erreur -->
+            <p class="exp-error exp-banner" id="slMainError" hidden></p>
+
+            <!-- Système de progression -->
+            <div class="sl-progress-container" id="sl-progress-container" hidden>
+                <div class="sl-progress-text">
+                    <span id="sl-progress-count">0/0 found</span>
+                    <span id="sl-progress-percent">0%</span>
+                </div>
+                <div class="sl-progress-bar">
+                    <div class="sl-progress-fill" id="sl-progress-fill" style="width: 0%;"></div>
+                </div>
             </div>
 
-            <!-- Pop-up "New expense" (hidden until the user clicks on + Add) -->
-            <!-- The form is inside the roomie block, so an owner never gets it -->
-            <div class="modal-backdrop" id="expenseModal" hidden>
-                <!-- novalidate: the browser does not check the fields, expenses.js does it (checkInputs) -->
-                <form class="exp-modal" id="expenseForm" novalidate>
-                    <h3>New expense</h3>
+            <!-- If no item in the list -->
+            <div class="sl-empty" id="sl-empty">
+                <div class="sl-empty-icon">🛒</div>
+                <h3>The list is empty</h3>
+                <p>Add items to buy</p>
+            </div>
+
+            <!-- Action buttons (Select All & Validation) -->
+            <div class="sl-actions" id="sl-actions" hidden>
+                <label class="sl-select-all-label">
+                    <input type="checkbox" id="slSelectAll" class="sl-checkbox">
+                    <span style="font-weight: 500;" id="masterCheckboxText">Select all</span>
+                </label>
+                <button type="button" class="btn-add" id="openValidateModal">Validate purchases</button>
+            </div>
+
+            <!-- Container of the shopping list, all the items will be displayed -->
+            <div id="sl-list-container" hidden></div>
+
+            <!-- Modal to add an item to the list -->
+            <div class="modal-backdrop" id="addItemModal" hidden>
+                <form class="exp-modal" id="addItemForm" novalidate>
+                    <h3>Add an item</h3>
 
                     <div class="exp-field">
-                        <label for="expenseDescription">Description *</label>
-                        <input type="text" id="expenseDescription" maxlength="50" placeholder="e.g. Carrefour groceries">
+                        <label for="addItemName">Item *</label>
+                        <input type="text" id="addItemName" maxlength="50" placeholder="e.g. Sourdough bread" required>
                     </div>
 
-                    <!-- Amount and date on the same line -->
-                    <div class="exp-row">
-                        <div class="exp-field">
-                            <label for="expenseAmount">Amount (€) *</label>
-                            <input type="number" id="expenseAmount" min="0.01" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="exp-field">
-                            <label for="expenseDate">Date</label>
-                            <input type="date" id="expenseDate">
-                        </div>
-                    </div>
-
-                    <!-- The options of these two lists come from the API (fillForm in expenses.js) -->
-                    <div class="exp-row">
-                        <div class="exp-field">
-                            <label for="expensePaidBy">Paid by</label>
-                            <select id="expensePaidBy"></select>
-                        </div>
-                        <div class="exp-field">
-                            <label for="expenseCategory">Category</label>
-                            <select id="expenseCategory"></select>
-                        </div>
-                    </div>
-
-                    <!-- One button per roomie, created by the JS. The number is updated at each click -->
                     <div class="exp-field">
-                        <span class="exp-label">Split between (<span id="splitCount">0</span>)</span>
-                        <div class="chips" id="expenseSplit"></div>
+                        <label for="addItemQty">Quantity</label>
+                        <input type="text" id="addItemQty" placeholder="e.g. 500 g, x2">
                     </div>
 
-                    <!-- Error message of the pop-up (wrong field or API error) -->
-                    <p class="exp-error" id="expenseError" hidden></p>
+                    <div class="exp-field">
+                        <label for="addItemCategory">Category</label>
+                        <input type="text" id="addItemCategory" placeholder="e.g. Groceries">
+                    </div>
+
+                    <p class="exp-error" id="addItemError" hidden></p>
 
                     <div class="exp-actions">
-                        <button type="button" class="btn-ghost" id="cancelExpense">Cancel</button>
+                        <button type="button" class="btn-ghost" data-close-modal>Cancel</button>
                         <button type="submit" class="btn-add">Add</button>
                     </div>
                 </form>
             </div>
-        </div>
-    </section>
-    <section id="view-members" class="view" hidden>
-        <h2>Members</h2>
-    </section>
-</div>
+
+            <!-- Modal to confirm purchases -->
+            <div class="modal-backdrop" id="validateModal" hidden>
+                <form class="exp-modal" id="validateForm" novalidate>
+                    <h3>Validate purchases</h3>
+                    <p style="color: var(--exp-muted); margin-bottom: 16px; font-size: 0.9rem;">
+                        Checked items will be removed from the list to create a new expense.
+                    </p>
+
+                    <div class="exp-field">
+                        <label for="valDescription">Description *</label>
+                        <input type="text" id="valDescription" maxlength="50" placeholder="e.g. Carrefour groceries" required>
+                    </div>
+
+                    <div class="exp-field">
+                        <label for="valAmount">Amount (€) *</label>
+                        <input type="number" id="valAmount" min="0.01" step="0.01" placeholder="0.00" required>
+                    </div>
+
+                    <p class="exp-error" id="validateError" hidden></p>
+
+                    <div class="exp-actions">
+                        <button type="button" class="btn-ghost" data-close-modal>Cancel</button>
+                        <button type="submit" class="btn-add">Validate</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <section id="view-tasks" class="view" hidden>
+            <h2>Tasks</h2>
+        </section>
+        <section id="view-calendar" class="view" hidden>
+            <!-- Title, number of upcoming events and add button -->
+            <div class="expenses-head">
+                <div>
+                    <h2>Calendar</h2>
+                    <p class="expenses-summary" id="upcomingCount"></p>
+                </div>
+                <button type="button" class="btn-add" id="openEventModal">+ Add</button>
+            </div>
+
+            <!-- Error message of the page when the API does not answer -->
+            <p class="exp-error exp-banner" id="calendarMessage" hidden></p>
+
+            <div class="calendar-layout">
+                <!-- Left card: the month -->
+                <div class="exp-panel calendar-card">
+                    <div class="calendar-nav">
+                        <button type="button" class="calendar-arrow" id="previousMonth"
+                            aria-label="Previous month">‹</button>
+                        <h3 id="calendarTitle" aria-live="polite"></h3>
+                        <button type="button" class="calendar-arrow" id="nextMonth" aria-label="Next month">›</button>
+                    </div>
+
+                    <div class="calendar-weekdays" aria-hidden="true">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+
+                    <!-- The days are created by calendar.js -->
+                    <div class="calendar-grid" id="calendarGrid"></div>
+
+                    <!-- The events of the clicked day (hidden until the user clicks on a day) -->
+                    <div class="calendar-day" id="dayPanel" hidden>
+                        <div class="calendar-day-head">
+                            <strong id="dayTitle"></strong>
+                            <button type="button" class="btn-ghost calendar-day-add" id="addOnDay">+ Add on this
+                                day</button>
+                        </div>
+                        <ul class="expense-list" id="dayItems"></ul>
+                        <p class="expenses-empty calendar-empty" id="dayEmpty" hidden>No event on this day</p>
+                    </div>
+                </div>
+
+                <!-- Right card: the next events -->
+                <div class="exp-panel calendar-card">
+                    <h3>Upcoming events</h3>
+                    <ul class="expense-list" id="upcomingItems"></ul>
+                    <p class="expenses-empty calendar-empty" id="upcomingEmpty" hidden>No upcoming event</p>
+                </div>
+            </div>
+
+            <!-- Pop-up "New event" (hidden until the user clicks on + Add) -->
+            <div class="modal-backdrop" id="eventModal" hidden>
+                <form class="exp-modal" id="eventForm" novalidate>
+                    <h3>New event</h3>
+
+                    <div class="exp-field">
+                        <label for="eventTitle">Title *</label>
+                        <input type="text" id="eventTitle" maxlength="50" placeholder="e.g. Pizza night">
+                    </div>
+
+                    <div class="exp-field">
+                        <label for="eventDescription">Description</label>
+                        <textarea id="eventDescription" maxlength="255" rows="2"></textarea>
+                    </div>
+
+                    <div class="exp-field">
+                        <label for="eventDate">Date *</label>
+                        <input type="date" id="eventDate">
+                    </div>
+
+                    <div class="exp-row">
+                        <div class="exp-field">
+                            <label for="eventStart">Start</label>
+                            <input type="time" id="eventStart">
+                        </div>
+                        <div class="exp-field">
+                            <label for="eventEnd">End</label>
+                            <input type="time" id="eventEnd">
+                        </div>
+                    </div>
+
+                    <!-- One button per type, created by calendar.js -->
+                    <div class="exp-field">
+                        <span class="exp-label">Type</span>
+                        <div class="chips calendar-chips" id="eventTypes"></div>
+                    </div>
+
+                    <div class="exp-field">
+                        <span class="exp-label">Participants</span>
+                        <label class="calendar-everyone">
+                            <input type="checkbox" id="eventEveryone" checked>
+                            Everyone
+                        </label>
+                        <!-- One button per member, created by calendar.js. Shown when Everyone is unchecked -->
+                        <div class="chips calendar-chips" id="eventParticipants" hidden></div>
+                    </div>
+
+                    <p class="exp-error" id="eventError" hidden></p>
+
+                    <div class="exp-actions">
+                        <button type="button" class="btn-ghost" id="cancelEvent">Cancel</button>
+                        <button type="submit" class="btn-add" id="createEvent" disabled>Create</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <section id="view-expenses" class="view" hidden>
+            <header class="page-head">
+                <h2>Expenses</h2>
+                <p class="page-sub">Manage the rent, the bills and the payments.</p>
+            </header>
+
+            <!-- Owner rent and bills -->
+            <div class="expenses-owner" data-role="owner">
+                <div class="tabs">
+                    <button type="button" class="tab active" data-tab="rent">Rent</button>
+                    <button type="button" class="tab" data-tab="bills">Bills</button>
+                </div>
+
+                <div class="tab-panel" id="tab-rent">
+                    <form id="rentForm" class="card form-card" novalidate>
+                        <div class="form-head">
+                            <div>
+                                <h3>Add the rent</h3>
+                                <p class="form-sub">The amount is automatically split between the selected people.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="rentAmount">Total rent (€)</label>
+                                <input type="number" id="rentAmount" min="0.01" step="0.01" placeholder="e.g. 850"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rentDay">Due on the</label>
+                                <input type="date" id="rentDay" min="1" max="28" value="5" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rentFrequency">Recurrence</label>
+                                <select id="rentFrequency">
+                                    <option value="NONE">None</option>
+                                    <option value="MONTHLY" selected>Every month</option>
+                                    <option value="YEARLY">Every year</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <fieldset class="people">
+                            <legend>People concerned (<span id="rentCount">0</span>)</legend>
+                            <div class="chips" id="rentMembers"></div>
+                        </fieldset>
+
+                        <p class="form-error" id="rentError" hidden></p>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-inline">Add the rent</button>
+                        </div>
+                    </form>
+
+                    <!-- List of the published rents -->
+                    <div class="expense-list" id="rentList">
+                        <p class="list-empty">No expense published yet.</p>
+                    </div>
+                </div>
+
+                <div class="tab-panel" id="tab-bills" hidden>
+                    <p>Bills part</p>
+                </div>
+            </div>
+
+            <!-- Roomie (app.js removes this block for an owner) -->
+            <!-- Everything is empty here: expenses.js asks the API and fills it. The front shows -->
+            <div class="expenses-roomie" data-role="roomie">
+
+                <!-- Summary line + add button -->
+                <div class="expenses-head">
+                    <p class="expenses-summary" id="expensesSummary"></p>
+                    <button type="button" class="btn-add" id="openExpenseModal">+ Add</button>
+                </div>
+
+                <!-- Error message of the page when the API does not answer -->
+                <p class="exp-error exp-banner" id="expensesMessage" hidden></p>
+
+                <!-- The two cards: what I owe / what I am owed -->
+                <div class="expenses-cards">
+                    <div class="expense-card expense-card-owe">
+                        <span class="expense-card-label">You owe</span>
+                        <strong class="expense-card-amount" id="amountOwe"></strong>
+                        <span class="expense-card-note" id="noteOwe"></span>
+                    </div>
+                    <div class="expense-card expense-card-owed">
+                        <span class="expense-card-label">You are owed</span>
+                        <strong class="expense-card-amount" id="amountOwed"></strong>
+                        <span class="expense-card-note" id="noteOwed"></span>
+                    </div>
+                </div>
+
+                <!-- Tabs: list or balances. data-tab is read by the JS to know which tab to show -->
+                <div class="expenses-tabs">
+                    <button type="button" class="expenses-tab active" data-tab="list">📋 List</button>
+                    <button type="button" class="expenses-tab" data-tab="balances">⚖️ Balances</button>
+                </div>
+
+                <!-- Tab 1: the list of expenses -->
+                <div id="expensesList">
+                    <!-- Filters. data-filter is read by the JS ("all", "pending" or "settled") -->
+                    <div class="chips">
+                        <button type="button" class="chip active" data-filter="all">All</button>
+                        <button type="button" class="chip" data-filter="pending">Pending</button>
+                        <button type="button" class="chip" data-filter="settled">Settled</button>
+                    </div>
+                    <!-- The lines of the list are created by the JS -->
+                    <ul class="expense-list" id="expenseItems"></ul>
+                    <!-- Hidden by the JS as soon as there is at least one expense -->
+                    <p class="expenses-empty" id="expensesEmpty" hidden>💰 No expense</p>
+                </div>
+
+                <!-- Tab 2: balances and suggested refunds (hidden until the user clicks on "Balances") -->
+                <div id="expensesBalances" hidden>
+                    <section class="exp-panel">
+                        <h3>Everyone's balance</h3>
+                        <ul class="balance-list" id="balanceItems"></ul>
+                    </section>
+                    <section class="exp-panel">
+                        <h3>Suggested refunds</h3>
+                        <ul class="refund-list" id="refundItems"></ul>
+                        <p class="expenses-empty" id="refundsEmpty" hidden>Everything is balanced 🎉</p>
+                    </section>
+                </div>
+
+                <!-- Pop-up "New expense" (hidden until the user clicks on + Add) -->
+                <!-- The form is inside the roomie block, so an owner never gets it -->
+                <div class="modal-backdrop" id="expenseModal" hidden>
+                    <!-- novalidate: the browser does not check the fields, expenses.js does it (checkInputs) -->
+                    <form class="exp-modal" id="expenseForm" novalidate>
+                        <h3>New expense</h3>
+
+                        <div class="exp-field">
+                            <label for="expenseDescription">Description *</label>
+                            <input type="text" id="expenseDescription" maxlength="50"
+                                placeholder="e.g. Carrefour groceries">
+                        </div>
+
+                        <!-- Amount and date on the same line -->
+                        <div class="exp-row">
+                            <div class="exp-field">
+                                <label for="expenseAmount">Amount (€) *</label>
+                                <input type="number" id="expenseAmount" min="0.01" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="exp-field">
+                                <label for="expenseDate">Date</label>
+                                <input type="date" id="expenseDate">
+                            </div>
+                        </div>
+
+                        <!-- The options of these two lists come from the API (fillForm in expenses.js) -->
+                        <div class="exp-row">
+                            <div class="exp-field">
+                                <label for="expensePaidBy">Paid by</label>
+                                <select id="expensePaidBy"></select>
+                            </div>
+                            <div class="exp-field">
+                                <label for="expenseCategory">Category</label>
+                                <select id="expenseCategory"></select>
+                            </div>
+                        </div>
+
+                        <!-- One button per roomie, created by the JS. The number is updated at each click -->
+                        <div class="exp-field">
+                            <span class="exp-label">Split between (<span id="splitCount">0</span>)</span>
+                            <div class="chips" id="expenseSplit"></div>
+                        </div>
+
+                        <!-- Error message of the pop-up (wrong field or API error) -->
+                        <p class="exp-error" id="expenseError" hidden></p>
+
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelExpense">Cancel</button>
+                            <button type="submit" class="btn-add">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+        <section id="view-members" class="view" hidden>
+            <h2>Members</h2>
+        </section>
+    </div>
 </body>
 
 </html>

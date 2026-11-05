@@ -1,0 +1,200 @@
+/* =====================================================
+   Expenses page - ROOMIE part
+   The class names are specific (expense-*, exp-*...) so they cannot change another page
+   ===================================================== */
+/* The roomie block of the Expenses page */
+.expenses-roomie {
+    margin-top: 8px;
+}
+
+/* ---------- The two cards ---------- */
+/* Two columns of the same size. On a small screen they go one under the other (see the end) */
+.expenses-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* What the two cards have in common (the color is set below) */
+.expense-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px;
+    border: 1px solid;              /* the color of the border comes from the modifier below */
+    border-radius: 20px;
+}
+
+/* Card "You owe" (pink) */
+.expense-card-owe {
+    background: var(--exp-owe-bg);
+    border-color: var(--exp-owe-line);
+    color: var(--exp-owe-text);
+}
+
+/* Card "You are owed" (green) */
+.expense-card-owed {
+    background: var(--exp-owed-bg);
+    border-color: var(--exp-owed-line);
+    color: var(--exp-owed-text);
+}
+
+/* The small title in capital letters */
+.expense-card-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* The big amount (same font as the titles of the app) */
+.expense-card-amount {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--text-dark);
+}
+
+.expense-card-note {
+    font-size: 0.85rem;
+    color: var(--exp-muted);
+}
+
+/* ---------- Tabs (List / Balances) ---------- */
+/* A grey box that contains the two buttons. inline-flex so it is only as wide as its buttons */
+.expenses-tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 16px;
+    border-radius: 14px;
+    background: var(--tabs-bg);
+}
+
+.expenses-tab {
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--exp-muted);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* The tab that is open is white (the class "active" is added by the JS) */
+.expenses-tab.active {
+    background: var(--surface);
+    color: var(--text-dark);
+    font-weight: 600;
+    box-shadow: 0 1px 3px var(--shadow-tab);
+}
+
+/* The right part (amount, share, status) is aligned on the right */
+.expense-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+/* The small colored label of the status */
+.expenses-roomie .badge {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.expenses-roomie .badge-pending {
+    background: var(--warning-bg);
+    color: var(--warning-text);
+}
+
+.expenses-roomie .badge-settled {
+    background: var(--exp-owed-bg);
+    color: var(--exp-owed-text);
+}
+
+/* Same as .expense-list: no bullet points, a space between the lines */
+.balance-list,
+.refund-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.balance-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* The round circle with the first letter of the roomie (the color is set by the JS) */
+.expenses-roomie .member-dot {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: var(--white);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.balance-body {
+    flex: 1;
+}
+
+.balance-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* The grey bar. overflow: hidden so the colored part stays inside the rounded corners */
+.balance-bar {
+    height: 6px;
+    margin-top: 6px;
+    border-radius: var(--radius-pill);
+    background: var(--bar-bg);
+    overflow: hidden;
+}
+
+/* The colored part of the bar (its width is set by the JS with the percent of the API) */
+.balance-fill {
+    height: 100%;
+    border-radius: var(--radius-pill);
+}
+
+/* Green for a positive balance, red for a negative one (used for the amount and the bar) */
+.expenses-roomie .positive {
+    color: var(--exp-owed-text);
+}
+
+.expenses-roomie .negative {
+    color: var(--exp-owe-text);
+}
+
+.expenses-roomie .balance-fill.positive {
+    background: var(--exp-owed-text);
+}
+
+.expenses-roomie .balance-fill.negative {
+    background: var(--exp-owe-text);
+}
+
+.balance-amount {
+    font-weight: 600;
+}
+
+/* "Nora pays Emma" on the left and the amount on the right */
+.refund-row {
+    display: flex;
+    justify-content: space-between;
+}

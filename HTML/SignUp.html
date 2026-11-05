@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../CSS/stylesheet.css">
     <link rel="stylesheet" href="../CSS/signup.css">
+    <link rel="stylesheet" href="../CSS/responsive.css">
 </head>
 <body>
 <div class="container">
@@ -56,6 +57,8 @@
                         <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" maxlength="128" autocomplete="new-password" required>
                     </div>
 
+                    <p id="step1Error" class="form-error" hidden></p>
+
                     <button type="submit" class="btn btn-primary">Continue</button>
                 </form>
 
@@ -89,6 +92,8 @@
                             <span class="role-description">I join an existing roomshare</span>
                         </span>
                     </label>
+
+                    <p id="step2Error" class="form-error" hidden></p>
 
                     <div class="step-actions">
                         <!-- This one only goes back and does not submit the form -->
