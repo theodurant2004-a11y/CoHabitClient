@@ -9,7 +9,7 @@
 const EXPENSES_URL = "http://localhost:8080/CoHabitAPI/api/expenses";
 
 // This function is used to ask the API for everything the page shows
-// (summary, expenses, balances, refunds, members and categories)
+// (summary, expenses, balances, refunds and members)
 async function getExpensesData() {
     // The API does not have a session system yet, so we send the email of the user to say who is asking
     // encodeURIComponent protects the special characters of the email (like @ or +) inside the url
@@ -45,11 +45,27 @@ async function sendExpense(newExpense) {
     }
 }
 
+// This function is used to ask the API for the categories of the form
+async function getCategories() {
+    const response = await fetch(EXPENSES_URL + "/categories", {
+        credentials: "include"
+    });
+
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
 //-------------- Data kept by the page -----------------
 // Everything the API answered. We keep it because we need it later
 // (for example to fill the pop-up or to change the filter without asking the API again)
 // It is null until the API answered
 let expensesData = null;
+
+// The categories of the form: null until the API answered
+let categories = null;
 
 // The filter chosen by the user: "all", "pending" or "settled"
 let currentFilter = "all";
@@ -289,16 +305,13 @@ function updateSplitCount() {
     document.getElementById("splitCount").textContent = getSelectedMemberIds().length;
 }
 
-// This function fills the two lists (paid by, category) and the roomie buttons of the form
-// Everything comes from the API (the members and the categories)
+// This function fills the list "Paid by" and the roomie buttons of the form
 function fillForm(data) {
     const paidBy = document.getElementById("expensePaidBy");
-    const category = document.getElementById("expenseCategory");
     const split = document.getElementById("expenseSplit");
 
     // We empty everything first, otherwise the options would be added again each time the pop-up opens
     paidBy.replaceChildren();
-    category.replaceChildren();
     split.replaceChildren();
 
     data.members.forEach(member => {
@@ -313,18 +326,33 @@ function fillForm(data) {
         split.appendChild(chip);
     });
 
-    // One option per category (with its icon)
-    data.categories.forEach(item => {
-        category.appendChild(new Option(item.icon + " " + item.label, item.code));
-    });
-
     // By default the user is the one who paid, the API tells us who the user is
     paidBy.value = data.currentMemberId;
     updateSplitCount();
 }
 
+// This function fills the list of categories of the form (one option per category, with its icon)
+// We ask the API only once: if it fails, we try again the next time the pop-up opens
+async function fillCategories() {
+    const category = document.getElementById("expenseCategory");
+    category.replaceChildren();
+
+    try {
+        if (!categories) {
+            categories = await getCategories();
+        }
+
+        categories.forEach(item => {
+            category.appendChild(new Option(item.icon + " " + item.label, item.code));
+        });
+    } catch (e) {
+        console.error(e.message);
+        showMessage("expenseError", "Unable to load the categories right now.");
+    }
+}
+
 // This function opens the pop-up
-function openModal() {
+async function openModal() {
     // We open it only if the API answered, because the lists of the form come from it
     if (expensesData) {
         document.getElementById("expenseForm").reset();      // we clear what was typed last time
@@ -336,6 +364,8 @@ function openModal() {
         document.getElementById("expenseError").hidden = true;    // no old error message
         document.getElementById("expenseModal").hidden = false;   // the pop-up is now visible
         document.getElementById("expenseDescription").focus();    // the cursor is ready in the first field
+
+        await fillCategories();
     }
 }
 
