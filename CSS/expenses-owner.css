@@ -81,7 +81,6 @@
     align-items: end;
 }
 
-.check-box input,
 .chip input {
     accent-color: var(--brand);
 }

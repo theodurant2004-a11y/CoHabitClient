@@ -116,10 +116,6 @@
 
 /*Sign up page 2, step 2 : role */
 
-.role-card {
-    padding: 32px;
-}
-
 /* The real radio buttons are invisible : the labels (.role-option) are shown instead */
 .role-input {
     position: absolute;
@@ -186,10 +182,6 @@
 
 /* Small screens */
 @media (max-height: 820px) {
-    .role-card {
-        padding: 24px 32px;
-    }
-
     .role-option {
         padding: 14px 18px;
         margin-bottom: 12px;
@@ -197,12 +189,6 @@
 
     .step-actions {
         margin-top: 18px;
-    }
-}
-
-@media (max-width: 520px) {
-    .role-card {
-        padding: 24px 20px;
     }
 }
 

@@ -206,8 +206,7 @@
     min-width: 0;
 }
 
-.expense-meta,
-.expense-share {
+.expense-meta {
     font-size: 0.8rem;
     color: var(--exp-muted);
 }
