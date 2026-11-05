@@ -1,10 +1,127 @@
 // Calendar page (owner and roomies)
 // The front only shows the events and sends what the user typed: the real checks are in the API.
 
+//-------------- Communication with the API -----------------
+const EVENTS_URL = "http://localhost:8080/CoHabitAPI/api/events";
+const MEMBERS_URL = "http://localhost:8080/CoHabitAPI/api/roomshares/members"; // route proposed to the API team
+const USE_FAKE_DATA = true; // TODO: false when the API routes exist
+
+// Stops with an error if the API refused the request. The message of the API is kept for the page
+async function checkResponse(response) {
+    if (!response.ok) {
+        const error = new Error(`Response status: ${response.status}`);
+        error.status = response.status;
+        try {
+            error.apiMessage = (await response.json()).message;
+        } catch (e) {
+            console.error(e.message); // the answer has no JSON
+        }
+        throw error;
+    }
+}
+
+// Events from "from" to "to" included. Without "to", all the events from "from"
+// TODO: remove the email when the session system is efficient
+async function getEvents(from, to) {
+    if (USE_FAKE_DATA) {
+        await fakeWait();
+        return getFakeEvents().filter(event => event.date >= from && (!to || event.date <= to));
+    }
+    let url = EVENTS_URL + "?email=" + encodeURIComponent(user.email) + "&from=" + from;
+    if (to) {
+        url += "&to=" + to;
+    }
+    const response = await fetch(url, { credentials: "include" });
+    await checkResponse(response);
+    return await response.json();
+}
+
+async function getEventTypes() {
+    if (USE_FAKE_DATA) {
+        await fakeWait();
+        return FAKE_TYPES;
+    }
+    const response = await fetch(EVENTS_URL + "/types", { credentials: "include" });
+    await checkResponse(response);
+    return await response.json();
+}
+
+//-------------- Fake data (removed when the API routes exist) -----------------
+const FAKE_TYPES = [
+    { code: "social", label: "Social", icon: "🎉" },
+    { code: "meeting", label: "Meeting", icon: "📋" },
+    { code: "visit", label: "Visit", icon: "🏠" },
+    { code: "task", label: "Task", icon: "✅" },
+    { code: "other", label: "Other", icon: "📌" }
+];
+
+let fakeEvents = null;
+
+function fakeWait() {
+    return new Promise(resolve => setTimeout(resolve, 150));
+}
+
+function getFakeMembers() {
+    return [
+        { id: user.id_person, name: user.firstName + " " + user.lastName, color: "#c17f2e" },
+        { id: 901, name: "Lina Dubois", color: "#2e8b57" },
+        { id: 902, name: "Sam Petit", color: "#6a5acd" }
+    ];
+}
+
+// Builds a fake event like the API would send it
+function buildFakeEvent(id, details) {
+    const members = getFakeMembers();
+    const participants = details.everyone
+        ? members
+        : members.filter(member => details.participantIds.includes(member.id));
+    const type = FAKE_TYPES.find(item => item.code === details.type);
+
+    return {
+        id: id,
+        title: details.title,
+        description: details.description,
+        date: details.date,
+        startTime: details.startTime,
+        endTime: details.endTime,
+        type: details.type,
+        icon: type.icon,
+        everyone: details.everyone,
+        participants: participants,
+        createdById: user.id_person
+    };
+}
+
+// The dates depend on today, so there are always events on the last, the current and the next month
+function getFakeEvents() {
+    if (!fakeEvents) {
+        const today = new Date();
+        const dateIn = (months, day) => toIsoDate(new Date(today.getFullYear(), today.getMonth() + months, day));
+        const samples = [
+            { title: "Flat meeting", date: dateIn(-1, 12), startTime: "19:00", endTime: "20:00", type: "meeting", everyone: true },
+            { title: "Pizza night", date: toIsoDate(today), startTime: "19:00", endTime: "21:00", type: "social", everyone: true },
+            { title: "Clean the kitchen", date: toIsoDate(today), startTime: "", endTime: "", type: "task", everyone: false, participantIds: [901] },
+            { title: "Plumber visit", date: dateIn(1, 8), startTime: "09:30", endTime: "", type: "visit", everyone: false, participantIds: [user.id_person, 902] },
+            { title: "Birthday of Lina", date: dateIn(1, 20), startTime: "", endTime: "", type: "other", everyone: true }
+        ];
+        fakeEvents = samples.map((sample, index) => buildFakeEvent(index + 1, { description: "", participantIds: [], ...sample }));
+    }
+    return fakeEvents;
+}
+
 //-------------- Data kept by the page -----------------
 // The month on the screen. month goes from 0 (January) to 11 (December), like in JS dates
 let shownYear = new Date().getFullYear();
 let shownMonth = new Date().getMonth();
+
+// The events of the shown month
+let monthEvents = [];
+
+// Number of the last request for a month: an old answer that arrives too late is ignored
+let lastMonthRequest = 0;
+
+// Maximum number of lines in "Upcoming events"
+const UPCOMING_LIMIT = 5;
 
 //-------------- Dates -----------------
 // Always local dates: toISOString() works in UTC and could give the day before or after
@@ -13,6 +130,28 @@ function toIsoDate(date) {
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     return date.getFullYear() + "-" + month + "-" + day;
+}
+
+// "2026-11-05" becomes a local date object. new Date("2026-11-05") would be in UTC
+function parseIsoDate(isoDate) {
+    const parts = isoDate.split("-").map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+// Display format: "Thu 5 Nov 2026"
+function formatEventDate(isoDate) {
+    return parseIsoDate(isoDate).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+}
+
+// Display format: "18:00 - 20:00", "18:00", "Until 20:00" or "All day"
+function formatEventTime(event) {
+    if (event.startTime && event.endTime) {
+        return event.startTime + " - " + event.endTime;
+    }
+    if (event.startTime) {
+        return event.startTime;
+    }
+    return event.endTime ? "Until " + event.endTime : "All day";
 }
 
 //-------------- The month -----------------
@@ -62,12 +201,103 @@ function changeMonth(step) {
     const date = new Date(shownYear, shownMonth + step, 1);
     shownYear = date.getFullYear();
     shownMonth = date.getMonth();
+    loadMonth();
+}
+
+//-------------- The events -----------------
+// Sorted by date, then by start time. An event without a time comes first. ISO dates can be compared as text
+function sortEvents(events) {
+    return [...events].sort((a, b) =>
+        a.date.localeCompare(b.date) || (a.startTime || "").localeCompare(b.startTime || ""));
+}
+
+// Text of the participants: "Everyone" or the names
+function getParticipantsText(event) {
+    return event.everyone ? "Everyone" : event.participants.map(member => member.name).join(", ");
+}
+
+// Creates one line of a list of events
+function createEventItem(event) {
+    const item = createElement("li", "expense-item calendar-event");
+    const main = createElement("div", "expense-main");
+
+    main.appendChild(createElement("strong", "expense-title", event.title));
+    main.appendChild(createElement("span", "expense-meta", formatEventDate(event.date) + " · " + formatEventTime(event)));
+    main.appendChild(createElement("span", "expense-meta", getParticipantsText(event)));
+    if (event.description) {
+        main.appendChild(createElement("span", "expense-meta", event.description));
+    }
+
+    item.append(createElement("span", "expense-icon", event.icon), main);
+    return item;
+}
+
+// Adds the points under the days of the month: one point per type of event
+function showDots() {
+    document.querySelectorAll("#calendarGrid .calendar-cell").forEach(cell => {
+        const dots = cell.querySelector(".calendar-dots");
+        const dayEvents = monthEvents.filter(event => event.date === cell.dataset.date);
+        const types = [...new Set(dayEvents.map(event => event.type))];
+        const label = cell.getAttribute("aria-label").split(",")[0];
+
+        dots.replaceChildren();
+        types.forEach(type => dots.appendChild(createElement("span", "calendar-dot calendar-dot-" + type)));
+
+        cell.setAttribute("aria-label", dayEvents.length > 0
+            ? label + ", " + dayEvents.length + (dayEvents.length === 1 ? " event" : " events")
+            : label);
+    });
+}
+
+// Shows the number of upcoming events and the next ones
+function showUpcoming(events) {
+    const list = document.getElementById("upcomingItems");
+    const count = events.length;
+
+    document.getElementById("upcomingCount").textContent = count + (count === 1 ? " upcoming event" : " upcoming events");
+
+    list.replaceChildren();
+    sortEvents(events).slice(0, UPCOMING_LIMIT).forEach(event => list.appendChild(createEventItem(event)));
+    document.getElementById("upcomingEmpty").hidden = count > 0;
+}
+
+// Draws the shown month, then asks the API for its events
+async function loadMonth() {
+    const requestNumber = ++lastMonthRequest;
+
+    monthEvents = [];
     drawMonth();
+
+    try {
+        const from = toIsoDate(new Date(shownYear, shownMonth, 1));
+        const to = toIsoDate(new Date(shownYear, shownMonth + 1, 0));
+        const events = await getEvents(from, to);
+
+        // The user changed of month in the meantime: this answer is too old
+        if (requestNumber === lastMonthRequest) {
+            monthEvents = events;
+            showDots();
+            hideMessage("calendarMessage");
+        }
+    } catch (e) {
+        console.error(e.message);
+        showMessage("calendarMessage", "Unable to load the events right now.");
+    }
+}
+
+async function loadUpcoming() {
+    try {
+        showUpcoming(await getEvents(toIsoDate(new Date())));
+    } catch (e) {
+        console.error(e.message);
+        showMessage("calendarMessage", "Unable to load the events right now.");
+    }
 }
 
 //-------------- Start -----------------
 if (user) {
-    drawMonth();
+    loadMonth();
+    loadUpcoming();
 
     document.getElementById("previousMonth").addEventListener("click", () => changeMonth(-1));
     document.getElementById("nextMonth").addEventListener("click", () => changeMonth(1));
