@@ -36,12 +36,39 @@ async function getEvents(from, to) {
     return await response.json();
 }
 
+// Sends the new event to the API
+async function createEvent(newEvent) {
+    if (USE_FAKE_DATA) {
+        await fakeWait();
+        getFakeEvents().push(buildFakeEvent(getFakeEvents().length + 1, newEvent));
+        return;
+    }
+    const response = await fetch(EVENTS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(newEvent)
+    });
+    await checkResponse(response);
+}
+
 async function getEventTypes() {
     if (USE_FAKE_DATA) {
         await fakeWait();
         return FAKE_TYPES;
     }
     const response = await fetch(EVENTS_URL + "/types", { credentials: "include" });
+    await checkResponse(response);
+    return await response.json();
+}
+
+// The members of the roomshare, owner included
+async function getMembers() {
+    if (USE_FAKE_DATA) {
+        await fakeWait();
+        return getFakeMembers();
+    }
+    const response = await fetch(MEMBERS_URL + "?email=" + encodeURIComponent(user.email), { credentials: "include" });
     await checkResponse(response);
     return await response.json();
 }
@@ -122,6 +149,16 @@ let lastMonthRequest = 0;
 
 // Maximum number of lines in "Upcoming events"
 const UPCOMING_LIMIT = 5;
+
+// The type chosen by default in the pop-up
+const DEFAULT_EVENT_TYPE = "social";
+
+// The lists of the pop-up. They are null until the API answered
+let eventTypes = null;
+let eventMembers = null;
+
+// True while the new event is being sent, so it cannot be sent twice
+let isSavingEvent = false;
 
 //-------------- Dates -----------------
 // Always local dates: toISOString() works in UTC and could give the day before or after
@@ -294,10 +331,180 @@ async function loadUpcoming() {
     }
 }
 
+//-------------- Pop-up "New event" -----------------
+// Create is disabled while the title or the date is missing
+function updateCreateButton() {
+    const title = document.getElementById("eventTitle").value.trim();
+    const date = document.getElementById("eventDate").value;
+    document.getElementById("createEvent").disabled = title === "" || date === "" || isSavingEvent;
+}
+
+// Creates a button of the pop-up (a type or a member)
+function createFormChip(className, text) {
+    const chip = createElement("button", className, text);
+    chip.type = "button"; // so it does not submit the form
+    chip.setAttribute("aria-pressed", "false");
+    return chip;
+}
+
+// Selects or unselects a button of the pop-up
+function setChipSelected(chip, className, selected) {
+    chip.classList.toggle(className, selected);
+    chip.setAttribute("aria-pressed", String(selected));
+}
+
+// Only one type can be selected
+function selectEventType(code) {
+    document.querySelectorAll("#eventTypes .chip").forEach(chip => {
+        setChipSelected(chip, "active", chip.dataset.code === code);
+    });
+}
+
+// Fills the types and the members of the form
+function fillEventForm() {
+    const types = document.getElementById("eventTypes");
+    const participants = document.getElementById("eventParticipants");
+
+    types.replaceChildren();
+    eventTypes.forEach(type => {
+        const chip = createFormChip("chip", type.icon + " " + type.label);
+        chip.dataset.code = type.code;
+        types.appendChild(chip);
+    });
+    selectEventType(DEFAULT_EVENT_TYPE);
+
+    participants.replaceChildren();
+    eventMembers.forEach(member => {
+        const chip = createFormChip("chip-member", member.name);
+        chip.dataset.id = member.id;
+        chip.style.backgroundColor = member.color;
+        participants.appendChild(chip);
+    });
+}
+
+// Shows the buttons of the members only when Everyone is unchecked
+function updateParticipants() {
+    document.getElementById("eventParticipants").hidden = document.getElementById("eventEveryone").checked;
+}
+
+// Opens the pop-up with the date already filled
+async function openEventModal(isoDate) {
+    try {
+        // The lists are asked only once
+        if (!eventTypes || !eventMembers) {
+            [eventTypes, eventMembers] = await Promise.all([getEventTypes(), getMembers()]);
+        }
+    } catch (e) {
+        console.error(e.message);
+        showMessage("calendarMessage", "Unable to open the form right now.");
+        return;
+    }
+
+    hideMessage("calendarMessage");
+    document.getElementById("eventForm").reset();
+    fillEventForm();
+    updateParticipants();
+    document.getElementById("eventDate").value = isoDate;
+    hideMessage("eventError");
+    updateCreateButton();
+    document.getElementById("eventModal").hidden = false;
+    document.getElementById("eventTitle").focus();
+}
+
+function closeEventModal() {
+    document.getElementById("eventModal").hidden = true;
+}
+
+// Reads the form
+function readEventForm() {
+    const everyone = document.getElementById("eventEveryone").checked;
+    const selected = document.querySelectorAll("#eventParticipants .chip-member.selected");
+
+    return {
+        title: document.getElementById("eventTitle").value.trim(),
+        description: document.getElementById("eventDescription").value.trim(),
+        date: document.getElementById("eventDate").value,
+        startTime: document.getElementById("eventStart").value,
+        endTime: document.getElementById("eventEnd").value,
+        type: document.querySelector("#eventTypes .chip.active").dataset.code,
+        everyone: everyone,
+        participantIds: everyone ? [] : Array.from(selected, chip => Number(chip.dataset.id)),
+        roomieEmail: user.email // TODO: remove it when the session system is efficient
+    };
+}
+
+// Comfort checks only. The real rules are in the API. "HH:MM" can be compared as text
+function checkEventInputs(newEvent) {
+    if (newEvent.startTime && newEvent.endTime && newEvent.endTime <= newEvent.startTime) {
+        return "The end must be after the start.";
+    }
+    if (!newEvent.everyone && newEvent.participantIds.length === 0) {
+        return "Please select at least one participant.";
+    }
+    return "";
+}
+
+// Runs when the user clicks on Create
+async function submitEvent(event) {
+    event.preventDefault();
+
+    const newEvent = readEventForm();
+    const message = checkEventInputs(newEvent);
+    hideMessage("eventError");
+
+    if (message !== "") {
+        showMessage("eventError", message);
+    } else if (newEvent.title !== "" && newEvent.date !== "" && !isSavingEvent) {
+        isSavingEvent = true;
+        updateCreateButton();
+
+        try {
+            await createEvent(newEvent);
+            closeEventModal();
+            // We ask again so the calendar and the list show what the API saved
+            await Promise.all([loadMonth(), loadUpcoming()]);
+        } catch (e) {
+            console.error(e.message);
+            // The API explains why it refused (400, 403). Never the details of a server error
+            showMessage("eventError", e.apiMessage && e.status < 500 ? e.apiMessage : "Unable to create the event right now.");
+        }
+
+        isSavingEvent = false;
+        updateCreateButton();
+    }
+}
+
 //-------------- Start -----------------
 if (user) {
     loadMonth();
     loadUpcoming();
+
+    document.getElementById("openEventModal").addEventListener("click", () => openEventModal(toIsoDate(new Date())));
+    document.getElementById("cancelEvent").addEventListener("click", closeEventModal);
+    document.getElementById("eventForm").addEventListener("submit", submitEvent);
+    document.getElementById("eventForm").addEventListener("input", updateCreateButton);
+    document.getElementById("eventEveryone").addEventListener("change", updateParticipants);
+
+    // A click outside of the white box closes the pop-up
+    document.getElementById("eventModal").addEventListener("click", event => {
+        if (event.target.id === "eventModal") {
+            closeEventModal();
+        }
+    });
+
+    // The buttons are created later, so we listen on their container
+    document.getElementById("eventTypes").addEventListener("click", event => {
+        const chip = event.target.closest(".chip");
+        if (chip) {
+            selectEventType(chip.dataset.code);
+        }
+    });
+    document.getElementById("eventParticipants").addEventListener("click", event => {
+        const chip = event.target.closest(".chip-member");
+        if (chip) {
+            setChipSelected(chip, "selected", !chip.classList.contains("selected"));
+        }
+    });
 
     document.getElementById("previousMonth").addEventListener("click", () => changeMonth(-1));
     document.getElementById("nextMonth").addEventListener("click", () => changeMonth(1));
