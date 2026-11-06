@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="../CSS/expenses-owner.css">
     <link rel="stylesheet" href="../CSS/calendar.css">
     <link rel="stylesheet" href="../CSS/responsive.css">
+    <link rel="stylesheet" href="../CSS/members.css">
     <link rel="stylesheet" href="../CSS/shoppingList.css">
 
     <script src="../JS/base.js" defer></script>
@@ -22,6 +23,7 @@
     <script src="../JS/expenses-owner.js" defer></script>
     <script src="../JS/expenses-roomie.js" defer></script>
     <script src="../JS/calendar.js" defer></script>
+    <script src="../JS/members.js" defer></script>
     <script src="../JS/shoppingList.js" defer></script>
 
 </head>
@@ -547,6 +549,52 @@
         </section>
         <section id="view-members" class="view" hidden>
             <h2>Members</h2>
+
+            <!-- Everybody: the members of the roomshare (the owner first, then the accepted roomies) -->
+            <!-- The list is empty here: members.js fills it with what the API sends -->
+            <div class="members-list">
+                <h3 class="members-label">Members of the roomshare (<span id="memberCount">0</span>)</h3>
+                <ul class="member-items" id="memberItems"></ul>
+
+                <!-- Error message, hidden by default -->
+                <p class="members-message" id="membersMessage" hidden></p>
+            </div>
+
+            <!-- Owner (app.js removes this block for a roomie) -->
+            <!-- The join requests waiting for the answer of the owner -->
+            <div class="members-pending" data-role="owner">
+                <h3 class="members-label members-label-pending">
+                    Waiting for approval (<span id="pendingCount">0</span>)
+                </h3>
+                <!-- members.js adds one <li> for each request -->
+                <ul class="member-items" id="pendingItems"></ul>
+
+                <!-- Shown only when there is no request -->
+                <p class="members-empty" id="pendingEmpty" hidden>No request for now.</p>
+
+                <!-- Error message, hidden by default -->
+                <p class="members-message" id="pendingMessage" hidden></p>
+            </div>
+
+            <!-- Owner (app.js removes it for a roomie) -->
+            <!-- The pop-up that asks the owner to confirm before removing a roomie. Hidden by default -->
+            <!-- members.js writes the name of the roomie inside and shows it when the owner clicks on "Remove" -->
+            <div class="member-modal-backdrop" id="removeModal" data-role="owner" hidden>
+                <div class="member-modal" role="dialog" aria-modal="true" aria-labelledby="removeTitle">
+                    <!-- The round circle with the initials of the roomie, like in the list -->
+                    <span class="member-avatar member-modal-avatar" id="removeInitials"></span>
+
+                    <h3 id="removeTitle">Remove <span id="removeName"></span>?</h3>
+                    <p class="member-modal-text" id="removeText"></p>
+                    <p class="member-modal-note">His account is kept: he can send a new request with the invitation key.</p>
+
+                    <!-- Cancel on the left, the red button on the right -->
+                    <div class="member-modal-actions">
+                        <button type="button" class="btn-cancel" id="cancelRemove">Cancel</button>
+                        <button type="button" class="btn-confirm-remove" id="confirmRemove">Remove</button>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 </body>
