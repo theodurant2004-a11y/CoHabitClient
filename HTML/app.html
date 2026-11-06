@@ -29,9 +29,9 @@
 <body>
 <aside class="sidebar">
     <div class="brand">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="/IMG/logo-cohabit-draw-only.png" alt="Logo CoHabit" style="width: 50px; height: 50x; object-fit: contain;">
-            <h2 class="sidebar-title" style="margin: 10% 0 0 5%; margin-top: 10%">CoHabit</h2>
+        <div class="brand-header">
+            <img src="/IMG/logo-cohabit-draw-only.png" alt="Logo CoHabit" class="brand-logo">
+            <h2 class="sidebar-title">CoHabit</h2>
         </div>
         <p class="sidebar-sub" id="roomshareName"></p>
     </div>
@@ -174,7 +174,7 @@
                     <span id="sl-progress-percent">0%</span>
                 </div>
                 <div class="sl-progress-bar">
-                    <div class="sl-progress-fill" id="sl-progress-fill" style="width: 0%;"></div>
+                    <div class="sl-progress-fill" id="sl-progress-fill"></div>
                 </div>
             </div>
 
@@ -189,7 +189,7 @@
             <div class="sl-actions" id="sl-actions" hidden>
                 <label class="sl-select-all-label">
                     <input type="checkbox" id="slSelectAll" class="sl-checkbox">
-                    <span style="font-weight: 500;" id="masterCheckboxText">Select all</span>
+                    <span class="sl-select-all-text" id="masterCheckboxText">Select all</span>
                 </label>
                 <button type="button" class="btn-add" id="openValidateModal">Validate purchases</button>
             </div>
@@ -230,7 +230,7 @@
             <div class="modal-backdrop" id="validateModal" hidden>
                 <form class="exp-modal" id="validateForm" novalidate>
                     <h3>Validate purchases</h3>
-                    <p style="color: var(--exp-muted); margin-bottom: 16px; font-size: 0.9rem;">
+                    <p class="validate-modal-desc">
                         Checked items will be removed from the list to create a new expense.
                     </p>
 
@@ -253,6 +253,8 @@
                 </form>
             </div>
         </section>
+
+
         <section id="view-tasks" class="view" hidden>
             <h2>Tasks</h2>
         </section>

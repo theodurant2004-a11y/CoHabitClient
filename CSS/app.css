@@ -38,11 +38,12 @@ body {
     border-bottom: 1px solid var(--sidebar-line);
 }
 
-.sidebar-title {
+sidebar-title {
     font-family: 'DM Serif Display', Georgia, serif;
     font-size: 1.7rem;
     font-weight: 400;
     color: var(--white);
+    margin: 10% 0 0 5%;
 }
 
 .sidebar-sub {
@@ -411,4 +412,17 @@ body {
     .home-stat-balance {
         grid-column: auto;
     }
+}
+
+/* ================= Sidebar Brand =================*/
+.brand-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
 }
