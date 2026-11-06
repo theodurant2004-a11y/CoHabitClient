@@ -8,16 +8,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600&display=swap"
-        rel="stylesheet">
+          rel="stylesheet">
     <link rel="stylesheet" href="../CSS/stylesheet.css">
     <link rel="stylesheet" href="../CSS/app.css">
     <link rel="stylesheet" href="../CSS/expenses-roomie.css">
     <link rel="stylesheet" href="../CSS/expenses-owner.css">
     <link rel="stylesheet" href="../CSS/tasks.css">
-
     <link rel="stylesheet" href="../CSS/calendar.css">
     <link rel="stylesheet" href="../CSS/responsive.css">
     <link rel="stylesheet" href="../CSS/members.css">
+    <link rel="stylesheet" href="../CSS/shoppingList.css">
 
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
@@ -26,12 +26,17 @@
     <script src="../JS/tasks.js" defer></script>
     <script src="../JS/calendar.js" defer></script>
     <script src="../JS/members.js" defer></script>
+    <script src="../JS/shoppingList.js" defer></script>
+
 </head>
 
 <body>
     <aside class="sidebar">
         <div class="brand">
-            <h2 class="sidebar-title">CoHabit</h2>
+            <div class="brand-header">
+                <img src="/IMG/logo-cohabit-draw-only.png" alt="Logo CoHabit" class="brand-logo">
+                <h2 class="sidebar-title">CoHabit</h2>
+            </div>
             <p class="sidebar-sub" id="roomshareName"></p>
         </div>
 
@@ -149,10 +154,110 @@
                     <p class="expenses-empty calendar-empty" id="homeEventsEmpty" hidden>No upcoming event</p>
                 </div>
             </div>
-            <section id="view-shoppingList" class="view" data-role="roomie" hidden>
-                <h2>Shopping list</h2>
-            </section>
         </section>
+
+
+        <!----------------- Shopping List Page ----------------->
+
+        <section id="view-shoppingList" class="view" hidden data-role="roomie">
+            <div class="sl-head">
+                <div>
+                    <h2>Shopping list</h2>
+                    <p class="sl-sub"><span id="sl-item-count">0</span> items left</p>
+                </div>
+                <button type="button" class="btn-add" id="openAddItemModal">+ Add</button>
+            </div>
+
+            <!-- Error messages -->
+            <p class="exp-error exp-banner" id="slMainError" hidden></p>
+
+            <!-- Progression system -->
+            <div class="sl-progress-container" id="sl-progress-container" hidden>
+                <div class="sl-progress-text">
+                    <span id="sl-progress-count">0/0 found</span>
+                    <span id="sl-progress-percent">0%</span>
+                </div>
+                <div class="sl-progress-bar">
+                    <div class="sl-progress-fill" id="sl-progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- If no item in the list -->
+            <div class="sl-empty" id="sl-empty">
+                <div class="sl-empty-icon">🛒</div>
+                <h3>The list is empty</h3>
+                <p>Add items to buy</p>
+            </div>
+
+            <!-- Action buttons (Select All & Validation) -->
+            <div class="sl-actions" id="sl-actions" hidden>
+                <label class="sl-select-all-label">
+                    <input type="checkbox" id="slSelectAll" class="sl-checkbox">
+                    <span class="sl-select-all-text" id="masterCheckboxText">Select all</span>
+                </label>
+                <button type="button" class="btn-add" id="openValidateModal">Validate purchases</button>
+            </div>
+
+            <!-- Container of the shopping list, all the items will be displayed -->
+            <div id="sl-list-container" hidden></div>
+
+            <!-- Modal to add an item to the list -->
+            <div class="modal-backdrop" id="addItemModal" hidden>
+                <form class="exp-modal" id="addItemForm" novalidate>
+                    <h3>Add an item</h3>
+
+                    <div class="exp-field">
+                        <label for="addItemName">Item *</label>
+                        <input type="text" id="addItemName" maxlength="50" placeholder="e.g. Sourdough bread" required>
+                    </div>
+
+                    <div class="exp-field">
+                        <label for="addItemQty">Quantity</label>
+                        <input type="text" id="addItemQty" placeholder="e.g. 500 g, x2">
+                    </div>
+
+                    <div class="exp-field">
+                        <label for="addItemCategory">Category</label>
+                        <input type="text" id="addItemCategory" placeholder="e.g. Groceries">
+                    </div>
+
+                    <p class="exp-error" id="addItemError" hidden></p>
+
+                    <div class="exp-actions">
+                        <button type="button" class="btn-ghost" data-close-modal>Cancel</button>
+                        <button type="submit" class="btn-add">Add</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal to confirm purchases -->
+            <div class="modal-backdrop" id="validateModal" hidden>
+                <form class="exp-modal" id="validateForm" novalidate>
+                    <h3>Validate purchases</h3>
+                    <p class="validate-modal-desc">
+                        Checked items will be removed from the list to create a new expense.
+                    </p>
+
+                    <div class="exp-field">
+                        <label for="valDescription">Description *</label>
+                        <input type="text" id="valDescription" maxlength="50" placeholder="e.g. Carrefour groceries" required>
+                    </div>
+
+                    <div class="exp-field">
+                        <label for="valAmount">Amount (€) *</label>
+                        <input type="number" id="valAmount" min="0.01" step="0.01" placeholder="0.00" required>
+                    </div>
+
+                    <p class="exp-error" id="validateError" hidden></p>
+
+                    <div class="exp-actions">
+                        <button type="button" class="btn-ghost" data-close-modal>Cancel</button>
+                        <button type="submit" class="btn-add">Validate</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
         <section id="view-tasks" class="view" data-role="roomie" hidden>
             <div class="tasks-page">
                 <!-- Title + subtitle on the left, button on the right. tasks.js fills the subtitle -->
@@ -556,5 +661,4 @@
         </section>
     </div>
 </body>
-
 </html>

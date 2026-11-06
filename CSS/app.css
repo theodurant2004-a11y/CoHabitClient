@@ -38,16 +38,17 @@ body {
     border-bottom: 1px solid var(--sidebar-line);
 }
 
-.sidebar-title {
+sidebar-title {
     font-family: 'DM Serif Display', Georgia, serif;
     font-size: 1.7rem;
     font-weight: 400;
     color: var(--white);
+    margin: 10% 0 0 5%;
 }
 
 .sidebar-sub {
     margin-top: 2px;
-    font-size: 0.8rem;
+    font-size: 1rem;
     color: var(--on-dark-60);
 }
 
@@ -328,4 +329,100 @@ body {
 
 .home-panel-link:hover {
     color: var(--accent-dark);
+}
+
+
+
+/* ================= Home page ================= */
+
+/* The greeting and the name of the roomshare */
+.home-head {
+    margin-bottom: 28px;
+}
+
+.home-head h2 {
+    margin: 0;
+}
+
+.home-sub {
+    margin: 4px 0 0;
+    font-size: 1.1rem;
+    color: #7a746e;
+}
+
+/* The row of the cards: 4 columns */
+.home-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* One card: white, rounded, with a small shadow */
+.home-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 22px 26px;
+    background: #ffffff;
+    border: 1px solid #ebe5de;
+    border-radius: 22px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* The card "My balance" is always in the 4th column */
+.home-stat-balance {
+    grid-column: 4;
+}
+
+.home-stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #5f5a56;
+}
+
+.home-stat-value {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem;
+    line-height: 1.1;
+    color: #2b2b2b;
+}
+
+.home-stat-note {
+    font-size: 0.9rem;
+    color: #5f5a56;
+}
+
+/* The color of the amount of the balance (the same colors as the expenses page) */
+.home-stat-creditor .home-stat-value {
+    color: var(--exp-owed-text);
+}
+
+.home-stat-debtor .home-stat-value {
+    color: var(--exp-owe-text);
+}
+
+/* On a small screen: 2 columns, and the balance is no more forced in the 4th one */
+@media (max-width: 900px) {
+    .home-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .home-stat-balance {
+        grid-column: auto;
+    }
+}
+
+/* ================= Sidebar Brand =================*/
+.brand-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
 }
