@@ -1,0 +1,165 @@
+/* =====================================================
+   Tasks page
+   The class names start with "task" so they cannot change another page
+   It also uses some classes of expenses-roomie.css (btn-add, btn-ghost, modal-backdrop, exp-*)
+   ===================================================== */
+
+/* ---------- Top line: title + button ---------- */
+/* The title is on the left and the "+ New task" button on the right */
+.tasks-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+/* ---------- Filters ---------- */
+.task-filters {
+    display: flex;
+    flex-wrap: wrap;                /* if there is not enough place, the buttons go on the next line */
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.task-filter {
+    padding: 8px 16px;
+    border: 1px solid var(--exp-line);
+    border-radius: 999px;           /* a very big radius makes the button completely round */
+    background: #fff;
+    color: var(--exp-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+/* The chosen filter is filled with the main color */
+.task-filter.active {
+    background: var(--exp-primary);
+    border-color: var(--exp-primary);
+    color: #fff;
+}
+
+/* ---------- The list ---------- */
+/* We remove the bullet points of the <ul> and we put a space between the lines */
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* One task = one white box with 2 parts: the checkbox and the text */
+.task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--exp-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+.task-check {
+    flex-shrink: 0;                 /* it never gets smaller */
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--exp-primary);
+    cursor: pointer;
+}
+
+/* The text takes all the free place (flex: 1) and min-width: 0 lets a long text be cut
+   instead of pushing the box outside of the page */
+.task-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.task-description {
+    font-size: 0.85rem;
+    color: var(--exp-muted);
+}
+
+/* A completed task is crossed out and grey (the class "done" is added by the JS) */
+.task-item.done .task-name {
+    color: var(--exp-muted);
+    text-decoration: line-through;
+}
+
+/* The round circles of the roomies and the due date, on the same line */
+.task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: var(--exp-muted);
+}
+
+.task-dot {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+/* The message "No task here" */
+.task-empty {
+    padding: 40px 0;
+    text-align: center;
+    color: var(--exp-muted);
+}
+
+/* ---------- Pop-up "New task" ---------- */
+/* The pop-up itself uses the classes of the expenses (modal-backdrop, exp-modal, exp-field...) */
+/* Only the text area needs its own style, because exp-field only styles input and select */
+.exp-field textarea {
+    padding: 12px 14px;
+    border: 1px solid var(--exp-line);
+    border-radius: var(--radius-field);
+    background: #faf9f7;
+    font: inherit;
+    resize: vertical;
+}
+
+/* The faded button "Create" while the title is empty */
+.btn-add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* One button per roomie in "Assigned to". It is faded when it is not selected
+   (the class "selected" is added or removed by the JS at each click) */
+.task-assignees {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.task-chip {
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #fff;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.35;
+    cursor: pointer;
+}
+
+.task-chip.selected {
+    opacity: 1;
+}
