@@ -12,13 +12,29 @@ function showSection() {
     if (user) {
         if (user.role === "owner") {
             // Both sections are hidden in the HTML: only the matching one is shown
-            document.getElementById("ownerSection").hidden = false;
+            showOwnerSection();
         } else if (user.role === "roomie") {
             showRoomieSection();
         } else {
             // If Unknown role: the stored data is not valid so sign in again
             window.location.href = "SignIn.html";
         }
+    }
+}
+
+// Shows what an owner must see: his roomshare if he already created it, else the form to create it
+// The API gives the name and the key of his roomshare at the sign in
+function showOwnerSection() {
+    if (user.roomshareName) {
+        // app.js needs the key "roomshare" to let the user in, so we store it here
+        sessionStorage.setItem("roomshare", JSON.stringify({
+            name: user.roomshareName,
+            invitationKey: user.invitationKey
+        }));
+        window.location.href = "app.html";
+    } else {
+        // Both sections are hidden in the HTML: only the matching one is shown
+        document.getElementById("ownerSection").hidden = false;
     }
 }
 
@@ -107,6 +123,13 @@ async function createRoomshare(event) {
                     // Stores the created roomshare so app.html can display it
                     const result = await response.json();
                     sessionStorage.setItem("roomshare", JSON.stringify(result.roomshare));
+
+                    // The owner now has a roomshare: we update the user kept in the browser
+                    // (the data read at the sign in is old, so we update it ourselves)
+                    user.roomshareName = result.roomshare.name;
+                    user.invitationKey = result.roomshare.invitationKey;
+                    sessionStorage.setItem("user", JSON.stringify(user));
+
                     window.location.href = "app.html";
                 }
             }
