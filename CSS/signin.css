@@ -20,9 +20,3 @@
 .signin-card .switch-link {
     margin-top: 24px;
 }
-
-@media (max-width: 520px) {
-    .signin-card {
-        padding: 26px 20px;
-    }
-}

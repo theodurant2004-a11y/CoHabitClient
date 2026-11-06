@@ -1,0 +1,276 @@
+/* =====================================================
+   Responsive: every @media of the project
+   Loaded last on all the pages. Rules of one page are limited with :where(body:has(...))
+   ===================================================== */
+
+/* ================= max-width: 1000px ================= */
+/* Calendar: the two cards go one under the other */
+@media (max-width: 1000px) {
+    .calendar-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ================= max-width: 900px ================= */
+@media (max-width: 900px) {
+    /* Home: 2 columns, the cards are no more forced in their column */
+    .home-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .home-stat-balance,
+    .home-stat-events {
+        grid-column: auto;
+    }
+
+    .home-panels {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-panel-events {
+        grid-column: auto;
+    }
+
+    /* Expenses owner */
+    .expenses-owner .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ================= max-width: 800px ================= */
+@media (max-width: 800px) {
+    /* App: the sidebar goes above the content */
+    body:has(.sidebar) {
+        display: block;
+    }
+
+    .sidebar {
+        position: static;
+        height: auto;
+        gap: 14px;
+        padding: 18px 16px;
+    }
+
+    .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 0 4px 14px;
+    }
+
+    .sidebar-title {
+        font-size: 1.5rem;
+    }
+
+    .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 6px;
+        margin: 0 -16px;
+        padding: 0 16px 4px;
+        scrollbar-width: none;
+    }
+
+    .nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-link {
+        flex-shrink: 0;
+        padding: 9px 14px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar-foot {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0;
+        padding-top: 14px;
+    }
+
+    .user-card {
+        flex: 1;
+        padding: 8px 10px;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+
+    .content {
+        padding: 24px 16px;
+    }
+
+    .view h2 {
+        font-size: 1.7rem;
+    }
+
+    /* Expenses owner */
+    .expenses-owner .form-card {
+        padding: 20px;
+    }
+
+    .expenses-owner .form-head {
+        flex-direction: column;
+    }
+
+    .expenses-owner .btn-inline {
+        width: 100%;
+    }
+}
+
+/* ================= max-width: 700px ================= */
+@media (max-width: 700px) {
+    /* Shared: pop-up */
+    .exp-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Expenses roomie */
+    .expenses-cards {
+        grid-template-columns: 1fr;
+    }
+
+    /* Calendar */
+    .exp-panel.calendar-card {
+        padding: 16px 12px;
+    }
+
+    .calendar-cell {
+        min-height: 48px;
+    }
+}
+
+/* ================= max-width: 520px (all pages) ================= */
+/* Before max-height: on sign up, the height rule of h1 must win */
+@media (max-width: 520px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* ================= max-height: 820px ================= */
+/* Screens that are not very tall (laptops) */
+@media (max-height: 820px) {
+    /* Roomshare */
+    body:has(.roomshare-card) {
+        padding: 12px 16px;
+    }
+
+    :where(body:has(.roomshare-card)) .container {
+        gap: 14px;
+    }
+
+    :where(body:has(.roomshare-card)) .logo {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 10px;
+    }
+
+    .roomshare-card {
+        padding: 24px 32px;
+    }
+
+    .actions {
+        margin-top: 18px;
+    }
+
+    /* Sign up */
+    body:has(.signup-card) {
+        padding: 12px 16px;
+    }
+
+    :where(body:has(.signup-card)) .container {
+        gap: 14px;
+    }
+
+    :where(body:has(.signup-card)) .logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 14px;
+        margin-bottom: 10px;
+    }
+
+    :where(body:has(.signup-card)) h1 {
+        font-size: 1.7rem;
+    }
+
+    .signup-card {
+        padding: 22px 32px 18px;
+    }
+
+    .signup-card h2 {
+        font-size: 1.5rem;
+    }
+
+    :where(body:has(.signup-card)) .card-subtitle {
+        margin-bottom: 16px;
+    }
+
+    :where(body:has(.signup-card)) .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-row {
+        margin-bottom: 12px;
+    }
+
+    :where(body:has(.signup-card)) .form-group label {
+        margin-bottom: 6px;
+    }
+
+    :where(body:has(.signup-card)) .form-group input {
+        padding: 11px 16px;
+    }
+
+    .signup-card .btn-primary {
+        padding: 12px;
+    }
+
+    :where(body:has(.signup-card)) .switch-link {
+        margin-top: 14px;
+    }
+
+    .role-option {
+        padding: 14px 18px;
+        margin-bottom: 12px;
+    }
+
+    .step-actions {
+        margin-top: 18px;
+    }
+}
+
+/* ================= max-width: 520px (one page) ================= */
+@media (max-width: 520px) {
+    /* Index */
+    .welcome-card {
+        padding: 28px 20px;
+    }
+
+    /* Sign in */
+    .signin-card {
+        padding: 26px 20px;
+    }
+
+    /* Sign up */
+    .signup-card {
+        padding: 22px 20px 18px;
+    }
+
+    /* Roomshare */
+    .roomshare-card {
+        padding: 24px 20px;
+    }
+}
+
+/* ================= max-width: 400px ================= */
+@media (max-width: 400px) {
+    /* Sign up: first name and last name one under the other */
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
