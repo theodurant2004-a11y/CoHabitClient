@@ -1,133 +1,40 @@
-// The general URL of the shopping-list part of the API
-const SHOPPINGLIST_URL = "http://localhost:8080/CoHabitAPI/api/users/" + 421 + "/shopping-items";
-const itemList = document.getElementById("sl-list-container");
-const addItemForm = document.getElementById("addItemForm");
-const validateForm = document.getElementById("validateForm");
-const itemCount = document.getElementById("sl-item-count");
-const emptyArea = document.getElementById("sl-empty");
-const progressBarArea = document.getElementById("sl-progress-container");
-const actionsBtns = document.getElementById("sl-actions");
-const masterCheckbox = document.getElementById("slSelectAll");
+const SL_URL = "http://localhost:8080/CoHabitAPI/api/users/" + user.id_person + "/shopping-items";
 
-async function loadItems() {
-    const response = await fetch(SHOPPINGLIST_URL, {
+const slList = document.getElementById("sl-list-container");
+const slAddForm = document.getElementById("addItemForm");
+const slValidateForm = document.getElementById("validateForm");
+const slItemCount = document.getElementById("sl-item-count");
+const slEmptyArea = document.getElementById("sl-empty");
+const slProgressArea = document.getElementById("sl-progress-container");
+const slActions = document.getElementById("sl-actions");
+const slSelectAll = document.getElementById("slSelectAll");
+const slAddModal = document.getElementById("addItemModal");
+const slValidateModal = document.getElementById("validateModal");
+
+//-------------- API calls -----------------
+
+// Throws an error with the code and the message of the API
+async function slThrowApiError(response) {
+    const body = await response.json().catch(() => ({}));
+    const error = new Error(body.message || slGetErrorMessage(response.status));
+    error.status = response.status;
+    throw error;
+}
+
+async function slFetchItems() {
+    const response = await fetch(SL_URL, {
         credentials: "include"
     });
 
     if (!response.ok) {
-        throw new Error(getErrorMessage(response.status));
+        await slThrowApiError(response);
     }
 
-    const data = await response.json();
-    console.log(data);
-    return data;
+    return await response.json();
 }
 
-function updateProgressBar() {
-    const total = itemList.querySelectorAll('.sl-checkbox').length;
-    const checked = itemList.querySelectorAll('.sl-checkbox:checked').length;
-
-    if (masterCheckbox) {
-        masterCheckbox.checked = (total > 0 && checked === total);
-    }
-
-    document.getElementById("openValidateModal").hidden = checked == 0;
-    const percent = total === 0 ? 0 : Math.round((checked / total) * 100);
-
-    document.getElementById("sl-progress-count").innerText = `${checked}/${total} found`;
-    document.getElementById("sl-progress-percent").innerText = `${percent}%`;
-    document.getElementById("sl-progress-fill").style.width = `${percent}%`;
-}
-
-async function printItems() {
-    try {
-        const items = await loadItems();
-
-        itemCount.innerText = items.length;
-        emptyArea.hidden = items.length > 0;
-        progressBarArea.hidden = items.length == 0;
-        actionsBtns.hidden = items.length == 0;
-
-        itemList.hidden = false;
-        itemList.innerHTML = "";
-
-        let ul = document.createElement("ul");
-        ul.classList.add("sl-list");
-
-        items.forEach((item) => {
-            let li = document.createElement("li");
-            li.classList.add("sl-item");
-            li.id = item.productId;
-
-            let inputCheck = document.createElement("input");
-            inputCheck.type = "checkbox";
-            inputCheck.checked = item.found;
-            inputCheck.classList.add("sl-checkbox");
-
-            let span = document.createElement("span");
-            span.textContent = item.productName;
-            span.classList.add("sl-item-name");
-
-            let inputQty = document.createElement("input");
-            inputQty.type = "text";
-            inputQty.classList.add("sl-item-qty-input");
-            inputQty.value = item.quantity;
-
-            let button = document.createElement("button");
-            button.textContent = "×";
-            button.classList.add("sl-btn-delete");
-
-            li.append(inputCheck, span, inputQty, button);
-
-            ul.appendChild(li);
-        });
-        itemList.appendChild(ul);
-
-        updateProgressBar();
-    } catch (error) {
-        console.error("Impossible to load the list:", error.message);
-        showListError(error.message);
-    }
-}
-
-async function submitNewItem(event) {
-    event.preventDefault();
-
-    const nameInput = document.getElementById("addItemName");
-    const quantityInput = document.getElementById("addItemQty");
-    const categoryInput = document.getElementById("addItemCategory");
-    const errorText = document.getElementById("addItemError");
-
-    const name = nameInput.value.trim();
-    const quantity = quantityInput.value.trim();
-    const category = categoryInput.value.trim();
-
-    if (!name) {
-        errorText.textContent = "The item name is required.";
-        errorText.hidden = false;
-        nameInput.focus();
-        return;
-    }
-
-    if (name.length > 50) {
-        errorText.textContent = "The item name must be less than 50 characters.";
-        errorText.hidden = false;
-        nameInput.focus();
-        return;
-    }
-
-    try {
-        await sendNewItem({ name, quantity, category });
-        closeModal(document.getElementById("addItemModal"));
-        await printItems();
-    } catch (e) {
-        errorText.textContent = e.message;
-        errorText.hidden = false;
-    }
-}
-
-async function sendNewItem(newItem) {
-    const response = await fetch(SHOPPINGLIST_URL, {
+async function slSendNewItem(newItem) {
+    const response = await fetch(SL_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -135,55 +42,12 @@ async function sendNewItem(newItem) {
     });
 
     if (!response.ok) {
-        throw new Error(getErrorMessage(response.status));
+        await slThrowApiError(response);
     }
 }
 
-async function checkOrUncheckAll(event) {
-    const isChecked = event.target.checked;
-    const boxList = itemList.querySelectorAll('.sl-checkbox');
-
-    boxList.forEach((box) => box.checked = isChecked );
-    updateProgressBar();
-
-    for (let box of boxList) {
-        const itemLi = box.closest('.sl-item');
-        const productId = itemLi.id;
-        const quantity = itemLi.querySelector('.sl-item-qty-input').value;
-
-        try {
-            await sendChange(productId, { quantity, status: isChecked });
-            updateProgressBar();
-        } catch (error) {
-            box.checked = !isChecked;
-            console.error("Update error", error);
-            showListError(error.message);
-        }
-    }
-}
-
-async function getChange(event) {
-    if (event.target.classList.contains("sl-checkbox") || event.target.classList.contains("sl-item-qty-input")) {
-        const itemLi = event.target.parentElement;
-        const productId = itemLi.id;
-        const quantity = itemLi.querySelector('.sl-item-qty-input').value;
-        const isChecked = itemLi.querySelector('.sl-checkbox').checked;
-
-        updateProgressBar();
-        try {
-            await sendChange(productId, { quantity, status: isChecked });
-            updateProgressBar();
-        } catch (error) {
-            console.error("Update error", error);
-            showListError(error.message);
-            if (event.target.classList.contains("sl-checkbox"))
-                event.target.checked = !isChecked;
-        }
-    }
-}
-
-async function sendChange(productId, change) {
-    const response = await fetch(SHOPPINGLIST_URL + "/" + productId, {
+async function slSendChange(productId, change) {
+    const response = await fetch(SL_URL + "/" + productId, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -191,37 +55,234 @@ async function sendChange(productId, change) {
     });
 
     if (!response.ok) {
-        throw new Error(getErrorMessage(response.status));
+        await slThrowApiError(response);
     }
 }
 
-async function getItemToDelete(event) {
-    if (event.target.classList.contains("sl-btn-delete")) {
-        const itemList = event.target.parentElement;
-        const productId = itemList.id;
-
-        try {
-            await sendItemToDelete(productId);
-            await printItems();
-        } catch (error) {
-            console.error("Deletion error", error);
-            showListError(error.message);
-        }
-    }
-}
-
-async function sendItemToDelete(productId) {
-    const response = await fetch(SHOPPINGLIST_URL + "/" + productId, {
+async function slSendDelete(productId) {
+    const response = await fetch(SL_URL + "/" + productId, {
         method: "DELETE",
         credentials: "include"
     });
 
     if (!response.ok) {
-        throw new Error(getErrorMessage(response.status));
+        await slThrowApiError(response);
     }
 }
 
-async function submitValidation(event) {
+async function slSendValidation(validation) {
+    const response = await fetch(SL_URL + "/confirm-purchases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(validation)
+    });
+
+    if (!response.ok) {
+        await slThrowApiError(response);
+    }
+}
+
+// Used only when the API does not send a message
+function slGetErrorMessage(status) {
+    switch (status) {
+        case 400: return "Please fill all required fields correctly.";
+        case 403: return "You are not allowed to perform this action.";
+        case 404: return "Item or resource not found.";
+        case 409: return "This item is already in your shopping list.";
+        case 500: return "Server error. Please try again later.";
+        default:  return "An unexpected error occurred.";
+    }
+}
+
+//-------------- Display -----------------
+
+function slShowListError(message) {
+    const errorBanner = document.getElementById("slMainError");
+    errorBanner.textContent = message;
+    errorBanner.hidden = false;
+    setTimeout(() => {
+        errorBanner.hidden = true;
+    }, 5000);
+}
+
+function slShowFormError(errorElement, message, input) {
+    errorElement.textContent = message;
+    errorElement.hidden = false;
+    if (input) {
+        input.focus();
+    }
+}
+
+function slUpdateProgressBar() {
+    const total = slList.querySelectorAll(".sl-checkbox").length;
+    const checked = slList.querySelectorAll(".sl-checkbox:checked").length;
+
+    slSelectAll.checked = total > 0 && checked === total;
+    document.getElementById("openValidateModal").hidden = checked === 0;
+
+    const percent = total === 0 ? 0 : Math.round((checked / total) * 100);
+
+    document.getElementById("sl-progress-count").textContent = `${checked}/${total} found`;
+    document.getElementById("sl-progress-percent").textContent = `${percent}%`;
+    document.getElementById("sl-progress-fill").style.width = `${percent}%`;
+}
+
+// Creates one line of the list
+function slCreateItem(item) {
+    const li = document.createElement("li");
+    li.classList.add("sl-item");
+    // The id of the product is kept in a data attribute (an id="3" could collide with another element)
+    li.dataset.productId = item.productId;
+
+    const inputCheck = document.createElement("input");
+    inputCheck.type = "checkbox";
+    inputCheck.checked = item.found;
+    inputCheck.classList.add("sl-checkbox");
+
+    const span = document.createElement("span");
+    span.textContent = item.productName;
+    span.classList.add("sl-item-name");
+
+    const inputQty = document.createElement("input");
+    inputQty.type = "text";
+    inputQty.classList.add("sl-item-qty-input");
+    inputQty.value = item.quantity ?? "";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "×";
+    button.classList.add("sl-btn-delete");
+    button.setAttribute("aria-label", "Delete " + item.productName);
+
+    li.append(inputCheck, span, inputQty, button);
+    return li;
+}
+
+async function slLoadItems() {
+    try {
+        const items = await slFetchItems();
+
+        slItemCount.textContent = items.length;
+        slEmptyArea.hidden = items.length > 0;
+        slProgressArea.hidden = items.length === 0;
+        slActions.hidden = items.length === 0;
+
+        const ul = document.createElement("ul");
+        ul.classList.add("sl-list");
+        items.forEach(item => ul.appendChild(slCreateItem(item)));
+
+        slList.replaceChildren(ul);
+        slList.hidden = false;
+
+        slUpdateProgressBar();
+    } catch (error) {
+        console.error(error.message);
+        slShowListError(error.message);
+    }
+}
+
+//-------------- Add an item -----------------
+
+async function slSubmitNewItem(event) {
+    event.preventDefault();
+
+    const nameInput = document.getElementById("addItemName");
+    const errorText = document.getElementById("addItemError");
+
+    const name = nameInput.value.trim();
+    const quantity = document.getElementById("addItemQty").value.trim();
+    const category = document.getElementById("addItemCategory").value.trim();
+
+    if (!name) {
+        slShowFormError(errorText, "The item name is required.", nameInput);
+        return;
+    }
+
+    if (name.length > 50) {
+        slShowFormError(errorText, "The item name must be less than 50 characters.", nameInput);
+        return;
+    }
+
+    try {
+        await slSendNewItem({ name, quantity, category });
+        slCloseModal(slAddModal);
+        await slLoadItems();
+    } catch (e) {
+        slShowFormError(errorText, e.message);
+    }
+}
+
+//-------------- Check / quantity / delete -----------------
+
+// Checks or unchecks every item
+async function slCheckOrUncheckAll(event) {
+    const isChecked = event.target.checked;
+    const boxList = slList.querySelectorAll(".sl-checkbox");
+
+    boxList.forEach(box => box.checked = isChecked);
+    slUpdateProgressBar();
+
+    for (const box of boxList) {
+        const itemLi = box.closest(".sl-item");
+        const quantity = itemLi.querySelector(".sl-item-qty-input").value;
+
+        try {
+            await slSendChange(itemLi.dataset.productId, { quantity, status: isChecked });
+        } catch (error) {
+            box.checked = !isChecked;
+            console.error(error.message);
+            slShowListError(error.message);
+        }
+    }
+
+    slUpdateProgressBar();
+}
+
+// A checkbox or a quantity changed
+async function slHandleChange(event) {
+    const target = event.target;
+
+    if (target.classList.contains("sl-checkbox") || target.classList.contains("sl-item-qty-input")) {
+        const itemLi = target.closest(".sl-item");
+        const quantity = itemLi.querySelector(".sl-item-qty-input").value;
+        const isChecked = itemLi.querySelector(".sl-checkbox").checked;
+
+        slUpdateProgressBar();
+        try {
+            await slSendChange(itemLi.dataset.productId, { quantity, status: isChecked });
+        } catch (error) {
+            console.error(error.message);
+            slShowListError(error.message);
+
+            // The API refused: the box goes back to what it was
+            if (target.classList.contains("sl-checkbox")) {
+                target.checked = !isChecked;
+                slUpdateProgressBar();
+            }
+        }
+    }
+}
+
+async function slHandleDelete(event) {
+    const button = event.target.closest(".sl-btn-delete");
+
+    if (button) {
+        const itemLi = button.closest(".sl-item");
+
+        try {
+            await slSendDelete(itemLi.dataset.productId);
+            await slLoadItems();
+        } catch (error) {
+            console.error(error.message);
+            slShowListError(error.message);
+        }
+    }
+}
+
+//-------------- Validate the purchases -----------------
+
+async function slSubmitValidation(event) {
     event.preventDefault();
 
     const descriptionInput = document.getElementById("valDescription");
@@ -233,130 +294,78 @@ async function submitValidation(event) {
     const amount = parseFloat(amountStr);
 
     if (!description) {
-        errorText.textContent = "Please provide a description.";
-        errorText.hidden = false;
-        descriptionInput.focus();
+        slShowFormError(errorText, "Please provide a description.", descriptionInput);
         return;
     }
 
     if (!amountStr || isNaN(amount) || amount <= 0) {
-        errorText.textContent = "Please enter a valid amount greater than 0.";
-        errorText.hidden = false;
-        amountInput.focus();
+        slShowFormError(errorText, "Please enter a valid amount greater than 0.", amountInput);
         return;
     }
 
     try {
-        await sendValidation({ description, amount });
-        closeModal(document.getElementById("validateModal"));
-        await printItems();
+        await slSendValidation({ description, amount });
+        slCloseModal(slValidateModal);
+        await slLoadItems();
     } catch (e) {
-        errorText.textContent = e.message;
-        errorText.hidden = false;
+        slShowFormError(errorText, e.message);
     }
 }
 
-async function sendValidation(validation) {
-    const response = await fetch(SHOPPINGLIST_URL + "/confirm-purchases", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(validation)
-    });
+//-------------- Pop-ups -----------------
 
-    if (!response.ok) {
-        throw new Error(getErrorMessage(response.status));
-    }
+function slOpenModal(modal, form, errorElement, focusInput) {
+    form.reset();
+    errorElement.hidden = true;
+    modal.hidden = false;
+    focusInput.focus();
 }
 
-function getErrorMessage(status) {
-    switch (status) {
-        case 400: return "Please fill all required fields correctly.";
-        case 403: return "You are not allowed to perform this action.";
-        case 404: return "Item or resource not found.";
-        case 409: return "This item is already in your shopping list.";
-        case 500: return "Server error. Please try again later.";
-        default:  return "An unexpected error occurred.";
-    }
+function slCloseModal(modal) {
+    modal.hidden = true;
 }
 
-function showListError(message) {
-    const errorBanner = document.getElementById("slMainError");
-    if (errorBanner) {
-        errorBanner.textContent = message;
-        errorBanner.hidden = false;
-        setTimeout(() => {
-            errorBanner.hidden = true;
-        }, 5000);
-    }
-}
+//-------------- Start -----------------
 
-// ---------------------------------------------------------
-// MODAL FUNCTIONS
-// ---------------------------------------------------------
+// app.js removes the roomie blocks (data-role="roomie") for an owner, so we start only if the page exists
+if (slList) {
+    slLoadItems();
 
-function openModal(modal, form, errorElement, focusInput) {
-    if (form) form.reset();
-    if (errorElement) errorElement.hidden = true;
-    if (modal) modal.hidden = false;
-    if (focusInput) focusInput.focus();
-}
-
-function closeModal(modal) {
-    if (modal) modal.hidden = true;
-}
-
-// ---------------------------------------------------------
-// EVENTS
-// ---------------------------------------------------------
-
-if (itemList) {
-    printItems();
-    itemList.addEventListener("change", getChange);
-    itemList.addEventListener("click", getItemToDelete)
-    if (masterCheckbox)
-        masterCheckbox.addEventListener("change", checkOrUncheckAll);
-}
-
-document.querySelectorAll('[data-close-modal]').forEach(btn => {
-    btn.addEventListener("click", (event) => {
-        const parentModal = event.target.closest(".modal-backdrop");
-        if (parentModal) closeModal(parentModal);
-    });
-});
-
-document.querySelectorAll(".modal-backdrop").forEach(modal => {
-    modal.addEventListener("click", event => {
-        if (event.target === modal) closeModal(modal);
-    });
-});
-
-if (addItemForm) {
-    const addModal = document.getElementById("addItemModal");
+    slList.addEventListener("change", slHandleChange);
+    slList.addEventListener("click", slHandleDelete);
+    slSelectAll.addEventListener("change", slCheckOrUncheckAll);
 
     document.getElementById("openAddItemModal").addEventListener("click", () => {
-        openModal(
-            addModal,
-            addItemForm,
-            document.getElementById("addItemError"),
-            document.getElementById("addItemName")
-        );
+        slOpenModal(slAddModal, slAddForm,
+            document.getElementById("addItemError"), document.getElementById("addItemName"));
     });
-
-    addItemForm.addEventListener("submit", submitNewItem);
-}
-
-if (validateForm) {
-    const valModal = document.getElementById("validateModal");
 
     document.getElementById("openValidateModal").addEventListener("click", () => {
-        openModal(
-            valModal,
-            validateForm,
-            document.getElementById("validateError"),
-            document.getElementById("valDescription")
-        );
+        slOpenModal(slValidateModal, slValidateForm,
+            document.getElementById("validateError"), document.getElementById("valDescription"));
     });
 
-    validateForm.addEventListener("submit", submitValidation);
+    slAddForm.addEventListener("submit", slSubmitNewItem);
+    slValidateForm.addEventListener("submit", slSubmitValidation);
+
+    // Only the 2 pop-ups of this page (the other pages manage their own pop-ups)
+    [slAddModal, slValidateModal].forEach(modal => {
+        // "Cancel" button
+        modal.querySelector("[data-close-modal]").addEventListener("click", () => slCloseModal(modal));
+
+        // Click on the dark background
+        modal.addEventListener("click", event => {
+            if (event.target === modal) {
+                slCloseModal(modal);
+            }
+        });
+    });
+
+    // Escape closes the pop-up that is open
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            slCloseModal(slAddModal);
+            slCloseModal(slValidateModal);
+        }
+    });
 }
