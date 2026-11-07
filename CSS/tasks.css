@@ -163,3 +163,34 @@
 .task-chip.selected {
     opacity: 1;
 }
+
+/* ---------- Edit and delete buttons ---------- */
+/* On the right of each task. .task-main takes all the free place (flex: 1), so they are pushed to the right */
+.task-actions {
+    display: flex;
+    flex-shrink: 0;                 /* they never get smaller */
+    gap: 4px;
+}
+
+.task-edit,
+.task-delete {
+    padding: 6px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    font-size: 1rem;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.task-edit:hover,
+.task-delete:hover {
+    opacity: 1;
+    background: #f3f1ee;
+}
+
+/* The text of the pop-up "Delete task" */
+.task-delete-text {
+    margin: 0 0 16px;
+    color: var(--exp-muted);
+}

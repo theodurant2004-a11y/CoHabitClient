@@ -284,11 +284,11 @@
                 <!-- Hidden by the JS as soon as there is at least one task to show -->
                 <p class="task-empty" id="tasksEmpty" hidden>✅ No task here</p>
 
-                <!-- Pop-up "New task" (hidden until the user clicks on + New task) -->
+                <!-- Pop-up "New task" / "Edit task" (hidden until the user clicks on + New task or on ✏️) -->
                 <div class="modal-backdrop" id="taskModal" hidden>
                     <!-- novalidate: the browser does not check the fields, tasks.js does it (checkTaskInputs) -->
                     <form class="exp-modal" id="taskForm" novalidate>
-                        <h3>New task</h3>
+                        <h3 id="taskModalTitle">New task</h3>
 
                         <div class="exp-field">
                             <label for="taskTitle">Title *</label>
@@ -319,6 +319,22 @@
                             <button type="submit" class="btn-add" id="createTask" disabled>Create</button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Pop-up "Delete task" (hidden until the user clicks on 🗑️) -->
+                <!-- tasks.js writes the name of the task inside -->
+                <div class="modal-backdrop" id="deleteTaskModal" hidden>
+                    <div class="exp-modal">
+                        <h3>Delete the task?</h3>
+                        <p class="task-delete-text">
+                            "<span id="deleteTaskName"></span>" will be deleted for every roomie.
+                        </p>
+
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelDeleteTask">Cancel</button>
+                            <button type="button" class="btn-add" id="confirmDeleteTask">Delete</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
