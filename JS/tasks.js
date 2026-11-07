@@ -24,7 +24,7 @@ async function getTasksData() {
     return await response.json();
 }
 
-// This function is used to send a request with a JSON body (POST to add, PUT to change the status)
+// This function is used to send a request with a JSON body (POST to add, PUT to update or change the status)
 async function sendTaskJson(url, method, data) {
     const response = await fetch(url, {
         method: method,
@@ -43,12 +43,31 @@ async function sendTaskJson(url, method, data) {
     }
 }
 
+// This function is used to delete a task
+// A DELETE has no body (the email is in the URL) and the API answers 204 without JSON
+async function sendTaskDelete(url) {
+    const response = await fetch(url, {
+        method: "DELETE",
+        credentials: "include"
+    });
+
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+}
+
 //-------------- Data kept by the page -----------------
 // Everything the API answered (null until it answered). We keep it to change the filter without asking again
 let tasksData = null;
 
 // The filter chosen by the user: "all", "mine", "pending" or "completed"
 let currentTaskFilter = "all";
+
+// The task that is being edited in the pop-up (null when the pop-up adds a new task)
+let editingTask = null;
+
+// The task that the user wants to delete (kept while the pop-up "Delete task" is open)
+let deletingTask = null;
 
 //-------------- Small helpers -----------------
 // "Nora" + "Lfarh" becomes "NL" (only a display format)
@@ -108,7 +127,23 @@ function createTaskItem(task) {
         item.classList.add("done");
     }
 
-    item.append(checkbox, main);
+    // The buttons to edit and delete the task, on the right
+    // The task object is given directly to the functions: no need to find it again with its id
+    const actions = createElement("div", "task-actions");
+
+    const editButton = createElement("button", "task-edit", "✏️");
+    editButton.type = "button";
+    editButton.title = "Edit the task";
+    editButton.addEventListener("click", () => openTaskModal(task));
+
+    const deleteButton = createElement("button", "task-delete", "🗑️");
+    deleteButton.type = "button";
+    deleteButton.title = "Delete the task";
+    deleteButton.addEventListener("click", () => openDeleteTaskModal(task));
+
+    actions.append(editButton, deleteButton);
+
+    item.append(checkbox, main, actions);
     return item;
 }
 
@@ -181,7 +216,37 @@ async function toggleTask(checkbox) {
     }
 }
 
-//-------------- Pop-up "New task" -----------------
+//-------------- Delete a task -----------------
+// This function runs when the user clicks on 🗑️ of a task: it opens the pop-up to confirm
+function openDeleteTaskModal(task) {
+    deletingTask = task;
+    document.getElementById("deleteTaskName").textContent = task.name;
+    document.getElementById("deleteTaskModal").hidden = false;
+}
+
+// This function closes the pop-up "Delete task"
+function closeDeleteTaskModal() {
+    document.getElementById("deleteTaskModal").hidden = true;
+}
+
+// This function runs when the user clicks on "Delete" in the pop-up
+async function confirmDeleteTask() {
+    closeDeleteTaskModal();
+    hideMessage("tasksMessage");
+
+    try {
+        // TO DO : remove the email when the session system is efficient
+        await sendTaskDelete(TASKS_URL + "/" + deletingTask.id + "?roomieEmail=" + encodeURIComponent(user.email));
+
+        // We ask the API again so the task disappears from the list and the counts
+        await loadTasks();
+    } catch (e) {
+        console.error(e.message);
+        showMessage("tasksMessage", "Unable to delete the task right now.");
+    }
+}
+
+//-------------- Pop-up "New task" / "Edit Task"-----------------
 // This function returns the ids of the roomies that are selected in "Assigned to"
 function getSelectedAssigneeIds() {
     const ids = [];
@@ -198,8 +263,8 @@ function updateAssigneeCount() {
 }
 
 // This function creates one button per roomie of the roomshare (the list comes from the API)
-// The user is selected by default
-function fillAssignees(roomies) {
+// selectedIds: the ids of the roomies that are selected when the pop-up opens
+function fillAssignees(roomies, selectedIds) {
     const container = document.getElementById("taskAssignees");
     container.replaceChildren();
 
@@ -208,7 +273,7 @@ function fillAssignees(roomies) {
         chip.type = "button";                 // so it does not submit the form
         chip.dataset.id = roomie.id;          // we keep the id in the button to find it later
 
-        if (roomie.id === user.id_person) {
+        if (selectedIds.includes(roomie.id)) {
             chip.classList.add("selected");
         }
         container.appendChild(chip);
@@ -224,17 +289,43 @@ function updateCreateTaskButton() {
 }
 
 // This function opens the pop-up
-function openTaskModal() {
+// task = null to add a new task, or the task to edit (its values are written in the fields)
+function openTaskModal(task) {
     // We open it only if the API answered, because the roomies of the form come from it
     if (tasksData) {
+        editingTask = task;
         document.getElementById("taskForm").reset();            // we clear what was typed last time
-        fillAssignees(tasksData.roomies);
+
+        // "en-CA" is used because this language writes the date like 2026-10-20
+        const today = new Date().toLocaleDateString("en-CA");
+        const dueDateInput = document.getElementById("taskDueDate");
+
+        if (task) {
+            // EDIT: the fields are filled with the values of the task
+            document.getElementById("taskModalTitle").textContent = "Edit task";
+            document.getElementById("createTask").textContent = "Save";
+
+            document.getElementById("taskTitle").value = task.name;
+            document.getElementById("taskDescription").value = task.description || "";
+            dueDateInput.value = task.dueDate || "";
+
+            // The roomies already assigned are selected
+            fillAssignees(tasksData.roomies, task.roomies.map(roomie => roomie.id));
+
+            // A late task can keep its old date (the API allows it), so the old date stays possible
+            dueDateInput.min = (task.dueDate && task.dueDate < today) ? task.dueDate : today;
+        } else {
+            // ADD: empty fields, the user is selected by default
+            document.getElementById("taskModalTitle").textContent = "New task";
+            document.getElementById("createTask").textContent = "Create";
+
+            fillAssignees(tasksData.roomies, [user.id_person]);
+
+            // A new task cannot be in the past: the browser greys the old days in the calendar
+            dueDateInput.min = today;
+        }
+
         updateCreateTaskButton();
-
-        // A new task cannot be in the past: the browser greys the old days in the calendar
-        // ("en-CA" is used because this language writes the date like 2026-10-20)
-        document.getElementById("taskDueDate").min = new Date().toLocaleDateString("en-CA");
-
         hideMessage("taskError");                                // no old error message
         document.getElementById("taskModal").hidden = false;     // the pop-up is now visible
         document.getElementById("taskTitle").focus();            // the cursor is ready in the first field
@@ -258,7 +349,7 @@ function checkTaskInputs(title) {
     return message;
 }
 
-// This function runs when the user clicks on "Create" in the pop-up
+// This function runs when the user clicks on "Create" or "Save" in the pop-up
 async function submitTask(event) {
     // A form reloads the page by default, we do not want that
     event.preventDefault();
@@ -276,22 +367,33 @@ async function submitTask(event) {
         hideMessage("taskError");
 
         try {
-            // The status is not sent: the API puts "pending" by default
-            // roomieEmail tells the API who adds the task
-            // TO DO : remove it when the session system is efficient
-            await sendTaskJson(TASKS_URL, "POST",
-                { name, description, dueDate, roomieIds, roomieEmail: user.email });
+            // TO DO : remove roomieEmail when the session system is efficient
+            if (editingTask) {
+                // PUT replaces the whole task, so the status is sent too (it does not change here)
+                await sendTaskJson(TASKS_URL + "/" + editingTask.id, "PUT",
+                    { name, description, dueDate, status: editingTask.status, roomieIds, roomieEmail: user.email });
+            } else {
+                // The status is not sent: the API puts "pending" by default
+                await sendTaskJson(TASKS_URL, "POST",
+                    { name, description, dueDate, roomieIds, roomieEmail: user.email });
+            }
 
             closeTaskModal();
 
-            // We ask the API again so the new task appears in the list
+            // We ask the API again so the list shows the new values
             await loadTasks();
         } catch (e) {
             console.error(e.message);
 
-            // The code 400 means that the API refused what was typed: we show its message
-            const apiRefused = e.status === 400 && e.apiMessage;
-            showMessage("taskError", apiRefused ? e.apiMessage : "Unable to add the task right now.");
+            // 400: the API refused what was typed, we show its message
+            // 404: the task was deleted by another roomie in the meantime
+            let errorMessage = editingTask ? "Unable to save the task right now." : "Unable to add the task right now.";
+            if (e.status === 400 && e.apiMessage) {
+                errorMessage = e.apiMessage;
+            } else if (e.status === 404) {
+                errorMessage = "This task does not exist anymore.";
+            }
+            showMessage("taskError", errorMessage);
         }
     }
 }
@@ -321,7 +423,11 @@ if (tasksPage) {
     loadTasks();
 
     // Buttons of the pop-up
-    document.getElementById("openTaskModal").addEventListener("click", openTaskModal);
+
+    // null = a new task. We cannot write addEventListener("click", openTaskModal) anymore:
+    // the browser would give the click event to openTaskModal, which would think it is a task to edit
+    document.getElementById("openTaskModal").addEventListener("click", () => openTaskModal(null));
+
     document.getElementById("cancelTask").addEventListener("click", closeTaskModal);
     document.getElementById("taskForm").addEventListener("submit", submitTask);
     document.getElementById("taskTitle").addEventListener("input", updateCreateTaskButton);
@@ -330,6 +436,17 @@ if (tasksPage) {
     document.getElementById("taskModal").addEventListener("click", event => {
         if (event.target.id === "taskModal") {
             closeTaskModal();
+        }
+    });
+
+    // Buttons of the pop-up "Delete task"
+    document.getElementById("cancelDeleteTask").addEventListener("click", closeDeleteTaskModal);
+    document.getElementById("confirmDeleteTask").addEventListener("click", confirmDeleteTask);
+
+    // A click outside of the white box closes the pop-up "Delete task"
+    document.getElementById("deleteTaskModal").addEventListener("click", event => {
+        if (event.target.id === "deleteTaskModal") {
+            closeDeleteTaskModal();
         }
     });
 
