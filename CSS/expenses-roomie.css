@@ -198,3 +198,17 @@
     display: flex;
     justify-content: space-between;
 }
+
+/* Checkbox in front of each expense line */
+.expense-check {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--exp-owed-text);
+    cursor: pointer;
+}
+.expense-check:disabled { cursor: default; }
+
+/* Settle pop-up : wide enough so the confirm button stays on one line */
+.settle-modal { max-width: 480px; }
+.settle-text { color: var(--exp-muted); line-height: 1.5; }

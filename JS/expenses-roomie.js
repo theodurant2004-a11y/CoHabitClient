@@ -58,6 +58,24 @@ async function getCategories() {
     return await response.json();
 }
 
+// This function asks the API to mark one expense as settled
+// and just  the creditor is allowed to do it
+async function sendSettle(expenseId) {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+
+    const response = await fetch(
+        EXPENSES_URL + "/" + expenseId + "/settle?email=" + encodeURIComponent(user.email),
+        { method: "PUT", credentials: "include" }
+    );
+
+    // 204 No Content = success, anything else is an error
+    if (!response.ok) {
+        const error = new Error("Settle failed");
+        error.status = response.status; // kept so the caller can show the right message
+        throw error;
+    }
+}
+
 //-------------- Data kept by the page -----------------
 // Everything the API answered. We keep it because we need it later
 // (for example to fill the pop-up or to change the filter without asking the API again)
@@ -186,6 +204,20 @@ function createExpenseItem(expense) {
     side.appendChild(createElement("span", "badge badge-" + status, statusLabels[status]));
 
     item.append(icon, main, side);
+
+    // Checkbox in front of the line : checked and locked when the expense is settled,
+    // locked too when the connected person is not the creditor (only the creditor can settle).
+    const isCreditor = expense.creditorId === expensesData.currentMemberId;
+    const checkbox = createElement("input", "expense-check");
+    checkbox.type = "checkbox";
+    checkbox.checked = status === "settled";
+    checkbox.disabled = status === "settled" || !isCreditor;
+    checkbox.dataset.id = expense.id;
+    checkbox.title = status === "settled"
+        ? "Already paid"
+        : (isCreditor ? "Mark as paid" : "Only the person who is owed can mark it as paid");
+    item.prepend(checkbox);
+
     return item;
 }
 
@@ -410,6 +442,55 @@ async function submitExpense(event) {
     }
 }
 
+//-------------- Settle an expense
+
+// Expense waiting for the confirmation of the pop-up
+let expenseToSettle = null;
+
+// This function fills and shows the confirmation pop-up for one expense
+function openSettleModal(expenseId) {
+    const expense = expensesData.expenses.find(e => e.id === expenseId);
+    if (!expense) return;
+
+    expenseToSettle = expenseId;
+    document.getElementById("settleText").textContent =
+        "Confirm that " + expense.debtor + " paid you " + formatEuro(expense.amount) +
+        " for \"" + expense.description + "\". This cannot be undone.";
+    document.getElementById("settleModal").hidden = false;
+}
+
+// This function hides the pop-up and forgets the chosen expense
+function closeSettleModal() {
+    document.getElementById("settleModal").hidden = true;
+    expenseToSettle = null;
+}
+
+// This function is called by the "Yes" button : it closes the pop-up then settles
+async function confirmSettle() {
+    const expenseId = expenseToSettle; // kept before closeSettleModal resets it
+    closeSettleModal();
+    if (expenseId === null) return;
+    await settleExpense(expenseId);
+}
+
+// This function sends the settle request and then reloads the list
+// Reloading refreshes the badges, the summary cards and the filter counters
+async function settleExpense(expenseId) {
+    try {
+        hideMessage("expensesMessage");
+        await sendSettle(expenseId);
+        await loadExpenses();
+    } catch (error) {
+        console.error(error);
+        showMessage(
+            "expensesMessage",
+            error.status === 403
+                ? "Only the person who is owed can mark this expense as paid."
+                : "Unable to mark the expense as paid right now."
+        );
+    }
+}
+
 //-------------- Start -----------------
 // This function asks the API for the data and shows everything on the page
 // It is used when the page opens and after the user added an expense
@@ -459,6 +540,25 @@ if (expensesRoomie) {
             chip.classList.toggle("selected");
             updateSplitCount();
         }
+    });
+
+    // A click on a checkbox here we dont keep it checked the pop up asks first
+    // If the user confirms the reload will check it for real
+    document.getElementById("expenseItems").addEventListener("change", (event) => {
+        const checkbox = event.target;
+        if (!checkbox.classList.contains("expense-check")) return;
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            openSettleModal(Number(checkbox.dataset.id));
+        }
+    });
+
+    document.getElementById("confirmSettle").addEventListener("click", confirmSettle);
+    document.getElementById("cancelSettle").addEventListener("click", closeSettleModal);
+
+    // A click outside the white box closes the pop-up
+    document.getElementById("settleModal").addEventListener("click", (event) => {
+        if (event.target.id === "settleModal") closeSettleModal();
     });
 
     // The two tabs (List and Balances)
