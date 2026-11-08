@@ -91,6 +91,29 @@ let currentFilter = "all";
 // The text we show to the user for the status of an expense
 const statusLabels = { pending: "Pending", settled: "Settled" };
 
+// The icon of each category.
+const categoryIcons = {
+    food: "🛒",
+    rent: "🏠",
+    bills: "💡",
+    household: "🧽",
+    leisure: "🎉",
+    other: "📦"
+};
+
+// The colors of the roomies
+// so the roomie at position 0 always gets the first color, the next one the second .....
+const roomieColors = ["#c17f2e", "#2e8b57", "#6a5acd", "#d1495b", "#00798c"];
+
+// This function returns the icon of a category or a box if the code is unknown
+function getCategoryIcon(code) {
+    return categoryIcons[code] || "📦";
+}
+
+// This function returns the color of the roomie at this position in the list
+function getRoomieColor(index) {
+    return roomieColors[index % roomieColors.length];
+}
 
 // The text we show to the user for the status of my balance
 const balanceLabels = { creditor: "Creditor", debtor: "Debtor", balanced: "Balanced" };
@@ -188,8 +211,8 @@ function showSummary(summary) {
 function createExpenseItem(expense) {
     const item = createElement("li", "expense-item");
 
-    // the icon of the category given by the API
-    const icon = createElement("span", "expense-icon", expense.icon);
+    // the icon of the category
+    const icon = createElement("span", "expense-icon", getCategoryIcon(expense.category));
 
     // t he description and two  small lines (who paid and with who it is shared)
     const main = createElement("div", "expense-main");
@@ -240,14 +263,14 @@ function showExpenses(expenses, filter) {
 }
 
 // This function creates ONE line of "Everyone's balance" (the name, the bar and the amount)
-function createBalanceRow(balance) {
+function createBalanceRow(balance, index) {
     // The css class of the bar and of the amount
     const sign = balance.amount < 0 ? "negative" : "positive";
     const row = createElement("li", "balance-row");
 
     // The round colored circle with the first letter of the name
     const dot = createElement("span", "member-dot", balance.name.charAt(0).toUpperCase());
-    dot.style.backgroundColor = balance.color;       // the color comes from the API
+    dot.style.backgroundColor = getRoomieColor(index);   // the color is chosen by the front from the position of the roomie
 
     // The name and the bar under it
     // The width of the bar (percent) is given by the API, so the front does not calculate it
@@ -280,7 +303,7 @@ function showBalances(balances, refunds) {
     // Balances: we empty the list then we add one line per roomie
     const balanceList = document.getElementById("balanceItems");
     balanceList.replaceChildren();
-    balances.forEach(balance => balanceList.appendChild(createBalanceRow(balance)));
+    balances.forEach((balance, index) => balanceList.appendChild(createBalanceRow(balance, index)));
 
     // Refunds: same thing
     const refundList = document.getElementById("refundItems");
@@ -346,7 +369,7 @@ function fillForm(data) {
     paidBy.replaceChildren();
     split.replaceChildren();
 
-    data.members.forEach(member => {
+    data.members.forEach((member, index) => {
         // One option in the list "Paid by"
         paidBy.appendChild(new Option(member.name, member.id));
 
@@ -354,7 +377,7 @@ function fillForm(data) {
         const chip = createElement("button", "chip-member selected", member.name);
         chip.type = "button";                    // so it does not submit the form
         chip.dataset.id = member.id;             // we keep the id in the button to find it later
-        chip.style.backgroundColor = member.color;
+        chip.style.backgroundColor = getRoomieColor(index);
         split.appendChild(chip);
     });
 
@@ -375,7 +398,7 @@ async function fillCategories() {
         }
 
         categories.forEach(item => {
-            category.appendChild(new Option(item.icon + " " + item.label, item.code));
+            category.appendChild(new Option(getCategoryIcon(item.code) + " " + item.label, item.code));
         });
     } catch (e) {
         console.error(e.message);
