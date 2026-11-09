@@ -541,6 +541,13 @@ if (expensesRoomie) {
     // We load the data as soon as the page opens
     loadExpenses();
 
+    // We load the data again each time the user comes back on the Expenses tab
+    window.addEventListener("hashchange", () => {
+        if (window.location.hash === "#expenses") {
+            loadExpenses();
+        }
+    });
+
     // Buttons of the pop-up
     document.getElementById("openExpenseModal").addEventListener("click", openModal);
     document.getElementById("cancelExpense").addEventListener("click", closeModal);
