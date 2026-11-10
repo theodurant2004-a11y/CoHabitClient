@@ -184,12 +184,6 @@
     margin-bottom: 0;
 }
 
-.calendar-everyone {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-}
 
 .exp-field .calendar-everyone {
     color: var(--text);
