@@ -6,4 +6,8 @@ COPY CSS /usr/share/nginx/html/CSS/
 COPY JS /usr/share/nginx/html/JS/
 COPY IMG /usr/share/nginx/html/IMG/
 
+<<<<<<< Updated upstream
 EXPOSE 80
+=======
+EXPOSE 80
+>>>>>>> Stashed changes

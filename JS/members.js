@@ -13,7 +13,9 @@ async function fetchRoomshareMembers() {
     });
 
     if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+        const error = new Error(`Response status: ${response.status}`)
+        error.status = response.status;
+        throw error;
     }
 
     const result = await response.json();
@@ -152,7 +154,12 @@ async function loadMembers() {
         showMembers(members);
     } catch (e) {
         console.error(e.message);
-        showMemberMessage("membersMessage", "Unable to load the members right now.");
+        if(user.role === "roomie" && e.status === 403){
+            alert("You are not a member of this roomshare anymore. Please sign in again.");
+            signOut();
+        }else{
+            showMemberMessage("membersMessage", "Unable to load the members right now.");
+        }
     }
 }
 
