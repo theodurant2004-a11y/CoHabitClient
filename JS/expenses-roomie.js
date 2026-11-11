@@ -91,23 +91,52 @@ let currentFilter = "all";
 // The text we show to the user for the status of an expense
 const statusLabels = { pending: "Pending", settled: "Settled" };
 
-// The icon of each category.
+// The icon of each category: SVG drawn with lines, like the icons of the sidebar
 const categoryIcons = {
-    food: "🛒",
-    rent: "🏠",
-    bills: "💡",
-    household: "🧽",
-    leisure: "🎉",
-    other: "📦"
+    food:
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M3 4h2l2.6 10.6a2 2 0 0 0 2 1.4h7a2 2 0 0 0 2-1.5L20.5 8H6"/>' +
+        '<circle cx="10" cy="20" r="1.4"/>' +
+        '<circle cx="17" cy="20" r="1.4"/>' +
+        '</svg>',
+    rent:
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M3 11 12 4l9 7"/>' +
+        '<path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9"/>' +
+        '<path d="M10 20v-5h4v5"/>' +
+        '</svg>',
+    bills:
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5.9 1.1 1 1.6h5c.1-.5.4-1.1 1-1.6A6 6 0 0 0 12 3z"/>' +
+        '<path d="M9.5 18h5M10.5 21h3"/>' +
+        '</svg>',
+    household:
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M9 8h5a2 2 0 0 1 2 2v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10a2 2 0 0 1 2-2z"/>' +
+        '<path d="M9.5 8V4h4v4"/>' +
+        '<path d="M18 5h1.5M18 8.5h1.5M18 12h1.5"/>' +
+        '</svg>',
+    leisure:
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<rect x="2" y="8" width="20" height="10" rx="4.5"/>' +
+        '<path d="M7 11v4M5 13h4"/>' +
+        '<circle cx="16.5" cy="12.5" r="0.6"/>' +
+        '<circle cx="18.5" cy="15" r="0.6"/>' +
+        '</svg>',
+    other:
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/>' +
+        '<path d="M3 7.5 12 12l9-4.5M12 12v9"/>' +
+        '</svg>'
 };
 
 // The colors of the roomies
 // so the roomie at position 0 always gets the first color, the next one the second .....
 const roomieColors = ["#c17f2e", "#2e8b57", "#6a5acd", "#d1495b", "#00798c"];
 
-// This function returns the icon of a category or a box if the code is unknown
+// This function returns the icon of a category, or the icon of "other" if the code is unknown
 function getCategoryIcon(code) {
-    return categoryIcons[code] || "📦";
+    return categoryIcons[code] || categoryIcons.other;
 }
 
 // This function returns the color of the roomie at this position in the list
@@ -212,7 +241,8 @@ function createExpenseItem(expense) {
     const item = createElement("li", "expense-item");
 
     // the icon of the category
-    const icon = createElement("span", "expense-icon", getCategoryIcon(expense.category));
+    const icon = createElement("span", "expense-icon");
+    icon.innerHTML = getCategoryIcon(expense.category);
 
     // t he description and two  small lines (who paid and with who it is shared)
     const main = createElement("div", "expense-main");
@@ -398,7 +428,8 @@ async function fillCategories() {
         }
 
         categories.forEach(item => {
-            category.appendChild(new Option(getCategoryIcon(item.code) + " " + item.label, item.code));
+            // An <option> can only show text, so the icon of the category is not used here
+            category.appendChild(new Option(item.label, item.code));
         });
     } catch (e) {
         console.error(e.message);
