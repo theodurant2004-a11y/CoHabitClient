@@ -6,7 +6,7 @@
 // We only ask the API, we show the answer and we send what the user typed.
 
 // The url of the API for the expenses
-const EXPENSES_URL = "http://localhost:8080/CoHabitAPI/api/expenses";
+const EXPENSES_URL = API_BASE + "/expenses";
 
 // This function is used to ask the API for everything the page shows
 // (summary, expenses, balances, refunds and members)

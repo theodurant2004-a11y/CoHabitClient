@@ -2,7 +2,7 @@
 // The account is only created when step 2 is submitted.
 
 // URL of the API route that creates an account
-const API_URL = "http://localhost:8080/CoHabitAPI/api/users";
+const API_URL = API_BASE + "/users";
 
 // Minimum number of characters of a password, the the API checks it too
 const MIN_PASSWORD_LENGTH = 8;
