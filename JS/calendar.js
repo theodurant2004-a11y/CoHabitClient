@@ -2,6 +2,28 @@
 // The front only shows the events and sends what the user typed: the real checks are in the API.
 
 //-------------- Communication with the API -----------------
+const EVENTS_URL = "http://localhost:8080/CoHabitAPI/api/events";
+
+// The drawing of each type of event : what goes inside an <svg>, like the icons of the sidebar
+const eventTypeIcons = {
+    social: '<path d="M4 20 9 9l6 6-11 5z"/><path d="M14 4.5 15.5 7M18 8.5 20.5 7M17 12l2.5 1"/>',
+    meeting: '<path d="M4 5h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H9l-4 3v-3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M8 9h6"/>',
+    visit: '<path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 3h16z"/><path d="M10 21.5h4"/>',
+    task: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',
+    other: '<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
+};
+
+// This function returns the icon of a type of event: a <span> that contains the <svg>
+// className is the class of the span: "expense-icon" in the list, "chip-icon" in the form
+// An unknown code gets the icon and the color of "other"
+function createEventIcon(code, className) {
+    const type = eventTypeIcons[code] ? code : "other";
+    const icon = createElement("span", className + " event-icon event-icon-" + type);
+
+    // The drawings come from the object above, they are written in this file and never by the user
+    icon.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + eventTypeIcons[type] + '</svg>';
+    return icon;
+}
 const EVENTS_URL = API_BASE + "/events";
 const MEMBERS_URL = API_BASE + "/roomshares/members"; // route proposed to the API team
 const USE_FAKE_DATA = true; // TODO: false when the API routes exist
@@ -23,10 +45,6 @@ async function checkResponse(response) {
 // Events from "from" to "to" included. Without "to", all the events from "from"
 // TODO: remove the email when the session system is efficient
 async function getEvents(from, to) {
-    if (USE_FAKE_DATA) {
-        await fakeWait();
-        return getFakeEvents().filter(event => event.date >= from && (!to || event.date <= to));
-    }
     let url = EVENTS_URL + "?email=" + encodeURIComponent(user.email) + "&from=" + from;
     if (to) {
         url += "&to=" + to;
@@ -38,11 +56,6 @@ async function getEvents(from, to) {
 
 // Sends the new event to the API
 async function createEvent(newEvent) {
-    if (USE_FAKE_DATA) {
-        await fakeWait();
-        getFakeEvents().push(buildFakeEvent(getFakeEvents().length + 1, newEvent));
-        return;
-    }
     const response = await fetch(EVENTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,87 +66,10 @@ async function createEvent(newEvent) {
 }
 
 async function getEventTypes() {
-    if (USE_FAKE_DATA) {
-        await fakeWait();
-        return FAKE_TYPES;
-    }
+
     const response = await fetch(EVENTS_URL + "/types", { credentials: "include" });
     await checkResponse(response);
     return await response.json();
-}
-
-// The members of the roomshare, owner included
-async function getMembers() {
-    if (USE_FAKE_DATA) {
-        await fakeWait();
-        return getFakeMembers();
-    }
-    const response = await fetch(MEMBERS_URL + "?email=" + encodeURIComponent(user.email), { credentials: "include" });
-    await checkResponse(response);
-    return await response.json();
-}
-
-//-------------- Fake data (removed when the API routes exist) -----------------
-const FAKE_TYPES = [
-    { code: "social", label: "Social", icon: "🎉" },
-    { code: "meeting", label: "Meeting", icon: "📋" },
-    { code: "visit", label: "Visit", icon: "🏠" },
-    { code: "task", label: "Task", icon: "✅" },
-    { code: "other", label: "Other", icon: "📌" }
-];
-
-let fakeEvents = null;
-
-function fakeWait() {
-    return new Promise(resolve => setTimeout(resolve, 150));
-}
-
-function getFakeMembers() {
-    return [
-        { id: user.id_person, name: user.firstName + " " + user.lastName, color: "#c17f2e" },
-        { id: 901, name: "Lina Dubois", color: "#2e8b57" },
-        { id: 902, name: "Sam Petit", color: "#6a5acd" }
-    ];
-}
-
-// Builds a fake event like the API would send it
-function buildFakeEvent(id, details) {
-    const members = getFakeMembers();
-    const participants = details.everyone
-        ? members
-        : members.filter(member => details.participantIds.includes(member.id));
-    const type = FAKE_TYPES.find(item => item.code === details.type);
-
-    return {
-        id: id,
-        title: details.title,
-        description: details.description,
-        date: details.date,
-        startTime: details.startTime,
-        endTime: details.endTime,
-        type: details.type,
-        icon: type.icon,
-        everyone: details.everyone,
-        participants: participants,
-        createdById: user.id_person
-    };
-}
-
-// The dates depend on today, so there are always events on the last, the current and the next month
-function getFakeEvents() {
-    if (!fakeEvents) {
-        const today = new Date();
-        const dateIn = (months, day) => toIsoDate(new Date(today.getFullYear(), today.getMonth() + months, day));
-        const samples = [
-            { title: "Flat meeting", date: dateIn(-1, 12), startTime: "19:00", endTime: "20:00", type: "meeting", everyone: true },
-            { title: "Pizza night", date: toIsoDate(today), startTime: "19:00", endTime: "21:00", type: "social", everyone: true },
-            { title: "Clean the kitchen", date: toIsoDate(today), startTime: "", endTime: "", type: "task", everyone: false, participantIds: [901] },
-            { title: "Plumber visit", date: dateIn(1, 8), startTime: "09:30", endTime: "", type: "visit", everyone: false, participantIds: [user.id_person, 902] },
-            { title: "Birthday of Lina", date: dateIn(1, 20), startTime: "", endTime: "", type: "other", everyone: true }
-        ];
-        fakeEvents = samples.map((sample, index) => buildFakeEvent(index + 1, { description: "", participantIds: [], ...sample }));
-    }
-    return fakeEvents;
 }
 
 //-------------- Data kept by the page -----------------
@@ -154,7 +90,6 @@ const DEFAULT_EVENT_TYPE = "social";
 
 // The lists of the pop-up. They are null until the API answered
 let eventTypes = null;
-let eventMembers = null;
 
 // True while the new event is being sent, so it cannot be sent twice
 let isSavingEvent = false;
@@ -249,11 +184,6 @@ function sortEvents(events) {
         a.date.localeCompare(b.date) || (a.startTime || "").localeCompare(b.startTime || ""));
 }
 
-// Text of the participants: "Everyone" or the names
-function getParticipantsText(event) {
-    return event.everyone ? "Everyone" : event.participants.map(member => member.name).join(", ");
-}
-
 // Creates one line of a list of events
 function createEventItem(event) {
     const item = createElement("li", "expense-item calendar-event");
@@ -261,12 +191,12 @@ function createEventItem(event) {
 
     main.appendChild(createElement("strong", "expense-title", event.title));
     main.appendChild(createElement("span", "expense-meta", formatEventDate(event.date) + " · " + formatEventTime(event)));
-    main.appendChild(createElement("span", "expense-meta", getParticipantsText(event)));
+
     if (event.description) {
         main.appendChild(createElement("span", "expense-meta", event.description));
     }
 
-    item.append(createElement("span", "expense-icon", event.icon), main);
+    item.append(createEventIcon(event.type, "expense-icon"), main);
     return item;
 }
 
@@ -384,7 +314,7 @@ function updateCreateButton() {
     document.getElementById("createEvent").disabled = title === "" || date === "" || isSavingEvent;
 }
 
-// Creates a button of the pop-up (a type or a member)
+// Creates a button of the pop-up
 function createFormChip(className, text) {
     const chip = createElement("button", className, text);
     chip.type = "button";
@@ -408,36 +338,24 @@ function selectEventType(code) {
 // Fills the types and the members of the form
 function fillEventForm() {
     const types = document.getElementById("eventTypes");
-    const participants = document.getElementById("eventParticipants");
 
     types.replaceChildren();
     eventTypes.forEach(type => {
-        const chip = createFormChip("chip", type.icon + " " + type.label);
+        const chip = createFormChip("chip", type.label);
+        chip.prepend(createEventIcon(type.code, "chip-icon"));
         chip.dataset.code = type.code;
         types.appendChild(chip);
     });
     selectEventType(DEFAULT_EVENT_TYPE);
-
-    participants.replaceChildren();
-    eventMembers.forEach(member => {
-        const chip = createFormChip("chip-member", member.name);
-        chip.dataset.id = member.id;
-        chip.style.backgroundColor = member.color;
-        participants.appendChild(chip);
-    });
 }
 
-// Shows the buttons of the members only when Everyone is unchecked
-function updateParticipants() {
-    document.getElementById("eventParticipants").hidden = document.getElementById("eventEveryone").checked;
-}
 
 // Opens the pop-up with the date already filled
 async function openEventModal(isoDate) {
     try {
         // The lists are asked only once
-        if (!eventTypes || !eventMembers) {
-            [eventTypes, eventMembers] = await Promise.all([getEventTypes(), getMembers()]);
+        if (!eventTypes) {
+            eventTypes = await getEventTypes();
         }
     } catch (e) {
         console.error(e.message);
@@ -448,7 +366,6 @@ async function openEventModal(isoDate) {
     hideMessage("calendarMessage");
     document.getElementById("eventForm").reset();
     fillEventForm();
-    updateParticipants();
     document.getElementById("eventDate").value = isoDate;
     hideMessage("eventError");
     updateCreateButton();
@@ -462,8 +379,6 @@ function closeEventModal() {
 
 // Reads the form
 function readEventForm() {
-    const everyone = document.getElementById("eventEveryone").checked;
-    const selected = document.querySelectorAll("#eventParticipants .chip-member.selected");
 
     return {
         title: document.getElementById("eventTitle").value.trim(),
@@ -472,8 +387,6 @@ function readEventForm() {
         startTime: document.getElementById("eventStart").value,
         endTime: document.getElementById("eventEnd").value,
         type: document.querySelector("#eventTypes .chip.active").dataset.code,
-        everyone: everyone,
-        participantIds: everyone ? [] : Array.from(selected, chip => Number(chip.dataset.id)),
         roomieEmail: user.email // TODO: remove it when the session system is efficient
     };
 }
@@ -482,9 +395,6 @@ function readEventForm() {
 function checkEventInputs(newEvent) {
     if (newEvent.startTime && newEvent.endTime && newEvent.endTime <= newEvent.startTime) {
         return "The end must be after the start.";
-    }
-    if (!newEvent.everyone && newEvent.participantIds.length === 0) {
-        return "Please select at least one participant.";
     }
     return "";
 }
@@ -529,7 +439,6 @@ if (user) {
     document.getElementById("cancelEvent").addEventListener("click", closeEventModal);
     document.getElementById("eventForm").addEventListener("submit", submitEvent);
     document.getElementById("eventForm").addEventListener("input", updateCreateButton);
-    document.getElementById("eventEveryone").addEventListener("change", updateParticipants);
 
     // A click shows the events of the day, a double-click opens the pop-up with this date
     document.getElementById("calendarGrid").addEventListener("click", event => {
@@ -557,12 +466,6 @@ if (user) {
         const chip = event.target.closest(".chip");
         if (chip) {
             selectEventType(chip.dataset.code);
-        }
-    });
-    document.getElementById("eventParticipants").addEventListener("click", event => {
-        const chip = event.target.closest(".chip-member");
-        if (chip) {
-            setChipSelected(chip, "selected", !chip.classList.contains("selected"));
         }
     });
 

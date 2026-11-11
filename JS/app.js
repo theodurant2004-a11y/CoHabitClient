@@ -5,7 +5,7 @@ const roomshare = JSON.parse(sessionStorage.getItem("roomshare"));
 
 // No roomshare => redirect roomshare page
 if (user && !roomshare) {
-    window.location.href = "roomshare.html";
+    window.location.href = "Roomshare.html";
 }
 
 //-------------- function -----------------

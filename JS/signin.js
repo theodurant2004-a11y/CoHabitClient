@@ -46,7 +46,7 @@ async function signIn(event) {
                 // Only public information is stored: the token is in an HttpOnly cookie
                 const result = await response.json();
                 sessionStorage.setItem("user", JSON.stringify(result.user));
-                window.location.href = "roomshare.html";
+                window.location.href = "Roomshare.html";
             }
         } catch (e) {
             console.error(e.message);

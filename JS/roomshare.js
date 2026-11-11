@@ -154,6 +154,17 @@ function checkRoomieInputs(invitationKey) {
     return valid;
 }
 
+// Opens the pop-up "Request sent!" (instead of an alert)
+function openRequestSentModal() {
+    document.getElementById("requestSentModal").hidden = false;
+    document.getElementById("requestSentOk").focus();   // Enter closes it directly
+}
+
+// Closes the pop-up "Request sent!"
+function closeRequestSentModal() {
+    document.getElementById("requestSentModal").hidden = true;
+}
+
 // Reads the roomie form and validates it. Then sends the join request to api
 async function sendJoinRequest(event) {
     event.preventDefault();
@@ -177,13 +188,14 @@ async function sendJoinRequest(event) {
                     throw new Error(`Response status: ${response.status}`);
                 } else {
                     console.log("Join request sent");
-                    alert("Request sent! Wait for the owner to accept it.");
 
                     // The roomie is now "pending": we keep it in the browser and we show the message instead of the form
                     // (the status read at the sign in is old, so we update it ourselves)
                     user.membershipStatus = "pending";
                     sessionStorage.setItem("user", JSON.stringify(user));
                     showRoomieSection();
+                    // The pop-up "Request sent!" is shown above the section "Request pending"
+                    openRequestSentModal();
                 }
             }
         } catch (e) {
@@ -203,3 +215,19 @@ document.getElementById("roomieForm").addEventListener("submit", sendJoinRequest
 document.getElementById("signOutOwner").addEventListener("click", signOut);
 document.getElementById("signOutRoomie").addEventListener("click", signOut);
 document.getElementById("signOutPending").addEventListener("click", signOut);
+
+// The pop-up "Request sent!": the button OK, a click on the dark background or the key Escape close it
+const requestSentModal = document.getElementById("requestSentModal");
+document.getElementById("requestSentOk").addEventListener("click", closeRequestSentModal);
+
+requestSentModal.addEventListener("click", event => {
+    if (event.target === requestSentModal) {
+        closeRequestSentModal();
+    }
+});
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !requestSentModal.hidden) {
+        closeRequestSentModal();
+    }
+});

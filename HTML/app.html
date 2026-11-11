@@ -115,7 +115,6 @@
 
     <div class="content">
         <section id="view-home" class="view" hidden>
-            <h2>Home</h2>
 
             <!-- The greeting. app.js fills it (showUser and showRoomshare) -->
             <div class="home-head">
@@ -151,6 +150,17 @@
                     <p class="exp-error" id="homeEventsMessage" hidden></p>
                     <ul class="expense-list" id="homeEventItems"></ul>
                     <p class="expenses-empty calendar-empty" id="homeEventsEmpty" hidden>No upcoming event</p>
+                </div>
+                <!-- The card "Members" is in the 2nd column, under "Upcoming events". members.js fills it (owner and roomies) -->
+                <div class="exp-panel home-panel home-panel-members">
+                    <div class="home-panel-head">
+                        <h3>Members</h3>
+                        <a href="#members" class="home-panel-link">See all →</a>
+                    </div>
+                    <p class="exp-error" id="homeMembersMessage" hidden></p>
+                    <ul class="home-member-list" id="homeMemberItems"></ul>
+                    <!-- Shown only when there are more members than in the card -->
+                    <p class="home-members-more" id="homeMembersMore" hidden></p>
                 </div>
             </div>
         </section>
@@ -282,13 +292,19 @@
                 <!-- The lines of the list are created by the JS -->
                 <ul class="task-list" id="taskItems"></ul>
                 <!-- Hidden by the JS as soon as there is at least one task to show -->
-                <p class="task-empty" id="tasksEmpty" hidden>✅ No task here</p>
+                <p class="task-empty" id="tasksEmpty" hidden>
+                    <svg class="task-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M22 11.1V12a10 10 0 1 1-5.9-9.1" />
+                        <path d="M22 4 12 14l-3-3" />
+                    </svg>
+                    No task here
+                </p>
 
-                <!-- Pop-up "New task" (hidden until the user clicks on + New task) -->
+                <!-- Pop-up "New task" / "Edit task" (hidden until the user clicks on + New task or on the edit button) -->
                 <div class="modal-backdrop" id="taskModal" hidden>
                     <!-- novalidate: the browser does not check the fields, tasks.js does it (checkTaskInputs) -->
                     <form class="exp-modal" id="taskForm" novalidate>
-                        <h3>New task</h3>
+                        <h3 id="taskModalTitle">New task</h3>
 
                         <div class="exp-field">
                             <label for="taskTitle">Title *</label>
@@ -319,6 +335,22 @@
                             <button type="submit" class="btn-add" id="createTask" disabled>Create</button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Pop-up "Delete task" (hidden until the user clicks on the delete button of a task) -->
+                <!-- tasks.js writes the name of the task inside -->
+                <div class="modal-backdrop" id="deleteTaskModal" hidden>
+                    <div class="exp-modal">
+                        <h3>Delete the task?</h3>
+                        <p class="task-delete-text">
+                            "<span id="deleteTaskName"></span>" will be deleted for every roomie.
+                        </p>
+
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelDeleteTask">Cancel</button>
+                            <button type="button" class="btn-add" id="confirmDeleteTask">Delete</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -407,16 +439,6 @@
                     <div class="exp-field">
                         <span class="exp-label">Type</span>
                         <div class="chips calendar-chips" id="eventTypes"></div>
-                    </div>
-
-                    <div class="exp-field">
-                        <span class="exp-label">Participants</span>
-                        <label class="calendar-everyone">
-                            <input type="checkbox" id="eventEveryone" checked>
-                            Everyone
-                        </label>
-                        <!-- One button per member, created by calendar.js. Shown when Everyone is unchecked -->
-                        <div class="chips calendar-chips" id="eventParticipants" hidden></div>
                     </div>
 
                     <p class="exp-error" id="eventError" hidden></p>
@@ -607,6 +629,19 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- Confirmation pop up "Mark as paid" : asks for a confirmation before an expense is settled -->
+                <div class="modal-backdrop" id="settleModal" hidden>
+                    <div class="exp-modal settle-modal">
+                        <h3>Mark as paid?</h3>
+                        <!-- The text is filled by JS :debtor, amount, description -->
+                        <p class="settle-text" id="settleText"></p>
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelSettle">Cancel</button>
+                            <button type="button" class="btn-add" id="confirmSettle">Yes, mark as paid</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         <section id="view-members" class="view" hidden>
@@ -658,6 +693,22 @@
                 </div>
             </div>
         </section>
+    </div>
+    <!-- Pop-up shown to a roomie removed by the owner (members.js shows it when the API answers 403) -->
+    <!-- Outside of the sections, so it can be shown on every page of the app (Home, Tasks...) -->
+    <div class="member-modal-backdrop" id="removedModal" hidden>
+        <div class="member-modal" role="alertdialog" aria-modal="true" aria-labelledby="removedTitle">
+            <!-- The circle with the initials of the roomie -->
+            <span class="member-avatar member-modal-avatar" id="removedInitials"></span>
+
+            <h3 id="removedTitle">You are no longer a member</h3>
+            <p class="member-modal-text">The owner removed you from this roomshare.</p>
+            <p class="member-modal-note">Your account is kept: you can join a roomshare again with an invitation key.</p>
+
+            <div class="member-modal-actions member-modal-single">
+                <button type="button" class="btn-sign-in-again" id="removedSignIn">Sign in again</button>
+            </div>
+        </div>
     </div>
 </body>
 </html>

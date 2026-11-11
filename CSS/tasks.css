@@ -163,3 +163,54 @@
 .task-chip.selected {
     opacity: 1;
 }
+
+/* ---------- Edit and delete buttons ---------- */
+/* On the right of each task. .task-main takes all the free place (flex: 1), so they are pushed to the right */
+.task-actions {
+    display: flex;
+    flex-shrink: 0;                 /* they never get smaller */
+    gap: 4px;
+}
+
+/* The icons are SVG drawn with lines (like the sidebar). currentColor = the color of the button */
+.task-edit,
+.task-delete {
+    display: grid;
+    place-items: center;
+    padding: 6px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--exp-muted);
+    cursor: pointer;
+}
+
+.task-edit:hover,
+.task-delete:hover {
+    background: #f3f1ee;
+    color: var(--exp-primary);
+}
+
+.task-edit svg,
+.task-delete svg,
+.task-empty-icon {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* The icon of "No task here", on the same line as the text */
+.task-empty-icon {
+    vertical-align: -3px;
+    margin-right: 6px;
+}
+
+/* The text of the pop-up "Delete task" */
+.task-delete-text {
+    margin: 0 0 16px;
+    color: var(--exp-muted);
+}
