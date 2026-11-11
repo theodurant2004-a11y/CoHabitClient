@@ -6,7 +6,7 @@
 // (so tasks.js must be loaded AFTER expenses-roomie.js in app.html)
 
 // The url of the API for the tasks
-const TASKS_URL = "http://localhost:8080/CoHabitAPI/api/tasks";
+const TASKS_URL = API_BASE + "/tasks";
 
 //-------------- Asking the API -----------------
 // This function is used to ask the API for the tasks of the roomshare and for the roomies a task can be given to
