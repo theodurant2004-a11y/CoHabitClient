@@ -4,6 +4,9 @@ const MEMBERS_PAGE_JOIN_URL = "http://localhost:8080/CoHabitAPI/api/roomshares/j
 // The roomie the owner is about to remove (null when the pop-up is closed)
 let memberToRemove = null;
 
+// Maximum number of members in the card "Members" of the home page (the page Members shows all of them)
+const HOME_MEMBERS_LIMIT = 3;
+
 //-------------- API calls -----------------
 
 async function fetchRoomshareMembers() {
@@ -13,7 +16,8 @@ async function fetchRoomshareMembers() {
     });
 
     if (!response.ok) {
-        const error = new Error(`Response status: ${response.status}`)
+        // We keep the code: 403 for a roomie means he is not a member anymore (see loadMembers)
+        const error = new Error(`Response status: ${response.status}`);
         error.status = response.status;
         throw error;
     }
@@ -147,18 +151,63 @@ function showMembers(members) {
     document.getElementById("memberCount").textContent = members.length;
 }
 
+// Colors of the circles of the home card: each member always gets the same one (it depends on his id)
+const HOME_MEMBER_COLORS = 4;
+
+// One line of the card "Members" of the home page: circle, name, role under it and "Me" on the right
+// Simpler than the page Members: no email, no button
+function createHomeMemberItem(member) {
+    const item = createMemberElement("li", "home-member");
+
+    const avatar = createMemberElement("span", "home-member-avatar home-member-color-" + (member.id % HOME_MEMBER_COLORS),
+        getMemberInitials(member.firstName, member.lastName));
+
+    const main = createMemberElement("div", "home-member-main");
+    main.appendChild(createMemberElement("strong", "home-member-name", getMemberFullName(member)));
+    main.appendChild(createMemberElement("span", "home-member-role", member.role === "owner" ? "Owner" : "Roomie"));
+
+    item.append(avatar, main);
+
+    // "Me" on the right of the line of the signed in user
+    if (member.id === user.id_person) {
+        item.appendChild(createMemberElement("span", "member-badge home-member-me", "Me"));
+    }
+
+    return item;
+}
+
+// Shows the card "Members" of the home page: the owner first, then the first roomies
+// The API sends the owner first, so slice keeps him in the card
+function showHomeMembers(members) {
+    const list = document.getElementById("homeMemberItems");
+    list.replaceChildren();
+
+    members.slice(0, HOME_MEMBERS_LIMIT).forEach(member => list.appendChild(createHomeMemberItem(member)));
+
+    // "+ 2 more members" when the list is too long for the card ("See all" opens the page Members)
+    const others = members.length - HOME_MEMBERS_LIMIT;
+    const more = document.getElementById("homeMembersMore");
+    more.hidden = others <= 0;
+    more.textContent = "+ " + others + (others === 1 ? " more member" : " more members");
+}
+
 async function loadMembers() {
     try {
         const members = await fetchRoomshareMembers();
         hideMemberMessage("membersMessage");
+        hideMemberMessage("homeMembersMessage");
         showMembers(members);
+        showHomeMembers(members);
     } catch (e) {
         console.error(e.message);
-        if(user.role === "roomie" && e.status === 403){
+
+        // 403 for a roomie: the owner removed him since his sign in, so we sign him out on purpose
+        if (user.role === "roomie" && e.status === 403) {
             alert("You are not a member of this roomshare anymore. Please sign in again.");
             signOut();
-        }else{
+        } else {
             showMemberMessage("membersMessage", "Unable to load the members right now.");
+            showMemberMessage("homeMembersMessage", "Unable to load the members right now.");
         }
     }
 }

@@ -152,6 +152,17 @@
                     <ul class="expense-list" id="homeEventItems"></ul>
                     <p class="expenses-empty calendar-empty" id="homeEventsEmpty" hidden>No upcoming event</p>
                 </div>
+                <!-- The card "Members" is in the 2nd column, under "Upcoming events". members.js fills it (owner and roomies) -->
+                <div class="exp-panel home-panel home-panel-members">
+                    <div class="home-panel-head">
+                        <h3>Members</h3>
+                        <a href="#members" class="home-panel-link">See all →</a>
+                    </div>
+                    <p class="exp-error" id="homeMembersMessage" hidden></p>
+                    <ul class="home-member-list" id="homeMemberItems"></ul>
+                    <!-- Shown only when there are more members than in the card -->
+                    <p class="home-members-more" id="homeMembersMore" hidden></p>
+                </div>
             </div>
         </section>
 

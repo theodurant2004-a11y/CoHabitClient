@@ -294,3 +294,76 @@
         margin-left: 0;
     }
 }
+
+/* ---------- Card "Members" of the home page ---------- */
+/* In the 2nd column, under the card "Upcoming events" (the grid puts it on the next row) */
+.home-panel-members {
+    grid-column: 2;
+}
+
+/* In the grid of the home page, the space between the cards is given by the gap of the grid,
+   so the margin under each card (from .exp-panel) is not needed there */
+.home-panels .exp-panel {
+    margin-bottom: 0;
+}
+
+/* The list: no bullet, one member under the other */
+.home-member-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    list-style: none;
+}
+
+/* One line: the circle on the left, the name in the middle, "Me" on the right */
+.home-member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.home-member-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* The 4 colors of the circles (a member always gets the same one, see members.js) */
+.home-member-color-0 { background: #3f7f74; }   /* green */
+.home-member-color-1 { background: #c25b72; }   /* pink */
+.home-member-color-2 { background: #5b5fb0; }   /* blue */
+.home-member-color-3 { background: #c97b3a; }   /* orange */
+
+/* The name and the role under it */
+.home-member-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.home-member-name {
+    font-weight: 600;
+}
+
+.home-member-role {
+    font-size: 0.8rem;
+    color: var(--mem-muted);
+}
+
+/* margin-left: auto pushes "Me" to the right of the line */
+.home-member-me {
+    margin-left: auto;
+}
+
+/* "+ 2 more members" under the list */
+.home-members-more {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: var(--mem-muted);
+}
