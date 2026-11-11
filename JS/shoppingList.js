@@ -1,4 +1,6 @@
-const SL_URL = "http://localhost:8080/CoHabitAPI/api/users/" + user.id_person + "/shopping-items";
+const roomShare = JSON.parse(sessionStorage.getItem("roomshare"));
+
+const getSlUrl = () => "http://localhost:8080/CoHabitAPI/api/shopping-list";
 
 const slList = document.getElementById("sl-list-container");
 const slAddForm = document.getElementById("addItemForm");
@@ -11,9 +13,11 @@ const slSelectAll = document.getElementById("slSelectAll");
 const slAddModal = document.getElementById("addItemModal");
 const slValidateModal = document.getElementById("validateModal");
 
+
 //-------------- API calls -----------------
 
 // Throws an error with the code and the message of the API
+// And in the case that the api has no message for the error, we provide it
 async function slThrowApiError(response) {
     const body = await response.json().catch(() => ({}));
     const error = new Error(body.message || slGetErrorMessage(response.status));
@@ -22,7 +26,7 @@ async function slThrowApiError(response) {
 }
 
 async function slFetchItems() {
-    const response = await fetch(SL_URL, {
+    const response = await fetch(getSlUrl() + "/" + roomShare.id, {
         credentials: "include"
     });
 
@@ -34,7 +38,7 @@ async function slFetchItems() {
 }
 
 async function slSendNewItem(newItem) {
-    const response = await fetch(SL_URL, {
+    const response = await fetch(getSlUrl() + "/" + roomShare.id, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -47,7 +51,7 @@ async function slSendNewItem(newItem) {
 }
 
 async function slSendChange(productId, change) {
-    const response = await fetch(SL_URL + "/" + productId, {
+    const response = await fetch(getSlUrl() + "/" + roomShare.id + "/" + productId, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -60,7 +64,7 @@ async function slSendChange(productId, change) {
 }
 
 async function slSendDelete(productId) {
-    const response = await fetch(SL_URL + "/" + productId, {
+    const response = await fetch(getSlUrl() + "/" + roomShare.id + "/" + productId, {
         method: "DELETE",
         credentials: "include"
     });
@@ -71,7 +75,7 @@ async function slSendDelete(productId) {
 }
 
 async function slSendValidation(validation) {
-    const response = await fetch(SL_URL + "/confirm-purchases", {
+    const response = await fetch(getSlUrl() + "/confirm-purchases" + "/" + user.id_person, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -84,16 +88,18 @@ async function slSendValidation(validation) {
 }
 
 // Used only when the API does not send a message
+// This corresponds to certain status codes that may occur,
+// but which do not originate from our exceptions
 function slGetErrorMessage(status) {
     switch (status) {
-        case 400: return "Please fill all required fields correctly.";
-        case 403: return "You are not allowed to perform this action.";
-        case 404: return "Item or resource not found.";
-        case 409: return "This item is already in your shopping list.";
-        case 500: return "Server error. Please try again later.";
-        default:  return "An unexpected error occurred.";
+        case 401: return "Please sign in again. Your session has expired.";
+        case 403: return "You don't have permission to perform this action.";
+        case 404: return "The requested resource could not be found.";
+        case 500: return "The server encountered an error. Please try again.";
+        default:  return "An unexpected connection error occurred.";
     }
 }
+
 
 //-------------- Display -----------------
 
@@ -132,7 +138,7 @@ function slUpdateProgressBar() {
 function slCreateItem(item) {
     const li = document.createElement("li");
     li.classList.add("sl-item");
-    // The id of the product is kept in a data attribute (an id="3" could collide with another element)
+    // The id of the product is kept in a data attribute
     li.dataset.productId = item.productId;
 
     const inputCheck = document.createElement("input");
@@ -147,10 +153,9 @@ function slCreateItem(item) {
     const inputQty = document.createElement("input");
     inputQty.type = "text";
     inputQty.classList.add("sl-item-qty-input");
-    inputQty.value = item.quantity ?? "";
+    inputQty.value = item.quantity;
 
     const button = document.createElement("button");
-    button.type = "button";
     button.textContent = "×";
     button.classList.add("sl-btn-delete");
     button.setAttribute("aria-label", "Delete " + item.productName);
@@ -164,23 +169,32 @@ async function slLoadItems() {
         const items = await slFetchItems();
 
         slItemCount.textContent = items.length;
-        slEmptyArea.hidden = items.length > 0;
-        slProgressArea.hidden = items.length === 0;
-        slActions.hidden = items.length === 0;
+
+        if (items.length === 0) {
+            slEmptyArea.hidden = false;
+            slProgressArea.hidden = true;
+            slActions.hidden = true;
+            slList.hidden = true;
+            return;
+        }
+
+        slEmptyArea.hidden = true;
+        slProgressArea.hidden = false;
+        slActions.hidden = false;
+        slList.hidden = false;
 
         const ul = document.createElement("ul");
         ul.classList.add("sl-list");
         items.forEach(item => ul.appendChild(slCreateItem(item)));
 
         slList.replaceChildren(ul);
-        slList.hidden = false;
-
         slUpdateProgressBar();
     } catch (error) {
         console.error(error.message);
         slShowListError(error.message);
     }
 }
+
 
 //-------------- Add an item -----------------
 
@@ -189,10 +203,12 @@ async function slSubmitNewItem(event) {
 
     const nameInput = document.getElementById("addItemName");
     const errorText = document.getElementById("addItemError");
+    const qtyInput = document.getElementById("addItemQty");
+    const catInput = document.getElementById("addItemCategory");
 
     const name = nameInput.value.trim();
-    const quantity = document.getElementById("addItemQty").value.trim();
-    const category = document.getElementById("addItemCategory").value.trim();
+    const quantity = qtyInput.value.trim();
+    const category = catInput.value.trim();
 
     if (!name) {
         slShowFormError(errorText, "The item name is required.", nameInput);
@@ -204,6 +220,26 @@ async function slSubmitNewItem(event) {
         return;
     }
 
+    if (!quantity) {
+        slShowFormError(errorText, "The quantity is required.", qtyInput);
+        return;
+    }
+
+    if (quantity.length > 50) {
+        slShowFormError(errorText, "The quantity must be less than 50 characters.", qtyInput);
+        return;
+    }
+
+    if (!category) {
+        slShowFormError(errorText, "The category is required.", catInput);
+        return;
+    }
+
+    if (category.length > 50) {
+        slShowFormError(errorText, "The category must be less than 50 characters.", catInput);
+        return;
+    }
+
     try {
         await slSendNewItem({ name, quantity, category });
         slCloseModal(slAddModal);
@@ -212,6 +248,7 @@ async function slSubmitNewItem(event) {
         slShowFormError(errorText, e.message);
     }
 }
+
 
 //-------------- Check / quantity / delete -----------------
 
@@ -280,6 +317,7 @@ async function slHandleDelete(event) {
     }
 }
 
+
 //-------------- Validate the purchases -----------------
 
 async function slSubmitValidation(event) {
@@ -298,6 +336,11 @@ async function slSubmitValidation(event) {
         return;
     }
 
+    if (description.length > 50) {
+        slShowFormError(errorText, "The description must be less than 50 characters.", descriptionInput);
+        return;
+    }
+
     if (!amountStr || isNaN(amount) || amount <= 0) {
         slShowFormError(errorText, "Please enter a valid amount greater than 0.", amountInput);
         return;
@@ -312,6 +355,7 @@ async function slSubmitValidation(event) {
     }
 }
 
+
 //-------------- Pop-ups -----------------
 
 function slOpenModal(modal, form, errorElement, focusInput) {
@@ -324,6 +368,7 @@ function slOpenModal(modal, form, errorElement, focusInput) {
 function slCloseModal(modal) {
     modal.hidden = true;
 }
+
 
 //-------------- Start -----------------
 
@@ -348,24 +393,24 @@ if (slList) {
     slAddForm.addEventListener("submit", slSubmitNewItem);
     slValidateForm.addEventListener("submit", slSubmitValidation);
 
-    // Only the 2 pop-ups of this page (the other pages manage their own pop-ups)
-    [slAddModal, slValidateModal].forEach(modal => {
-        // "Cancel" button
+
+    const allModals = [slAddModal, slValidateModal];
+    allModals.forEach(modal => {
+        // If the Cancel button is clicked
         modal.querySelector("[data-close-modal]").addEventListener("click", () => slCloseModal(modal));
 
-        // Click on the dark background
+        // If the dark background is clicked
         modal.addEventListener("click", event => {
             if (event.target === modal) {
                 slCloseModal(modal);
             }
         });
-    });
 
-    // Escape closes the pop-up that is open
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape") {
-            slCloseModal(slAddModal);
-            slCloseModal(slValidateModal);
-        }
+        // If the Escape key is pressed, it closes the pop-up that is open
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                slCloseModal(modal);
+            }
+        });
     });
 }
