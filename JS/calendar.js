@@ -4,18 +4,25 @@
 //-------------- Communication with the API -----------------
 const EVENTS_URL = "http://localhost:8080/CoHabitAPI/api/events";
 
-// The icon of each type of event
+// The drawing of each type of event : what goes inside an <svg>, like the icons of the sidebar
 const eventTypeIcons = {
-    social: "🎉",
-    meeting: "📋",
-    visit: "🏠",
-    task: "✅",
-    other: "📌"
+    social: '<path d="M4 20 9 9l6 6-11 5z"/><path d="M14 4.5 15.5 7M18 8.5 20.5 7M17 12l2.5 1"/>',
+    meeting: '<path d="M4 5h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H9l-4 3v-3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M8 9h6"/>',
+    visit: '<path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 3h16z"/><path d="M10 21.5h4"/>',
+    task: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',
+    other: '<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
 };
 
-// This function returns the icon of a type of event or a pin if the code is unknown
-function getEventIcon(code) {
-    return eventTypeIcons[code] || "📌";
+// This function returns the icon of a type of event: a <span> that contains the <svg>
+// className is the class of the span: "expense-icon" in the list, "chip-icon" in the form
+// An unknown code gets the icon and the color of "other"
+function createEventIcon(code, className) {
+    const type = eventTypeIcons[code] ? code : "other";
+    const icon = createElement("span", className + " event-icon event-icon-" + type);
+
+    // The drawings come from the object above, they are written in this file and never by the user
+    icon.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + eventTypeIcons[type] + '</svg>';
+    return icon;
 }
 
 // Stops with an error if the API refused the request. The message of the API is kept for the page
@@ -186,7 +193,7 @@ function createEventItem(event) {
         main.appendChild(createElement("span", "expense-meta", event.description));
     }
 
-    item.append(createElement("span", "expense-icon", getEventIcon(event.type)), main);
+    item.append(createEventIcon(event.type, "expense-icon"), main);
     return item;
 }
 
@@ -331,7 +338,8 @@ function fillEventForm() {
 
     types.replaceChildren();
     eventTypes.forEach(type => {
-        const chip = createFormChip("chip", getEventIcon(type.code) + " " + type.label);
+        const chip = createFormChip("chip", type.label);
+        chip.prepend(createEventIcon(type.code, "chip-icon"));
         chip.dataset.code = type.code;
         types.appendChild(chip);
     });

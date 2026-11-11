@@ -155,6 +155,43 @@
     font-size: 0.85rem;
 }
 
+/* ---------- The icons of the types ---------- */
+/* Same drawing style as the icons of the sidebar: lines, no fill */
+.event-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Each icon takes the color of its type, like the points under the days */
+.event-icon-social { color: var(--cal-social); }
+
+.event-icon-meeting { color: var(--cal-meeting); }
+
+.event-icon-visit { color: var(--cal-visit); }
+
+.event-icon-task { color: var(--cal-task); }
+
+.event-icon-other { color: var(--cal-other); }
+
+/* In the buttons of the form the icon is smaller, and white when the button is selected */
+.chip-icon {
+    display: flex;
+}
+
+.chip-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.chip.active .chip-icon {
+    color: var(--white);
+}
+
 /* ---------- One event ---------- */
 .calendar-event {
     align-items: flex-start;
