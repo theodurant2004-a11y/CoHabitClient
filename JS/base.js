@@ -1,7 +1,7 @@
 // This is the code shared by all the pages
 
 // URL of the API route that ends the session :
-const LOGOUT_API_URL = "http://localhost:8080/CoHabitAPI/api/users/logout";
+const LOGOUT_API_URL = API_BASE + "/users/logout";
 
 // Returns the signed in user
 // If nobody is signed in, redirects to the sign in page and returns null.

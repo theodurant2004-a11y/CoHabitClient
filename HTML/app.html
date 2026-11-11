@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="../CSS/shoppingList.css">
     <link rel="stylesheet" href="../CSS/responsive.css">
 
+    <script src="../JS/config.js"></script>
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
     <script src="../JS/expenses-owner.js" defer></script>
@@ -67,7 +68,7 @@
                 </svg>
                 Shopping list
             </a>
-            <a href="#tasks" class="nav-link" data-view="tasks">
+            <a href="#tasks" class="nav-link" data-view="tasks" data-role="roomie">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M9 11l3 3 8-8" />
                     <path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
@@ -292,13 +293,19 @@
                 <!-- The lines of the list are created by the JS -->
                 <ul class="task-list" id="taskItems"></ul>
                 <!-- Hidden by the JS as soon as there is at least one task to show -->
-                <p class="task-empty" id="tasksEmpty" hidden>✅ No task here</p>
+                <p class="task-empty" id="tasksEmpty" hidden>
+                    <svg class="task-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M22 11.1V12a10 10 0 1 1-5.9-9.1" />
+                        <path d="M22 4 12 14l-3-3" />
+                    </svg>
+                    No task here
+                </p>
 
-                <!-- Pop-up "New task" (hidden until the user clicks on + New task) -->
+                <!-- Pop-up "New task" / "Edit task" (hidden until the user clicks on + New task or on the edit button) -->
                 <div class="modal-backdrop" id="taskModal" hidden>
                     <!-- novalidate: the browser does not check the fields, tasks.js does it (checkTaskInputs) -->
                     <form class="exp-modal" id="taskForm" novalidate>
-                        <h3>New task</h3>
+                        <h3 id="taskModalTitle">New task</h3>
 
                         <div class="exp-field">
                             <label for="taskTitle">Title *</label>
@@ -329,6 +336,22 @@
                             <button type="submit" class="btn-add" id="createTask" disabled>Create</button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Pop-up "Delete task" (hidden until the user clicks on the delete button of a task) -->
+                <!-- tasks.js writes the name of the task inside -->
+                <div class="modal-backdrop" id="deleteTaskModal" hidden>
+                    <div class="exp-modal">
+                        <h3>Delete the task?</h3>
+                        <p class="task-delete-text">
+                            "<span id="deleteTaskName"></span>" will be deleted for every roomie.
+                        </p>
+
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelDeleteTask">Cancel</button>
+                            <button type="button" class="btn-add" id="confirmDeleteTask">Delete</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -417,16 +440,6 @@
                     <div class="exp-field">
                         <span class="exp-label">Type</span>
                         <div class="chips calendar-chips" id="eventTypes"></div>
-                    </div>
-
-                    <div class="exp-field">
-                        <span class="exp-label">Participants</span>
-                        <label class="calendar-everyone">
-                            <input type="checkbox" id="eventEveryone" checked>
-                            Everyone
-                        </label>
-                        <!-- One button per member, created by calendar.js. Shown when Everyone is unchecked -->
-                        <div class="chips calendar-chips" id="eventParticipants" hidden></div>
                     </div>
 
                     <p class="exp-error" id="eventError" hidden></p>
@@ -616,6 +629,19 @@
                             <button type="submit" class="btn-add">Add</button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Confirmation pop up "Mark as paid" : asks for a confirmation before an expense is settled -->
+                <div class="modal-backdrop" id="settleModal" hidden>
+                    <div class="exp-modal settle-modal">
+                        <h3>Mark as paid?</h3>
+                        <!-- The text is filled by JS :debtor, amount, description -->
+                        <p class="settle-text" id="settleText"></p>
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelSettle">Cancel</button>
+                            <button type="button" class="btn-add" id="confirmSettle">Yes, mark as paid</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

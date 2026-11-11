@@ -198,3 +198,29 @@
     display: flex;
     justify-content: space-between;
 }
+
+/* Checkbox in front of each expense line */
+.expense-check {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--exp-owed-text);
+    cursor: pointer;
+}
+.expense-check:disabled { cursor: default; }
+
+/* Settle pop-up : wide enough so the confirm button stays on one line */
+.settle-modal { max-width: 480px; }
+.settle-text { color: var(--exp-muted); line-height: 1.5; }
+
+/* ---------- The icon of the category ---------- */
+/* Same drawing style as the icons of the sidebar: lines, no fill, color of the text */
+.expense-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}

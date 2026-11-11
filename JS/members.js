@@ -1,5 +1,5 @@
-const MEMBERS_PAGE_URL = "http://localhost:8080/CoHabitAPI/api/roomshares/members";
-const MEMBERS_PAGE_JOIN_URL = "http://localhost:8080/CoHabitAPI/api/roomshares/join-requests";
+const MEMBERS_PAGE_URL = API_BASE + "/roomshares/members";
+const MEMBERS_PAGE_JOIN_URL = API_BASE + "/roomshares/join-requests";
 
 // The roomie the owner is about to remove (null when the pop-up is closed)
 let memberToRemove = null;

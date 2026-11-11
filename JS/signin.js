@@ -1,5 +1,5 @@
 const form = document.getElementById("signinForm");
-const API_URL = "http://localhost:8080/CoHabitAPI/api/users/login";
+const API_URL = API_BASE + "/users/login";
 
 // Checks the form fields
 function checkInputs(email, password) {
