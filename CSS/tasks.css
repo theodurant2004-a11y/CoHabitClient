@@ -172,21 +172,41 @@
     gap: 4px;
 }
 
+/* The icons are SVG drawn with lines (like the sidebar). currentColor = the color of the button */
 .task-edit,
 .task-delete {
+    display: grid;
+    place-items: center;
     padding: 6px;
     border: 0;
     border-radius: 8px;
     background: none;
-    font-size: 1rem;
-    opacity: 0.5;
+    color: var(--exp-muted);
     cursor: pointer;
 }
 
 .task-edit:hover,
 .task-delete:hover {
-    opacity: 1;
     background: #f3f1ee;
+    color: var(--exp-primary);
+}
+
+.task-edit svg,
+.task-delete svg,
+.task-empty-icon {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* The icon of "No task here", on the same line as the text */
+.task-empty-icon {
+    vertical-align: -3px;
+    margin-right: 6px;
 }
 
 /* The text of the pop-up "Delete task" */

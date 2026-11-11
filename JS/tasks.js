@@ -8,6 +8,22 @@
 // The url of the API for the tasks
 const TASKS_URL = API_BASE + "/tasks";
 
+// The icons of the buttons: SVG drawn with lines, like the icons of the sidebar
+// The color comes from the CSS (stroke: currentColor)
+const EDIT_ICON =
+    '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path d="M12 20h9"/>' +
+    '<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>' +
+    '</svg>';
+
+const DELETE_ICON =
+    '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path d="M3 6h18"/>' +
+    '<path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/>' +
+    '<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>' +
+    '<path d="M10 11v6M14 11v6"/>' +
+    '</svg>';
+
 //-------------- Asking the API -----------------
 // This function is used to ask the API for the tasks of the roomshare and for the roomies a task can be given to
 async function getTasksData() {
@@ -131,14 +147,18 @@ function createTaskItem(task) {
     // The task object is given directly to the functions: no need to find it again with its id
     const actions = createElement("div", "task-actions");
 
-    const editButton = createElement("button", "task-edit", "✏️");
+    const editButton = createElement("button", "task-edit");
     editButton.type = "button";
+    editButton.innerHTML = EDIT_ICON;                        // the icon (fixed text, not a user value)
     editButton.title = "Edit the task";
+    editButton.setAttribute("aria-label", "Edit the task");  // read by screen readers: the button has no text anymore
     editButton.addEventListener("click", () => openTaskModal(task));
 
-    const deleteButton = createElement("button", "task-delete", "🗑️");
+    const deleteButton = createElement("button", "task-delete");
     deleteButton.type = "button";
+    deleteButton.innerHTML = DELETE_ICON;
     deleteButton.title = "Delete the task";
+    deleteButton.setAttribute("aria-label", "Delete the task");
     deleteButton.addEventListener("click", () => openDeleteTaskModal(task));
 
     actions.append(editButton, deleteButton);
@@ -217,7 +237,7 @@ async function toggleTask(checkbox) {
 }
 
 //-------------- Delete a task -----------------
-// This function runs when the user clicks on 🗑️ of a task: it opens the pop-up to confirm
+// This function runs when the user clicks on the delete button of a task: it opens the pop-up to confirm
 function openDeleteTaskModal(task) {
     deletingTask = task;
     document.getElementById("deleteTaskName").textContent = task.name;

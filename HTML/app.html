@@ -283,9 +283,15 @@
                 <!-- The lines of the list are created by the JS -->
                 <ul class="task-list" id="taskItems"></ul>
                 <!-- Hidden by the JS as soon as there is at least one task to show -->
-                <p class="task-empty" id="tasksEmpty" hidden>✅ No task here</p>
+                <p class="task-empty" id="tasksEmpty" hidden>
+                    <svg class="task-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M22 11.1V12a10 10 0 1 1-5.9-9.1" />
+                        <path d="M22 4 12 14l-3-3" />
+                    </svg>
+                    No task here
+                </p>
 
-                <!-- Pop-up "New task" / "Edit task" (hidden until the user clicks on + New task or on ✏️) -->
+                <!-- Pop-up "New task" / "Edit task" (hidden until the user clicks on + New task or on the edit button) -->
                 <div class="modal-backdrop" id="taskModal" hidden>
                     <!-- novalidate: the browser does not check the fields, tasks.js does it (checkTaskInputs) -->
                     <form class="exp-modal" id="taskForm" novalidate>
@@ -322,7 +328,7 @@
                     </form>
                 </div>
 
-                <!-- Pop-up "Delete task" (hidden until the user clicks on 🗑️) -->
+                <!-- Pop-up "Delete task" (hidden until the user clicks on the delete button of a task) -->
                 <!-- tasks.js writes the name of the task inside -->
                 <div class="modal-backdrop" id="deleteTaskModal" hidden>
                     <div class="exp-modal">
