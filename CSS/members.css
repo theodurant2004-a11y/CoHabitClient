@@ -282,6 +282,29 @@
     opacity: 0.9;
 }
 
+/* ---------- Pop-up "You are no longer a member" (roomie removed) ---------- */
+/* Only one button, so it takes all the width */
+.member-modal-single {
+    grid-template-columns: 1fr;
+}
+
+/* The button "Sign in again": the main color of the app, it is the only way out of the pop-up */
+.btn-sign-in-again {
+    padding: 12px;
+    border: 0;
+    border-radius: var(--radius-field);
+    background: var(--brand);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-sign-in-again:hover {
+    opacity: 0.9;
+}
+
 /* ---------- Small screen ---------- */
 /* The buttons go under the name, so the line is not too long */
 @media (max-width: 600px) {

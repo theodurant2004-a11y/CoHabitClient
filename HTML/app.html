@@ -669,5 +669,21 @@
             </div>
         </section>
     </div>
+    <!-- Pop-up shown to a roomie removed by the owner (members.js shows it when the API answers 403) -->
+    <!-- Outside of the sections, so it can be shown on every page of the app (Home, Tasks...) -->
+    <div class="member-modal-backdrop" id="removedModal" hidden>
+        <div class="member-modal" role="alertdialog" aria-modal="true" aria-labelledby="removedTitle">
+            <!-- The circle with the initials of the roomie -->
+            <span class="member-avatar member-modal-avatar" id="removedInitials"></span>
+
+            <h3 id="removedTitle">You are no longer a member</h3>
+            <p class="member-modal-text">The owner removed you from this roomshare.</p>
+            <p class="member-modal-note">Your account is kept: you can join a roomshare again with an invitation key.</p>
+
+            <div class="member-modal-actions member-modal-single">
+                <button type="button" class="btn-sign-in-again" id="removedSignIn">Sign in again</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

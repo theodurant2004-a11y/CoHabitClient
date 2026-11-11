@@ -203,13 +203,19 @@ async function loadMembers() {
 
         // 403 for a roomie: the owner removed him since his sign in, so we sign him out on purpose
         if (user.role === "roomie" && e.status === 403) {
-            alert("You are not a member of this roomshare anymore. Please sign in again.");
-            signOut();
+            showRemovedModal();
         } else {
             showMemberMessage("membersMessage", "Unable to load the members right now.");
             showMemberMessage("homeMembersMessage", "Unable to load the members right now.");
         }
     }
+}
+// Opens the pop-up "You are no longer a member" (roomie removed by the owner)
+// The only button signs him out: he cannot use the roomshare anymore, so there is no "Cancel"
+function showRemovedModal() {
+    document.getElementById("removedInitials").textContent = getMemberInitials(user.firstName, user.lastName);
+    document.getElementById("removedModal").hidden = false;
+    document.getElementById("removedSignIn").focus();
 }
 
 //-------------- Join requests (owner) -----------------
@@ -339,6 +345,9 @@ loadMembers();
 if (document.querySelector(".members-pending")) {
     loadRequests();
 }
+
+// The button of the pop-up "You are no longer a member" signs the roomie out (signOut is in base.js)
+document.getElementById("removedSignIn").addEventListener("click", signOut);
 
 const memberRemoveModal = document.getElementById("removeModal");
 
