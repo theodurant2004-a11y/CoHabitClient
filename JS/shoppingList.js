@@ -1,4 +1,4 @@
-const SL_URL = "http://localhost:8080/CoHabitAPI/api/users/" + user.id_person + "/shopping-items";
+const SL_URL = API_BASE + "/users/" + user.id_person + "/shopping-items";
 
 const slList = document.getElementById("sl-list-container");
 const slAddForm = document.getElementById("addItemForm");
