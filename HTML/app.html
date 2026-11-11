@@ -630,6 +630,19 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- Confirmation pop up "Mark as paid" : asks for a confirmation before an expense is settled -->
+                <div class="modal-backdrop" id="settleModal" hidden>
+                    <div class="exp-modal settle-modal">
+                        <h3>Mark as paid?</h3>
+                        <!-- The text is filled by JS :debtor, amount, description -->
+                        <p class="settle-text" id="settleText"></p>
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelSettle">Cancel</button>
+                            <button type="button" class="btn-add" id="confirmSettle">Yes, mark as paid</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         <section id="view-members" class="view" hidden>
