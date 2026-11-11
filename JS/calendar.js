@@ -2,7 +2,7 @@
 // The front only shows the events and sends what the user typed: the real checks are in the API.
 
 //-------------- Communication with the API -----------------
-const EVENTS_URL = "http://localhost:8080/CoHabitAPI/api/events";
+const EVENTS_URL = API_BASE + "/events";
 
 // The drawing of each type of event : what goes inside an <svg>, like the icons of the sidebar
 const eventTypeIcons = {
@@ -24,9 +24,6 @@ function createEventIcon(code, className) {
     icon.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + eventTypeIcons[type] + '</svg>';
     return icon;
 }
-const EVENTS_URL = API_BASE + "/events";
-const MEMBERS_URL = API_BASE + "/roomshares/members"; // route proposed to the API team
-const USE_FAKE_DATA = true; // TODO: false when the API routes exist
 
 // Stops with an error if the API refused the request. The message of the API is kept for the page
 async function checkResponse(response) {
