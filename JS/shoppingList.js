@@ -1,17 +1,17 @@
 const roomShare = JSON.parse(sessionStorage.getItem("roomshare"));
 
-const getSlUrl = () => "http://localhost:8080/CoHabitAPI/api/shopping-list";
+const SL_URL = API_BASE + "/shopping-list";
 
-const slList = document.getElementById("sl-list-container");
-const slAddForm = document.getElementById("addItemForm");
-const slValidateForm = document.getElementById("validateForm");
-const slItemCount = document.getElementById("sl-item-count");
-const slEmptyArea = document.getElementById("sl-empty");
-const slProgressArea = document.getElementById("sl-progress-container");
-const slActions = document.getElementById("sl-actions");
-const slSelectAll = document.getElementById("slSelectAll");
-const slAddModal = document.getElementById("addItemModal");
-const slValidateModal = document.getElementById("validateModal");
+const slList = document.getElementById("sl-list-container"); // The ul tag
+const slAddForm = document.getElementById("addItemForm"); // The form to add an item
+const slValidateForm = document.getElementById("validateForm"); // The form to confirm the purchases
+const slItemCount = document.getElementById("sl-item-count"); // The text for the item count
+const slEmptyArea = document.getElementById("sl-empty"); // The message to display if there are no items
+const slProgressArea = document.getElementById("sl-progress-container"); // The zone of the progress bar
+const slActions = document.getElementById("sl-actions"); // The button to Validate and to Select All
+const slSelectAll = document.getElementById("slSelectAll"); // The checkbox to Select All
+const slAddModal = document.getElementById("addItemModal"); // The pop-up to add an item
+const slValidateModal = document.getElementById("validateModal"); // The pop-up to confirm the purchases
 
 
 //-------------- API calls -----------------
@@ -25,24 +25,27 @@ async function slThrowApiError(response) {
     throw error;
 }
 
+// Send the GET request with the room share id stored in session
 async function slFetchItems() {
-    const response = await fetch(getSlUrl() + "/" + roomShare.id, {
+    const response = await fetch(SL_URL + "/" + roomShare.id, {
         credentials: "include"
     });
 
+    // If there is a problem, an error will be thrown
     if (!response.ok) {
         await slThrowApiError(response);
     }
 
-    return await response.json();
+    return await response.json(); // Return the list of the items, even if it's empty
 }
 
+// Send the POST request to send the object received
 async function slSendNewItem(newItem) {
-    const response = await fetch(getSlUrl() + "/" + roomShare.id, {
+    const response = await fetch(SL_URL + "/" + roomShare.id, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(newItem)
+        body: JSON.stringify(newItem) // We put in the body of the request the variable converted into a JSON object
     });
 
     if (!response.ok) {
@@ -50,8 +53,10 @@ async function slSendNewItem(newItem) {
     }
 }
 
+// The method to send a change with the PUT verb
+// We have to specify the product id and the room share id to find which item must be changed
 async function slSendChange(productId, change) {
-    const response = await fetch(getSlUrl() + "/" + roomShare.id + "/" + productId, {
+    const response = await fetch(SL_URL + "/" + roomShare.id + "/" + productId, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -63,10 +68,11 @@ async function slSendChange(productId, change) {
     }
 }
 
+// The method to send the ids of the item to delete with de verb DELETE
 async function slSendDelete(productId) {
-    const response = await fetch(getSlUrl() + "/" + roomShare.id + "/" + productId, {
+    const response = await fetch(SL_URL + "/" + roomShare.id + "/" + productId, {
         method: "DELETE",
-        credentials: "include"
+        credentials: "include" // There's no body because all the data are in the URI
     });
 
     if (!response.ok) {
@@ -74,8 +80,10 @@ async function slSendDelete(productId) {
     }
 }
 
+// The method to send the JSON object with the data needed to confirm the purchases
 async function slSendValidation(validation) {
-    const response = await fetch(getSlUrl() + "/confirm-purchases" + "/" + user.id_person, {
+    // Just for this method, we use the id of the person because, with the room share id, it's less efficient
+    const response = await fetch(SL_URL + "/" + roomShare.id + "/purchases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -103,35 +111,69 @@ function slGetErrorMessage(status) {
 
 //-------------- Display -----------------
 
-function slShowListError(message) {
-    const errorBanner = document.getElementById("slMainError");
-    errorBanner.textContent = message;
-    errorBanner.hidden = false;
-    setTimeout(() => {
-        errorBanner.hidden = true;
-    }, 5000);
+// Shows the shopping list stats on the home page (small card and the panel)
+function showHomeShopping(total, checked) {
+    const countEl = document.getElementById("homeShoppingCount");
+    const noteEl = document.getElementById("homeShoppingNote");
+    const progressCount = document.getElementById("homeShoppingProgressCount");
+    const progressPercent = document.getElementById("homeShoppingProgressPercent");
+    const progressFill = document.getElementById("homeShoppingProgressFill");
+
+    if (!countEl || !progressCount) return;
+
+    const left = total - checked;
+
+    // Update the small stat card
+    countEl.textContent = left;
+    noteEl.textContent = left === 1 ? "item left" : "items left";
+
+    // Update the big panel progress bar
+    const percent = total === 0 ? 0 : Math.round((checked / total) * 100);
+    progressCount.textContent = `${checked}/${total} found`;
+    progressPercent.textContent = `${percent}%`;
+    progressFill.style.width = `${percent}%`;
 }
 
+// The method to show the error messages about the list of items in a paragraph
+function slShowListError(message) {
+    const errorBanner = document.getElementById("slMainError");
+    errorBanner.textContent = message; // We replace the content by the message in parameter
+    errorBanner.hidden = false; // We make the paragraph visible
+    setTimeout(() => {
+        errorBanner.hidden = true;
+    }, 5000); // While 5 seconds, you see the message and after that, it disappears
+}
+
+// The method to show the error messages in the form pop-ups
 function slShowFormError(errorElement, message, input) {
     errorElement.textContent = message;
     errorElement.hidden = false;
     if (input) {
-        input.focus();
+        input.focus(); // Put the focus on the input concerned by the error
     }
 }
 
+// The method to upgrade the progress bar when there is an update on the data
 function slUpdateProgressBar() {
-    const total = slList.querySelectorAll(".sl-checkbox").length;
-    const checked = slList.querySelectorAll(".sl-checkbox:checked").length;
+    const total = slList.querySelectorAll(".sl-checkbox").length; // Number of all the checkboxes
+    const checked = slList.querySelectorAll(".sl-checkbox:checked").length; // Number of checked checkboxes
 
+    // We put the Select All input checkbox checked status on true when there's at least one item in the list
+    // and when all the checkboxes are checked
+    // Else, we put it on false
     slSelectAll.checked = total > 0 && checked === total;
-    document.getElementById("openValidateModal").hidden = checked === 0;
+    document.getElementById("openValidateModal").hidden = checked === 0; // If there's at least one item checked, we display the validation button
 
+    // The calculation to have the percent of found items
     const percent = total === 0 ? 0 : Math.round((checked / total) * 100);
 
+    // Update of the text zones with the updated data
     document.getElementById("sl-progress-count").textContent = `${checked}/${total} found`;
     document.getElementById("sl-progress-percent").textContent = `${percent}%`;
     document.getElementById("sl-progress-fill").style.width = `${percent}%`;
+
+    // To update in the home page
+    showHomeShopping(total, checked);
 }
 
 // Creates one line of the list
@@ -146,9 +188,13 @@ function slCreateItem(item) {
     inputCheck.checked = item.found;
     inputCheck.classList.add("sl-checkbox");
 
-    const span = document.createElement("span");
-    span.textContent = item.productName;
-    span.classList.add("sl-item-name");
+    const spanName = document.createElement("span");
+    spanName.textContent = item.productName;
+    spanName.classList.add("sl-item-name");
+
+    const spanCategory = document.createElement("span");
+    spanCategory.textContent = item.productCategory;
+    spanCategory.classList.add("sl-item-category");
 
     const inputQty = document.createElement("input");
     inputQty.type = "text";
@@ -160,13 +206,17 @@ function slCreateItem(item) {
     button.classList.add("sl-btn-delete");
     button.setAttribute("aria-label", "Delete " + item.productName);
 
-    li.append(inputCheck, span, inputQty, button);
+    li.append(inputCheck, spanName, spanCategory, inputQty, button);
     return li;
 }
 
 async function slLoadItems() {
     try {
         const items = await slFetchItems();
+
+        // To update the progress bar in the home page
+        const checked = items.filter(item => item.found).length;
+        showHomeShopping(items.length, checked);
 
         slItemCount.textContent = items.length;
 
@@ -280,23 +330,31 @@ async function slCheckOrUncheckAll(event) {
 async function slHandleChange(event) {
     const target = event.target;
 
-    if (target.classList.contains("sl-checkbox") || target.classList.contains("sl-item-qty-input")) {
+    if (target.classList.contains("sl-checkbox")) {
         const itemLi = target.closest(".sl-item");
-        const quantity = itemLi.querySelector(".sl-item-qty-input").value;
-        const isChecked = itemLi.querySelector(".sl-checkbox").checked;
+        const isChecked = target.checked;
 
         slUpdateProgressBar();
         try {
-            await slSendChange(itemLi.dataset.productId, { quantity, status: isChecked });
+            await slSendChange(itemLi.dataset.productId, { status: isChecked });
         } catch (error) {
             console.error(error.message);
             slShowListError(error.message);
 
-            // The API refused: the box goes back to what it was
-            if (target.classList.contains("sl-checkbox")) {
-                target.checked = !isChecked;
-                slUpdateProgressBar();
-            }
+            // If the API refuses, we return to the initial state
+            target.checked = !isChecked;
+            slUpdateProgressBar();
+        }
+    }
+    else if (target.classList.contains("sl-item-qty-input")) {
+        const itemLi = target.closest(".sl-item");
+        const quantity = target.value.trim();
+
+        try {
+            await slSendChange(itemLi.dataset.productId, { quantity: quantity });
+        } catch (error) {
+            console.error(error.message);
+            slShowListError(error.message);
         }
     }
 }
@@ -347,7 +405,7 @@ async function slSubmitValidation(event) {
     }
 
     try {
-        await slSendValidation({ description, amount });
+        await slSendValidation({ description, amount, paidBy: user.id_person });
         slCloseModal(slValidateModal);
         await slLoadItems();
     } catch (e) {

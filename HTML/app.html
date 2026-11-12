@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="../CSS/shoppingList.css">
     <link rel="stylesheet" href="../CSS/responsive.css">
 
+    <script src="../JS/config.js"></script>
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
     <script src="../JS/expenses-owner.js" defer></script>
@@ -137,6 +138,13 @@
                     <strong class="home-stat-value" id="homeBalance"></strong>
                     <span class="home-stat-note" id="homeBalanceNote"></span>
                 </div>
+
+                <!-- The card "Shopping list" -->
+                <div class="home-stat home-stat-shopping" data-role="roomie">
+                    <span class="home-stat-label">Shopping list</span>
+                    <strong class="home-stat-value" id="homeShoppingCount">0</strong>
+                    <span class="home-stat-note" id="homeShoppingNote">items left</span>
+                </div>
             </div>
 
             <!-- The row of the bigger cards (2 columns). Each feature adds its own card here -->
@@ -161,6 +169,25 @@
                     <ul class="home-member-list" id="homeMemberItems"></ul>
                     <!-- Shown only when there are more members than in the card -->
                     <p class="home-members-more" id="homeMembersMore" hidden></p>
+                </div>
+
+                <!-- The panel "Shopping list" -->
+                <div class="exp-panel home-panel home-panel-shopping" data-role="roomie">
+                    <div class="home-panel-head">
+                        <h3>Shopping list</h3>
+                        <a href="#shoppingList" class="home-panel-link">See all →</a>
+                    </div>
+
+                    <div class="sl-progress-container" id="homeShoppingProgress">
+                        <div class="sl-progress-text">
+                            <span id="homeShoppingProgressCount">0/0 found</span>
+                            <span id="homeShoppingProgressPercent">0%</span>
+                        </div>
+                        <div class="sl-progress-bar">
+                            <!-- Suppression du style inline ici -->
+                            <div class="sl-progress-fill" id="homeShoppingProgressFill"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -252,7 +279,7 @@
                         <input type="text" id="valDescription" maxlength="50" placeholder="e.g. Carrefour groceries" required>
                     </div>
 
-                    <div class="exp-field">
+                   <div class="exp-field">
                         <label for="valAmount">Amount (€) *</label>
                         <input type="number" id="valAmount" min="0.01" step="0.01" placeholder="0.00" required>
                     </div>

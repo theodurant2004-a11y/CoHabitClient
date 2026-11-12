@@ -28,7 +28,7 @@ function showOwnerSection() {
     if (user.roomshareName) {
         // app.js needs the key "roomshare" to let the user in, so we store it here
         sessionStorage.setItem("roomshare", JSON.stringify({
-            id: user.roomShareId,
+            id: user.roomshareId,
             name: user.roomshareName,
             invitationKey: user.invitationKey
         }));
@@ -46,7 +46,7 @@ function showRoomieSection() {
         // The roomie already belongs to a roomshare, he doesnt need to give a key again
         // app.js needs the key "roomshare" to let the user in, so we store it here
         // A roomie does not get the invitation key from the API, so we only store the name
-        sessionStorage.setItem("roomshare", JSON.stringify({ id: user.roomShareId, name: user.roomshareName }));
+        sessionStorage.setItem("roomshare", JSON.stringify({ id: user.roomshareId, name: user.roomshareName }));
         window.location.href = "app.html";
     } else if (user.membershipStatus === "pending") {
         // The request was sent but the owner did not answer yet: no form, only a message
@@ -127,7 +127,7 @@ async function createRoomshare(event) {
 
                     // The owner now has a roomshare: we update the user kept in the browser
                     // (the data read at the sign in is old, so we update it ourselves)
-                    user.id = result.roomshare.id;
+                    user.roomshareId = result.roomshare.id;
                     user.roomshareName = result.roomshare.name;
                     user.invitationKey = result.roomshare.invitationKey;
                     sessionStorage.setItem("user", JSON.stringify(user));
