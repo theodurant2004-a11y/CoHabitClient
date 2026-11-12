@@ -207,6 +207,9 @@
             <!-- Error messages -->
             <p class="exp-error exp-banner" id="slMainError" hidden></p>
 
+            <!-- Result of the receipt scan (filled by shoppingList.js) -->
+            <p class="sl-scan-info" id="slScanInfo" hidden></p>
+
             <!-- Progression system -->
             <div class="sl-progress-container" id="sl-progress-container" hidden>
                 <div class="sl-progress-text">
@@ -225,13 +228,18 @@
                 <p>Add items to buy</p>
             </div>
 
-            <!-- Action buttons (Select All & Validation) -->
+            <!-- Action buttons (Select All, Scan receipt & Validation) -->
             <div class="sl-actions" id="sl-actions" hidden>
                 <label class="sl-select-all-label">
                     <input type="checkbox" id="slSelectAll" class="sl-checkbox">
                     <span class="sl-select-all-text">Select all</span>
                 </label>
-                <button type="button" class="btn-add" id="openValidateModal">Validate purchases</button>
+                <div class="sl-actions-buttons">
+                    <!-- Hidden input opened by the button: the camera on a phone, the file picker on a computer -->
+                    <input type="file" id="scanReceiptInput" accept="image/*" capture="environment" hidden>
+                    <button type="button" class="btn-ghost" id="scanReceiptButton">Scan receipt</button>
+                    <button type="button" class="btn-add" id="openValidateModal">Validate purchases</button>
+                </div>
             </div>
 
             <!-- Container of the shopping list, all the items will be displayed -->
