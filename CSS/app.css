@@ -375,7 +375,7 @@ sidebar-title {
 /* The panel "Shopping list" is in the 1st column, at the same height as "Upcoming events" */
 .home-panel-shopping {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
 }
 
 /* In the panel, the progress bar is not a card inside a card: no border, no padding, no space under it */
