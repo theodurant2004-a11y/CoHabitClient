@@ -270,3 +270,23 @@
 .sl-select-all-text {
     font-weight: 500;
 }
+
+/* Badge de catégorie dans la liste de courses */
+.sl-item-category {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--brand-dark);
+    background: var(--brand-soft);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    margin-right: 8px;
+    transition: var(--transition);
+}
+
+/* On réduit l'opacité de la catégorie quand l'article est trouvé/coché */
+.sl-checkbox:checked ~ .sl-item-category {
+    opacity: 0.4;
+}
