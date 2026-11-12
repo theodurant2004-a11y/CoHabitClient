@@ -120,6 +120,19 @@
     .expenses-owner .btn-inline {
         width: 100%;
     }
+
+    .expenses-owner .charge-card {
+        padding: 16px;
+    }
+
+    /* The name stays on the first line, the status and the button go under it */
+    .expenses-owner .charge-part {
+        flex-wrap: wrap;
+    }
+
+    .expenses-owner .charge-part-name {
+        flex-basis: calc(100% - 140px);
+    }
 }
 
 /* ================= max-width: 700px ================= */

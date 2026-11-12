@@ -22,8 +22,8 @@
     <script src="../JS/config.js"></script>
     <script src="../JS/base.js" defer></script>
     <script src="../JS/app.js" defer></script>
-    <script src="../JS/expenses-owner.js" defer></script>
     <script src="../JS/expenses-roomie.js" defer></script>
+    <script src="../JS/expenses-owner.js" defer></script>
     <script src="../JS/tasks.js" defer></script>
     <script src="../JS/calendar.js" defer></script>
     <script src="../JS/members.js" defer></script>
@@ -483,14 +483,25 @@
                 <p class="page-sub">Manage the rent, the bills and the payments.</p>
             </header>
 
-            <!-- Owner rent and bills -->
+            <!-- Owner: the rent and the bills (app.js removes this block for a roomie) -->
+            <!-- The lists are empty here: expenses-owner.js asks the API and fills them -->
             <div class="expenses-owner" data-role="owner">
-                <div class="tabs">
-                    <button type="button" class="tab active" data-tab="rent">Rent</button>
-                    <button type="button" class="tab" data-tab="bills">Bills</button>
+
+                <!-- Error message of the page (hidden when everything is fine) -->
+                <p class="exp-error exp-banner" id="ownerExpensesMessage" hidden></p>
+
+                <!-- The tabs on the left, and the button of the Bills tab on the right -->
+                <div class="owner-toolbar">
+                    <div class="tabs">
+                        <button type="button" class="tab active" data-tab="rent">Rent</button>
+                        <button type="button" class="tab" data-tab="bills">Bills</button>
+                    </div>
+                    <button type="button" class="btn-add" id="openBillModal" hidden>+ Add a bill</button>
                 </div>
 
+                <!-- Tab 1: the rent -->
                 <div class="tab-panel" id="tab-rent">
+                    <!-- novalidate: the browser does not check the fields, the API does it -->
                     <form id="rentForm" class="card form-card" novalidate>
                         <div class="form-head">
                             <div>
@@ -502,25 +513,25 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="rentAmount">Total rent (€)</label>
-                                <input type="number" id="rentAmount" min="0.01" step="0.01" placeholder="e.g. 850"
-                                    required>
+                                <input type="number" id="rentAmount" min="0.01" step="0.01" placeholder="e.g. 850">
                             </div>
 
                             <div class="form-group">
-                                <label for="rentDay">Due on the</label>
-                                <input type="date" id="rentDay" min="1" max="28" value="5" required>
+                                <label for="rentDueDate">Due date</label>
+                                <input type="date" id="rentDueDate">
                             </div>
 
                             <div class="form-group">
-                                <label for="rentFrequency">Recurrence</label>
-                                <select id="rentFrequency">
-                                    <option value="NONE">None</option>
-                                    <option value="MONTHLY" selected>Every month</option>
-                                    <option value="YEARLY">Every year</option>
+                                <label for="rentRecurrence">Recurrence</label>
+                                <select id="rentRecurrence">
+                                    <option value="once">Once</option>
+                                    <option value="monthly" selected>Every month</option>
+                                    <option value="yearly">Every year</option>
                                 </select>
                             </div>
                         </div>
 
+                        <!-- One chip per roomie, created by the JS. The number is updated at each click -->
                         <fieldset class="people">
                             <legend>People concerned (<span id="rentCount">0</span>)</legend>
                             <div class="chips" id="rentMembers"></div>
@@ -529,18 +540,73 @@
                         <p class="form-error" id="rentError" hidden></p>
 
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary btn-inline">Add the rent</button>
+                            <button type="submit" class="btn btn-primary btn-inline" id="rentSubmit">Add the rent</button>
                         </div>
                     </form>
 
                     <!-- List of the published rents -->
-                    <div class="expense-list" id="rentList">
-                        <p class="list-empty">No expense published yet.</p>
-                    </div>
+                    <div class="charge-list" id="rentList"></div>
+                    <p class="list-empty" id="rentEmpty" hidden>No rent published yet.</p>
                 </div>
 
+                <!-- Tab 2: the bills -->
                 <div class="tab-panel" id="tab-bills" hidden>
-                    <p>Bills part</p>
+                    <div class="charge-list" id="billList"></div>
+                    <p class="list-empty" id="billEmpty" hidden>No bill published yet.</p>
+                </div>
+
+                <!-- Pop-up "New bill" (hidden until the owner clicks on + Add a bill) -->
+                <div class="modal-backdrop" id="billModal" hidden>
+                    <form class="exp-modal" id="billForm" novalidate>
+                        <div>
+                            <h3>New bill</h3>
+                            <p class="form-sub">The amount typed is the total to split.</p>
+                        </div>
+
+                        <div class="exp-field">
+                            <label for="billName">Description *</label>
+                            <input type="text" id="billName" maxlength="50" placeholder="e.g. Electricity, internet...">
+                        </div>
+
+                        <!-- Total and due date on the same line -->
+                        <div class="exp-row">
+                            <div class="exp-field">
+                                <label for="billAmount">Total (€) *</label>
+                                <input type="number" id="billAmount" min="0.01" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="exp-field">
+                                <label for="billDueDate">Due date *</label>
+                                <input type="date" id="billDueDate">
+                            </div>
+                        </div>
+
+                        <!-- Same block as in the rent form: one chip per roomie, created by the JS -->
+                        <fieldset class="people">
+                            <legend>People concerned (<span id="billCount">0</span>)</legend>
+                            <div class="chips" id="billMembers"></div>
+                        </fieldset>
+
+                        <!-- Error message of the pop-up (the API refused what was typed) -->
+                        <p class="exp-error" id="billError" hidden></p>
+
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelBill">Cancel</button>
+                            <button type="submit" class="btn-add" id="billSubmit">Publish</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Confirmation pop-up: asks for a confirmation before a part is marked as paid -->
+                <div class="modal-backdrop" id="ownerSettleModal" hidden>
+                    <div class="exp-modal settle-modal">
+                        <h3>Confirm the payment?</h3>
+                        <!-- The text is filled by the JS: roomie, amount, name of the charge -->
+                        <p class="settle-text" id="ownerSettleText"></p>
+                        <div class="exp-actions">
+                            <button type="button" class="btn-ghost" id="cancelOwnerSettle">Cancel</button>
+                            <button type="button" class="btn-add" id="confirmOwnerSettle">Yes, confirm</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

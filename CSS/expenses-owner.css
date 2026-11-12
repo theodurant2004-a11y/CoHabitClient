@@ -1,9 +1,19 @@
+/* ------------- Top line: tabs + button ------------- */
+/* The tabs are on the left and the button "+ Add a bill" on the right */
+.expenses-owner .owner-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    min-height: 46px;               /* same height with or without the button, so the page does not jump */
+    margin-bottom: 24px;
+}
+
 /* ------------- Tabs ------------- */
 .expenses-owner .tabs {
     display: inline-flex;
     gap: 4px;
     padding: 4px;
-    margin-bottom: 24px;
     border-radius: var(--radius-field);
     background: var(--border);
 }
@@ -152,4 +162,147 @@
     color: var(--text-muted);
     border: 1px dashed var(--border-input);
     border-radius: var(--radius-card);
+}
+
+/* ============== Charges (the published rents and bills) =========== */
+/* One card per charge, one under the other */
+.expenses-owner .charge-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* One charge = a white box with its name, its total and one line per roomie */
+.expenses-owner .charge-card {
+    padding: 20px 24px;
+    border: 1px solid var(--exp-line);
+    border-radius: 20px;
+    background: var(--surface);
+}
+
+/* The name and the due date on the left, the total on the right */
+.expenses-owner .charge-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.expenses-owner .charge-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+/* The total (same font as the titles of the app) */
+.expenses-owner .charge-total {
+    flex-shrink: 0;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--text-title);
+}
+
+/* No bullet points, a small space between the lines of the roomies */
+.expenses-owner .charge-parts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* The line of one roomie: circle, name, part, status */
+.expenses-owner .charge-part {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-field);
+    background: var(--surface-soft);
+}
+
+/* The round circle with the first letter of the roomie */
+.expenses-owner .charge-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: var(--white);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* The name takes all the free place, so the amount and the status go on the right */
+.expenses-owner .charge-part-name {
+    flex: 1;
+    min-width: 0;
+    font-weight: 500;
+}
+
+.expenses-owner .charge-part-amount {
+    font-weight: 600;
+}
+
+/* "Pending" is grey, "Payment confirmed" is green */
+.expenses-owner .charge-status {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--exp-muted);
+}
+
+.expenses-owner .charge-status-paid {
+    color: var(--exp-owed-text);
+}
+
+/* The small button "Mark as paid" of a pending line */
+.expenses-owner .btn-confirm {
+    padding: 7px 14px;
+    border: 1px solid var(--brand);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--brand);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.expenses-owner .btn-confirm:hover {
+    background: var(--brand);
+    color: var(--white);
+}
+
+/* ============== Pop-ups of the owner =========== */
+/* shoppingList.css redefines .exp-modal for every page (400px wide), so the two fields of a line do not fit
+   The pop-ups of the owner keep the size of the shared pop-up (stylesheet.css)
+   TODO : remove this block when the rule of shoppingList.css only targets its own pop-ups */
+.expenses-owner .exp-modal {
+    max-width: 520px;
+    padding: 28px;
+    border-radius: 24px;
+}
+
+.expenses-owner .settle-modal {
+    max-width: 480px;
+}
+
+/* A field never gets wider than its column (a date field is wide by default) */
+.expenses-owner .exp-field input {
+    width: 100%;
+    min-width: 0;
+}
+
+/* In the pop-up the gap of the form is enough: no extra space around the chips */
+.expenses-owner .exp-modal .people {
+    margin-top: 0;
+}
+
+.expenses-owner .exp-modal .chips {
+    margin-bottom: 0;
 }
