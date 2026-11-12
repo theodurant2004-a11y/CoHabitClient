@@ -12,6 +12,13 @@ const slActions = document.getElementById("sl-actions"); // The button to Valida
 const slSelectAll = document.getElementById("slSelectAll"); // The checkbox to Select All
 const slAddModal = document.getElementById("addItemModal"); // The pop-up to add an item
 const slValidateModal = document.getElementById("validateModal"); // The pop-up to confirm the purchases
+const slScanButton = document.getElementById("scanReceiptButton"); // The button to scan a receipt
+const slScanInput = document.getElementById("scanReceiptInput"); // The hidden input that opens the camera or the file picker
+const slScanInfo = document.getElementById("slScanInfo"); // The message with the result of the scan
+
+// The total read on the last scanned receipt (null when there is none)
+// It fills the amount of the validation pop-up, and the roomie can still change it
+let slScannedTotal = null;
 
 
 //-------------- API calls -----------------
@@ -93,6 +100,24 @@ async function slSendValidation(validation) {
     if (!response.ok) {
         await slThrowApiError(response);
     }
+}
+
+// The method to send the photo of a receipt (a JPEG in base64) to the AI of the API
+// Returns the proposal: the ids of the products found on the receipt and the total paid (null if not read)
+// Nothing changes in db with this request
+async function slSendScan(image) {
+    const response = await fetch(SL_URL + "/" + roomShare.id + "/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ image })
+    });
+
+    if (!response.ok) {
+        await slThrowApiError(response);
+    }
+
+    return await response.json();
 }
 
 // Used only when the API does not send a message
@@ -407,9 +432,124 @@ async function slSubmitValidation(event) {
     try {
         await slSendValidation({ description, amount, paidBy: user.id_person });
         slCloseModal(slValidateModal);
+        slClearScan(); // The scanned receipt is used: its total must not fill the next purchase
         await slLoadItems();
     } catch (e) {
         slShowFormError(errorText, e.message);
+    }
+}
+
+
+//-------------- Scan a receipt -----------------
+
+// Reduces the photo before sending it: 1280 px wide at most, in JPEG with a quality of 0.8
+// A photo from a phone is several MB: reduced, it is sent faster and the AI can still read the text
+// Returns the photo in base64
+async function slResizeImage(file) {
+    const image = new Image();
+    image.src = URL.createObjectURL(file); // A temporary address of the file, to load it like any image
+
+    try {
+        // Waits until the photo is loaded (it fails if the file is not an image)
+        await image.decode();
+
+        // A small photo is not enlarged: the scale is never more than 1
+        const scale = Math.min(1, 1280 / image.naturalWidth);
+
+        // The photo is drawn in a canvas that has the new size
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(image.naturalWidth * scale);
+        canvas.height = Math.round(image.naturalHeight * scale);
+
+        const context = canvas.getContext("2d");
+        context.imageSmoothingQuality = "high"; // Keeps the small text of the receipt readable
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        // toDataURL gives "data:image/jpeg;base64,xxxx": the API only wants what is after the comma
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+        return dataUrl.substring(dataUrl.indexOf(",") + 1);
+    } catch (error) {
+        throw new Error("This file cannot be read as a photo.");
+    } finally {
+        // The temporary address is not needed anymore
+        URL.revokeObjectURL(image.src);
+    }
+}
+
+// Checks the items found on the receipt, with the same request as a click on their checkbox
+// Returns how many items were checked
+async function slCheckScannedItems(productIds) {
+    let checkedCount = 0;
+
+    for (const productId of productIds) {
+        // The line of this product in the page (missing if the item was removed in the meantime)
+        const itemLi = slList.querySelector(`.sl-item[data-product-id="${productId}"]`);
+        const box = itemLi ? itemLi.querySelector(".sl-checkbox") : null;
+
+        if (box && !box.checked) {
+            box.checked = true;
+
+            try {
+                await slSendChange(productId, { status: true });
+                checkedCount++;
+            } catch (error) {
+                console.error(error.message);
+                slShowListError(error.message);
+
+                // If the API refuses, we return to the initial state
+                box.checked = false;
+            }
+        }
+    }
+
+    slUpdateProgressBar();
+    return checkedCount;
+}
+
+// Shows the result of the scan above the list
+function slShowScanInfo(checkedCount, total) {
+    let items = `${checkedCount} items checked`;
+    if (checkedCount === 0) items = "no item of the list was found";
+    if (checkedCount === 1) items = "1 item checked";
+
+    const amount = total === null ? "the total could not be read" : `total: ${total.toFixed(2)} €`;
+
+    slScanInfo.textContent = `Receipt scanned: ${items}, ${amount}. You can still change everything before validating the purchases.`;
+    slScanInfo.hidden = false;
+}
+
+// Forgets the last scan: its message and its total
+function slClearScan() {
+    slScannedTotal = null;
+    slScanInfo.hidden = true;
+}
+
+// A photo was chosen: it is reduced and sent to the API, then the proposal of the AI is applied to the page
+// Nothing is validated here: the roomie corrects the list and the amount, then validates himself
+async function slScanReceipt() {
+    const file = slScanInput.files[0];
+    slScanInput.value = ""; // The input is emptied, so the same photo can be chosen again
+
+    if (!file) return;
+
+    // During the request, the button cannot be clicked again
+    slScanButton.disabled = true;
+    slScanButton.textContent = "Scanning...";
+    slClearScan();
+
+    try {
+        const image = await slResizeImage(file);
+        const scan = await slSendScan(image);
+
+        const checkedCount = await slCheckScannedItems(scan.itemIds);
+        slScannedTotal = scan.total;
+        slShowScanInfo(checkedCount, scan.total);
+    } catch (error) {
+        console.error(error.message);
+        slShowListError(error.message);
+    } finally {
+        slScanButton.disabled = false;
+        slScanButton.textContent = "Scan receipt";
     }
 }
 
@@ -446,7 +586,16 @@ if (slList) {
     document.getElementById("openValidateModal").addEventListener("click", () => {
         slOpenModal(slValidateModal, slValidateForm,
             document.getElementById("validateError"), document.getElementById("valDescription"));
+
+        // After a scan, the amount starts with the total of the receipt (the roomie can still change it)
+        if (slScannedTotal !== null) {
+            document.getElementById("valAmount").value = slScannedTotal.toFixed(2);
+        }
     });
+
+    // The button opens the hidden input, and the scan starts when a photo is chosen
+    slScanButton.addEventListener("click", () => slScanInput.click());
+    slScanInput.addEventListener("change", slScanReceipt);
 
     slAddForm.addEventListener("submit", slSubmitNewItem);
     slValidateForm.addEventListener("submit", slSubmitValidation);

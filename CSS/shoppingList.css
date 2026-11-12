@@ -216,7 +216,34 @@
     display: flex;
     justify-content: space-between; /* Écarte les éléments : checkbox à gauche, bouton à droite */
     align-items: center;
+    flex-wrap: wrap; /* On a phone, the buttons go under the checkbox instead of leaving the screen */
+    gap: 12px;
     margin-bottom: 24px;
+}
+
+/* ================= Scan receipt ================= */
+/* The buttons on the right of the action bar: Scan receipt and Validate purchases */
+.sl-actions-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* The button cannot be clicked while the AI reads the receipt */
+#scanReceiptButton:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Result of the scan: same box as the error banner (.exp-banner), but in green */
+.sl-scan-info {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border: 1px solid var(--exp-owed-line);
+    border-radius: var(--radius-field);
+    background: var(--exp-owed-bg);
+    color: var(--exp-owed-text);
+    font-size: 0.85rem;
 }
 
 /* Le wrapper de la master checkbox */
