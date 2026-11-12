@@ -82,7 +82,7 @@ async function slSendDelete(productId) {
 
 // The method to send the JSON object with the data needed to confirm the purchases
 async function slSendValidation(validation) {
-    // Just for this method, we use the id of the person because, with the room share id, it's less efficient
+    // Just for this method, we use the id of the room share
     const response = await fetch(SL_URL + "/" + roomShare.id + "/purchases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -218,7 +218,7 @@ async function slLoadItems() {
         const checked = items.filter(item => item.found).length;
         showHomeShopping(items.length, checked);
 
-        slItemCount.textContent = items.length;
+        slItemCount.textContent = items.length === 1 ? "1 item in the list" : `${items.length} items in the list`;
 
         if (items.length === 0) {
             slEmptyArea.hidden = false;
