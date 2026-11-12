@@ -167,6 +167,37 @@ function createTaskItem(task) {
     return item;
 }
 
+// This function shows my pending tasks on the home page (the small card and the panel)
+function showHomeTasks(tasks) {
+    const countElement = document.getElementById("homeTasksCount");
+    const list = document.getElementById("homeTaskItems");
+    const emptyMessage = document.getElementById("homeTasksEmpty");
+
+    if (countElement && list && emptyMessage) {
+        const myPending = tasks.filter(task =>
+            task.status === "pending" && matchesTaskFilter(task, "mine"));
+
+        countElement.textContent = myPending.length;
+
+        list.replaceChildren();
+        myPending.slice(0, 4).forEach(task => {
+            const item = createElement("li", "home-task-item");
+            item.appendChild(createElement("span", "home-task-name", task.name));
+
+            if (task.dueDate) {
+                item.appendChild(createElement("span", "home-task-date", "Due " + formatDate(task.dueDate)));
+            }
+            list.appendChild(item);
+        });
+
+        if (myPending.length > 4) {
+            list.appendChild(createElement("li", "home-task-more", "+ " + (myPending.length - 4) + " more"));
+        }
+
+        emptyMessage.hidden = myPending.length > 0;
+    }
+}
+
 // This function shows the list of tasks, but only the ones that match the chosen filter
 function showTasks(tasks, filter) {
     const list = document.getElementById("taskItems");
@@ -428,6 +459,7 @@ async function loadTasks() {
         hideMessage("tasksMessage");     // if there was an error before, we remove it
         showTaskCounts(tasksData.tasks);
         showTasks(tasksData.tasks, currentTaskFilter);
+        showHomeTasks(tasksData.tasks);
     } catch (e) {
         console.error(e.message);
         showMessage("tasksMessage", "Unable to load the tasks right now.");
