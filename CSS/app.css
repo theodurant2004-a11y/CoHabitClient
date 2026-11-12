@@ -309,8 +309,72 @@ sidebar-title {
 /* The card "Shopping list" is the 1st one, on the same row as "Events" and "My balance"
    (grid-row: 1 because it is after them in the HTML, so it would go to the next row) */
 .home-stat-shopping {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.home-stat-tasks {
     grid-column: 1;
     grid-row: 1;
+}
+
+.home-stat-tasks .home-stat-value {
+    color: var(--brand-dark);
+}
+
+.home-panel-tasks {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.home-panel-shopping {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.home-panel-members {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.home-task-list {
+    gap: 8px;
+}
+
+.home-task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--exp-line);
+    border-radius: 14px;
+    background: var(--surface);
+}
+
+.home-task-name {
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home-task-date {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    color: var(--exp-muted);
+}
+
+.home-task-empty {
+    padding: 16px 0;
+}
+
+.home-task-more {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--exp-muted);
+    text-align: center;
 }
 
 /* The panel "Shopping list" is in the 1st column, at the same height as "Upcoming events" */
