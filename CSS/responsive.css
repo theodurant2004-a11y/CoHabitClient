@@ -19,16 +19,20 @@
     }
 
     .home-stat-balance,
-    .home-stat-events {
+    .home-stat-events,
+    .home-stat-shopping {
         grid-column: auto;
+        grid-row: auto;
     }
 
     .home-panels {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .home-panel-events {
+    .home-panel-events,
+    .home-panel-shopping {
         grid-column: auto;
+        grid-row: auto;
     }
 
     /* Expenses owner */
