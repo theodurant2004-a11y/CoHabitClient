@@ -1,0 +1,40 @@
+/*Welcome page (index.html)*/
+
+.container {
+    max-width: 560px;
+    gap: 36px;
+}
+
+.logo {
+    border-radius: 20px;
+    margin-bottom: 16px;
+}
+
+h1 {
+    font-size: 2.2rem;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+}
+
+.welcome-card {
+    padding: 40px;
+    text-align: center;
+}
+
+.welcome-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+}
+
+.welcome-card .card-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}

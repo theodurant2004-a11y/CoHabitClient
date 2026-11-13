@@ -1,0 +1,392 @@
+/* =====================================================
+   Members page
+   The class names are specific (member-*, mem-*...) so they cannot change another page
+   ===================================================== */
+
+/* Colors of this page. We put them in variables so we write each color only once
+   and we can change it in one place. The names start with mem- so they cannot be mixed up
+   with the global variables of stylesheet.css and app.css */
+:root {
+    --mem-pending-bg: #fdeeea;      /* pink: a request waiting for an answer */
+    --mem-pending-line: #f2c9bd;
+    --mem-pending-text: #c4553b;
+    --mem-accept-bg: #7fae8c;       /* green: the button "Accept" */
+    --mem-accept-hover: #6a9a77;
+    --mem-refuse-bg: #fde4e4;       /* light red: the button "Refuse" */
+    --mem-refuse-text: #c0392b;
+    --mem-muted: #8a7f7b;           /* grey of the small texts */
+    --mem-line: #e6e0dc;            /* grey of the borders */
+    --mem-badge-bg: #eef0f8;        /* the small badges "Me" and "Owner" */
+    --mem-badge-text: #4b4f73;
+}
+
+/* The two blocks of the Members page: the members (everybody) and the requests (owner) */
+.members-list,
+.members-pending {
+    margin-top: 8px;
+}
+
+/* ---------- Titles of the lists ---------- */
+/* Small uppercase title above a list, like "MEMBERS OF THE ROOMSHARE (2)" or "WAITING FOR APPROVAL (1)" */
+.members-label {
+    margin: 24px 0 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--mem-muted);
+}
+
+/* The title of the requests is in the pink of the page, like in the mockup */
+.members-label-pending {
+    color: var(--mem-pending-text);
+}
+
+/* ---------- One member (a member of the roomshare or a request) ---------- */
+/* The list itself: no bullet, one line under the other */
+.member-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+}
+
+/* One line: white card with the circle on the left, the name in the middle and the buttons on the right */
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: #fff;
+    border: 1px solid var(--mem-line);
+    border-radius: var(--radius-field);
+}
+
+/* A request is pink instead of white */
+.member-pending {
+    background: var(--mem-pending-bg);
+    border-color: var(--mem-pending-line);
+}
+
+/* The round circle with the initials (a roomie) */
+.member-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--brand);       /* the main color of the logo */
+    color: #fff;
+    font-weight: 600;
+}
+
+/* The circle of the owner has the accent color, so we find him quickly in the list */
+.member-avatar-owner {
+    background: var(--accent);
+}
+
+/* The circle of a request is lighter: he is not a member yet */
+.member-avatar-pending {
+    background: var(--text-light);
+}
+
+/* The name and the small line under it */
+.member-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* The name and the badges are on the same line */
+.member-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.member-meta {
+    font-size: 0.85rem;
+    color: var(--mem-muted);
+}
+
+/* The small badges "Me" and "Owner" */
+.member-badge {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--mem-badge-bg);
+    color: var(--mem-badge-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ---------- Buttons ---------- */
+/* margin-left: auto pushes the buttons to the right of the line */
+.member-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* What the buttons have in common (the color is set below) */
+.btn-accept,
+.btn-refuse,
+.btn-remove {
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 10px;
+    font: inherit;                  /* a button does not use the font of the page by default */
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-accept {
+    background: var(--mem-accept-bg);
+    color: #fff;
+}
+
+.btn-accept:hover {
+    background: var(--mem-accept-hover);
+}
+
+.btn-refuse {
+    background: var(--mem-refuse-bg);
+    color: var(--mem-refuse-text);
+}
+
+.btn-refuse:hover {
+    opacity: 0.85;
+}
+
+/* "Remove" (owner only, on the line of a roomie): white with a red text, less strong than "Refuse"
+   because it is on a white line and we do not want the list to look red */
+.btn-remove {
+    background: #fff;
+    border: 1px solid var(--mem-refuse-bg);
+    color: var(--mem-refuse-text);
+}
+
+.btn-remove:hover {
+    background: var(--mem-refuse-bg);
+}
+
+/* ---------- Messages ---------- */
+/* The message "No request for now" */
+.members-empty {
+    padding: 16px 0;
+    color: var(--mem-muted);
+    font-size: 0.9rem;
+}
+
+/* The error message */
+.members-message {
+    margin-top: 12px;
+    color: var(--mem-refuse-text);
+    font-size: 0.9rem;
+}
+
+/* ---------- Pop-up "Remove ...?" ---------- */
+/* The dark background that covers all the page (same look as the pop-up of the expenses) */
+.member-modal-backdrop {
+    position: fixed;
+    inset: 0;                       /* shortcut for top, right, bottom and left = 0 */
+    z-index: 50;                    /* above the sidebar and the page */
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(26, 22, 18, 0.45);
+}
+
+/* The white box in the middle */
+.member-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+    padding: 32px 28px 24px;
+    border-radius: var(--radius-card);
+    background: #fff;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* The circle with the initials: bigger than in the list, with a light red ring around */
+.member-modal-avatar {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 6px;
+    font-size: 1.3rem;
+    box-shadow: 0 0 0 6px var(--mem-refuse-bg);
+}
+
+.member-modal h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--text-title);
+}
+
+.member-modal-text {
+    color: var(--text);
+}
+
+/* The small grey line that says the account is kept */
+.member-modal-note {
+    font-size: 0.85rem;
+    color: var(--mem-muted);
+}
+
+/* The two buttons take the same width, one next to the other */
+.member-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    margin-top: 14px;
+}
+
+.btn-cancel,
+.btn-confirm-remove {
+    padding: 12px;
+    border-radius: var(--radius-field);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+/* "Cancel": white with a grey border, less important */
+.btn-cancel {
+    background: #fff;
+    border: 1px solid var(--mem-line);
+    color: var(--mem-muted);
+}
+
+.btn-cancel:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+}
+
+/* The red button: it is the dangerous action, so it is the strongest color of the pop-up */
+.btn-confirm-remove {
+    background: var(--mem-refuse-text);
+    border: 1px solid var(--mem-refuse-text);
+    color: #fff;
+}
+
+.btn-confirm-remove:hover {
+    opacity: 0.9;
+}
+
+/* ---------- Pop-up "You are no longer a member" (roomie removed) ---------- */
+/* Only one button, so it takes all the width */
+.member-modal-single {
+    grid-template-columns: 1fr;
+}
+
+/* The button "Sign in again": the main color of the app, it is the only way out of the pop-up */
+.btn-sign-in-again {
+    padding: 12px;
+    border: 0;
+    border-radius: var(--radius-field);
+    background: var(--brand);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-sign-in-again:hover {
+    opacity: 0.9;
+}
+
+/* ---------- Small screen ---------- */
+/* The buttons go under the name, so the line is not too long */
+@media (max-width: 600px) {
+    .member-item {
+        flex-wrap: wrap;
+    }
+
+    .member-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+/* ---------- Card "Members" of the home page ---------- */
+/* In the 2nd column, under the card "Upcoming events" (the grid puts it on the next row) */
+.home-panel-members {
+    grid-column: 2;
+}
+
+/* In the grid of the home page, the space between the cards is given by the gap of the grid,
+   so the margin under each card (from .exp-panel) is not needed there */
+.home-panels .exp-panel {
+    margin-bottom: 0;
+}
+
+/* The list: no bullet, one member under the other */
+.home-member-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    list-style: none;
+}
+
+/* One line: the circle on the left, the name in the middle, "Me" on the right */
+.home-member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.home-member-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* The 4 colors of the circles (a member always gets the same one, see members.js) */
+.home-member-color-0 { background: #3f7f74; }   /* green */
+.home-member-color-1 { background: #c25b72; }   /* pink */
+.home-member-color-2 { background: #5b5fb0; }   /* blue */
+.home-member-color-3 { background: #c97b3a; }   /* orange */
+
+/* The name and the role under it */
+.home-member-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.home-member-name {
+    font-weight: 600;
+}
+
+.home-member-role {
+    font-size: 0.8rem;
+    color: var(--mem-muted);
+}
+
+/* margin-left: auto pushes "Me" to the right of the line */
+.home-member-me {
+    margin-left: auto;
+}
+
+/* "+ 2 more members" under the list */
+.home-members-more {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: var(--mem-muted);
+}

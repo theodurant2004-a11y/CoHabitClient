@@ -1,0 +1,231 @@
+/* =====================================================
+   Calendar page
+   It reuses the cards, buttons and pop-up of stylesheet.css.
+   Here there is only what is specific to the calendar.
+   ===================================================== */
+/* One color per type of event */
+/* ---------- The two cards ---------- */
+.calendar-layout {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 20px;
+    align-items: start;
+}
+
+/* min-width: 0 so a long title cannot make a card wider than its column */
+.calendar-card {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+/* ---------- Month and arrows ---------- */
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.exp-panel .calendar-nav h3 {
+    margin-bottom: 0;
+}
+
+.calendar-arrow {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--exp-line);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text-label);
+    font: inherit;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.calendar-arrow:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+}
+
+/* ---------- The grid: 7 columns, from Monday to Sunday ---------- */
+.calendar-weekdays,
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.calendar-weekdays {
+    margin-bottom: 6px;
+    color: var(--exp-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.calendar-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-height: 54px;
+    padding: 7px 2px 5px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.calendar-cell:hover {
+    background: var(--surface-soft);
+    border-color: var(--exp-line);
+}
+
+/* Today: filled number, always visible even when another day is selected */
+.calendar-number {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+}
+
+.calendar-today .calendar-number {
+    background: var(--exp-primary);
+    color: var(--white);
+    font-weight: 600;
+}
+
+/* The clicked day */
+.calendar-selected,
+.calendar-selected:hover {
+    background: var(--brand-soft);
+    border-color: var(--brand);
+}
+
+/* ---------- The points under a day ---------- */
+.calendar-dots {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    min-height: 7px;
+}
+
+.calendar-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cal-other);
+}
+
+.calendar-dot-social { background: var(--cal-social); }
+
+.calendar-dot-meeting { background: var(--cal-meeting); }
+
+.calendar-dot-visit { background: var(--cal-visit); }
+
+.calendar-dot-task { background: var(--cal-task); }
+
+.calendar-dot-other { background: var(--cal-other); }
+
+/* ---------- Events of the clicked day ---------- */
+.calendar-day {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--exp-line);
+}
+
+.calendar-day-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.calendar-day-add {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+}
+
+/* ---------- The icons of the types ---------- */
+/* Same drawing style as the icons of the sidebar: lines, no fill */
+.event-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Each icon takes the color of its type, like the points under the days */
+.event-icon-social { color: var(--cal-social); }
+
+.event-icon-meeting { color: var(--cal-meeting); }
+
+.event-icon-visit { color: var(--cal-visit); }
+
+.event-icon-task { color: var(--cal-task); }
+
+.event-icon-other { color: var(--cal-other); }
+
+/* In the buttons of the form the icon is smaller, and white when the button is selected */
+.chip-icon {
+    display: flex;
+}
+
+.chip-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.chip.active .chip-icon {
+    color: var(--white);
+}
+
+/* ---------- One event ---------- */
+.calendar-event {
+    align-items: flex-start;
+}
+
+/* A long title without spaces goes to the next line instead of leaving the card */
+.calendar-event .expense-main {
+    overflow-wrap: anywhere;
+}
+
+.calendar-empty {
+    padding: 24px 0;
+}
+
+/* ---------- Pop-up ---------- */
+.exp-field textarea {
+    padding: 12px 14px;
+    border: 1px solid var(--exp-line);
+    border-radius: var(--radius-field);
+    background: var(--surface-soft);
+    font: inherit;
+    resize: vertical;
+}
+
+/* .chips has a margin for the pages. In the form, the gap of the field is enough */
+.calendar-chips {
+    margin-bottom: 0;
+}
+
+
+.exp-field .calendar-everyone {
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+}

@@ -1,0 +1,552 @@
+/*Global css*/
+
+/* Variables */
+:root {
+    /* Here i put tht main color, it's taken from the logo and its variants */
+    --brand: #7C5F63;
+    --brand-dark: #694F53;
+    --brand-soft: rgba(124, 95, 99, 0.15);
+
+    /* Accent color for the links */
+    --accent: #c5644d;
+    --accent-dark: #a84d37;
+
+    /* For the backgrounds and borders */
+    --bg: #f8f5f0;
+    --surface: #ffffff;
+    --surface-soft: #faf9f7;
+    --border: #ebe5df;
+    --border-input: #e4ded8;
+
+    /* Text colors */
+    --text: #1a1612;
+    --text-title: #222;
+    --text-muted: #8a7f7f;
+    --text-light: #a89a9a;
+    --text-label: #7a6f6f;
+
+    /* Shapes and animation */
+    --radius-card: 24px;
+    --radius-field: 14px;
+    --transition: all 0.25s ease;
+
+    --exp-owe-bg: #fdeeea;          /* pink: what I owe */
+    --exp-owe-line: #f2c9bd;
+    --exp-owe-text: #c4553b;
+    --exp-owed-bg: #edf6f1;         /* green: what I am owed */
+    --exp-owed-line: #bfe0cf;
+    --exp-owed-text: #2f7d5b;
+    --exp-muted: #8a7f7b;           /* grey of the small texts */
+    --exp-line: #e6e0dc;            /* grey of the borders */
+    --exp-primary: var(--sidebar-bg);   /* main color of the buttons = same as the sidebar */
+
+    /* Sidebar */
+    --sidebar-bg: var(--brand-dark);
+    --sidebar-active: var(--accent);
+    --sidebar-soft: rgba(255, 255, 255, 0.08);
+    --sidebar-line: rgba(255, 255, 255, 0.12);
+    --on-dark-60: rgba(255, 255, 255, 0.6);
+    --on-dark-65: rgba(255, 255, 255, 0.65);
+    --on-dark-70: rgba(255, 255, 255, 0.7);
+    --on-dark-80: rgba(255, 255, 255, 0.8);
+    --copied: #9be3b9;
+
+    /* One color per type of event */
+    --cal-social: var(--accent);
+    --cal-meeting: #3f7cac;
+    --cal-visit: var(--exp-owed-text);
+    --cal-task: var(--warning-text);
+    --cal-other: var(--text-muted);
+
+    /* Other colors */
+    --white: #fff;
+    --accent-soft: rgba(197, 100, 77, 0.1);
+    --text-soft: #5f5a56;
+    --text-strong: #2b2b2b;
+    --text-dark: #1f1a1a;
+    --text-home-sub: #7a746e;
+    --text-secondary: #6b6060;
+    --text-link: #666;
+    --text-hover: #555;
+    --placeholder: #a39a9a;
+    --border-home: #ebe5de;
+    --warning-bg: #fff1dc;
+    --warning-text: #b36a12;
+    --error-bg: #fdecea;
+    --error-text: #c0392b;
+    --tabs-bg: #efeae6;
+    --icon-bg: #f3eeea;
+    --bar-bg: #e7e1dd;
+    --backdrop: rgba(0, 0, 0, 0.45);
+    --shadow-home: rgba(0, 0, 0, 0.04);
+    --shadow-card: rgba(0, 0, 0, 0.05);
+    --shadow-tab: rgba(0, 0, 0, 0.08);
+    --shadow-logo: rgba(0, 0, 0, 0.1);
+    --radius-pill: 999px;
+}
+
+/* Reset : removes the default margins and makes sizes easier to compute*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* In the layout, the content is centered in the middle of the screen  */
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+main {
+    width: 100%;
+}
+
+footer {
+    text-align: center;
+}
+
+/* Header : logo, name and subtitle */
+header {
+    text-align: center;
+}
+
+.logo {
+    width: 84px;
+    height: 84px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px var(--shadow-logo);
+}
+
+h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--brand);
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+/* Card */
+.card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: 0 2px 16px var(--shadow-card);
+}
+
+.card h2 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.7rem;
+    font-weight: 400;
+    color: var(--text-title);
+    margin-bottom: 4px;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+/* Forms */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-label);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-field);
+    font-size: 0.95rem;
+    font-family: inherit;
+    background-color: var(--surface-soft);
+    transition: var(--transition);
+}
+
+.form-group input::placeholder {
+    color: var(--placeholder);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--brand);
+    background-color: var(--surface);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+/* Buttons */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-field);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background-color: var(--brand);
+    color: var(--white);
+    border: 1px solid var(--brand);
+}
+
+.btn-primary:hover {
+    background-color: var(--brand-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--brand-soft);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background-color: var(--surface-soft);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-input);
+}
+
+.btn-secondary:hover {
+    background-color: var(--surface);
+    border-color: var(--brand);
+    color: var(--brand);
+}
+
+/* Links */
+.switch-link {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-link);
+    margin-top: 20px;
+}
+
+.switch-link a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.switch-link a:hover {
+    color: var(--accent-dark);
+}
+
+.btn-back {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.btn-back:hover {
+    color: var(--text-hover);
+}
+
+
+
+/* ================= Shared components (app pages) ================= */
+
+/* ---------- Top line: summary + button ---------- */
+/* The summary is on the left and the "+ Add" button on the right */
+.expenses-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.expenses-summary {
+    color: var(--exp-muted);
+}
+
+/* The main button (also used for "Add" in the pop-up) */
+.btn-add {
+    padding: 12px 20px;
+    border: 0;
+    border-radius: var(--radius-field);
+    background: var(--exp-primary);
+    color: var(--white);
+    font: inherit;                  /* a button does not use the font of the page by default */
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-add:hover {
+    opacity: 0.9;
+}
+
+.btn-add:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* The second button (Cancel): white with a border so it is less important than "Add" */
+.btn-ghost {
+    padding: 12px 20px;
+    border: 1px solid var(--exp-line);
+    border-radius: var(--radius-field);
+    background: var(--surface);
+    color: var(--exp-muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ---------- Filters (All / Pending / Settled) ---------- */
+/* .chips is the row that contains the round buttons. It is also used in the pop-up */
+.chips {
+    display: flex;
+    flex-wrap: wrap;                /* if there is not enough place, the buttons go on the next line */
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-pill);
+    background: var(--surface-soft);
+    color: var(--exp-muted);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+/* The chosen filter is filled with the main color */
+.chip.active {
+    background: var(--exp-primary);
+    border-color: var(--exp-primary);
+    color: var(--white);
+}
+
+/* ---------- The list ---------- */
+/* We remove the bullet points of the <ul> and we put a space between the lines */
+.expense-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* One expense = one white box with 3 parts: icon, text, amount */
+.expense-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--exp-line);
+    border-radius: 16px;
+    background: var(--surface);
+}
+
+/* The square with the emoji of the category. flex-shrink: 0 so it never gets smaller */
+.expense-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--icon-bg);
+    font-size: 1.2rem;
+}
+
+/* The text takes all the free place (flex: 1) and min-width: 0 lets a long description
+   be cut instead of pushing the amount outside of the box */
+.expense-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+/* The main text of a line (expense or event) */
+.expense-title {
+    font-weight: 700;
+}
+
+.expense-meta {
+    font-size: 0.8rem;
+    color: var(--exp-muted);
+}
+
+/* The message "No expense" and "Everything is balanced" */
+.expenses-empty {
+    padding: 40px 0;
+    text-align: center;
+    color: var(--exp-muted);
+}
+
+/* ---------- Balances tab ---------- */
+/* A white box with a title inside (one for the balances, one for the refunds) */
+.exp-panel {
+    margin-bottom: 20px;
+    padding: 20px 24px;
+    border: 1px solid var(--exp-line);
+    border-radius: 20px;
+    background: var(--surface);
+}
+
+.exp-panel h3 {
+    margin-bottom: 16px;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
+/* ---------- Pop-up "New expense" ---------- */
+/* The dark background that covers the whole screen. position: fixed so it stays in place
+   even if the page is scrolled, and z-index puts it above everything else.
+   The white box is centered thanks to the grid */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;                       /* shortcut for top, right, bottom and left = 0 */
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: var(--backdrop);
+}
+
+/* The white box. max-height + overflow-y so it can scroll on a small screen */
+.exp-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    padding: 28px;
+    border-radius: 24px;
+    background: var(--surface);
+    overflow-y: auto;
+}
+
+.exp-modal h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+}
+
+/* Two fields on the same line (amount + date, paid by + category) */
+.exp-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* One field = its label above its input */
+.exp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.exp-field label,
+.exp-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--exp-muted);
+}
+
+.exp-field input,
+.exp-field select {
+    padding: 12px 14px;
+    border: 1px solid var(--exp-line);
+    border-radius: var(--radius-field);
+    background: var(--surface-soft);
+    font: inherit;
+}
+
+/* One button per roomie in "Split between". It is faded when it is not selected
+   (the class "selected" is added or removed by the JS at each click) */
+.chip-member {
+    padding: 6px 14px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    color: var(--white);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.35;
+    cursor: pointer;
+}
+
+.chip-member.selected {
+    opacity: 1;
+}
+
+/* The red error message (in the pop-up and in the page) */
+.exp-error {
+    color: var(--exp-owe-text);
+    font-size: 0.85rem;
+}
+
+/* The two buttons Cancel / Add, with the same width */
+.exp-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* ---------- Error message of the page ---------- */
+/* Same red text as .exp-error, but with a pink box around it
+   (it is shown when the API does not answer) */
+.exp-banner {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border: 1px solid var(--exp-owe-line);
+    border-radius: var(--radius-field);
+    background: var(--exp-owe-bg);
+}

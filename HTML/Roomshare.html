@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoHabit - Your roomshare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/stylesheet.css">
+    <link rel="stylesheet" href="../CSS/roomshare.css">
+    <link rel="stylesheet" href="../CSS/responsive.css">
+
+    <script src="../JS/config.js"></script>
+    <script src="../JS/base.js" defer></script>
+    <script src="../JS/roomshare.js" defer></script>
+</head>
+<body>
+<div class="container">
+    <header>
+        <img src="../IMG/logo-cohabit.png" alt="CoHabit Logo" class="logo">
+        <h1>CoHabit</h1>
+        <p class="subtitle">Roomshare manager</p>
+    </header>
+
+    <main>
+        <div class="card roomshare-card">
+
+            <!-- Owner : create the roomshare. Both sections are hidden: roomshare.js shows the one matching the role -->
+            <section id="ownerSection" hidden>
+                <h2>Create your roomshare</h2>
+                <p class="card-subtitle">You don't have a roomshare yet. Create one to get started.</p>
+
+                <form id="ownerForm">
+                    <div class="form-group">
+                        <label for="roomshareName">ROOMSHARE NAME</label>
+                        <input type="text" id="roomshareName" name="roomshareName" placeholder="e.g. Belleville Apartment" maxlength="100" required>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="button" id="signOutOwner" class="btn btn-secondary">Sign out</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Roomie : join a roomshare with the invitation key given by the owner -->
+            <section id="roomieSection" hidden>
+                <h2>Join a roomshare</h2>
+                <p class="card-subtitle">Ask your owner for the invitation key</p>
+
+                <form id="roomieForm">
+                    <div class="form-group">
+                        <label for="invitationKey">INVITATION KEY (6 CHARACTERS)</label>
+                        <input type="text" id="invitationKey" name="invitationKey" class="key-input" placeholder="ABCDEF" maxlength="6" autocomplete="off" required>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Send request</button>
+                        <button type="button" id="signOutRoomie" class="btn btn-secondary">Sign out</button>
+                    </div>
+                </form>
+            </section>
+            <!-- Roomie : the request was sent but the owner did not answer yet. roomshare.js shows it when the status is pending -->
+            <section id="pendingSection" hidden>
+                <h2>Request pending</h2>
+                <p class="card-subtitle" id="pendingMessage"></p>
+                <p class="card-subtitle">Sign in again when the owner has accepted your request.</p>
+
+                <div class="actions">
+                    <button type="button" id="signOutPending" class="btn btn-secondary">Sign out</button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<!-- Pop-up "Request sent". Hidden by default: roomshare.js shows it when the API accepted the request -->
+<div class="rs-modal-backdrop" id="requestSentModal" hidden>
+    <div class="rs-modal" role="dialog" aria-modal="true" aria-labelledby="requestSentTitle">
+        <!-- Green circle with a check mark -->
+        <span class="rs-modal-icon" aria-hidden="true">✓</span>
+
+        <h3 id="requestSentTitle">Request sent!</h3>
+        <p class="rs-modal-text">Wait for the owner to accept it.</p>
+        <p class="rs-modal-note">Sign in again when the owner has accepted your request.</p>
+
+        <button type="button" class="btn btn-primary" id="requestSentOk">OK</button>
+    </div>
+</div>
+</body>
+</html>
